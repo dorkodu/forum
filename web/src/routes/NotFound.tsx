@@ -1,6 +1,8 @@
 function NotFound() {
   return (
-    <>not found</>
+    <>
+      not found
+    </>
   )
 }
 

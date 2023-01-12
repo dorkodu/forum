@@ -1,4 +1,4 @@
-import create from "zustand"
+import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
 import { changeDateLanguage } from "../lib/date"
 import i18n from "../lib/i18n"
