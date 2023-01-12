@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "docker:build:prod": "docker compose -f docker-compose.prod.yml build",
+    "docker:build:dev": "docker compose -f docker-compose.dev.yml build",
+    "docker:dev": "docker compose -f docker-compose.dev.yml up",
+    "docker:dev:api": "docker exec -it id_dev-id_api-1 /bin/sh",
+    "docker:dev:web": "docker exec -it id_dev-id_web-1 /bin/sh",
+    "docker:dev:postgres": "docker exec -it id_dev-id_postgres-1 psql -U postgres",
+    "docker:dev:keydb": "docker exec -it id_dev-id_keydb-1 keydb-cli"
+  }
+}

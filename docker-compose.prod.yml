@@ -1,0 +1,61 @@
+version: '3.8'
+name: cherno_prod
+
+services:
+  cherno_api:
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile.prod
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=production
+      - VIRTUAL_HOST=${VIRTUAL_HOST:-cherno.dorkodu.com}
+      - VIRTUAL_PORT=${API_PORT:-8003}
+      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST:-cherno.dorkodu.com}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-cherno@dorkodu.com}
+      - VIRTUAL_PATH=/api
+    expose:
+      - ${API_PORT:-8003}
+    restart: always
+    networks:
+      - app
+      - nginx-proxy
+
+  cherno_web:
+    build:
+      context: .
+      dockerfile: ./web/Dockerfile.prod
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=production
+
+  cherno_postgres:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-cherno}
+      - PGPORT=${PGPORT:-7001}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - app
+
+  cherno_keydb:
+    image: eqalpha/keydb:x86_64_v6.3.1
+    volumes:
+      - ./keydb/keydb.conf:/etc/keydb/keydb.conf
+    restart: always
+    networks:
+      - app
+
+volumes:
+  pgdata:
+
+networks:
+  nginx-proxy:
+    external: true
+  app:
