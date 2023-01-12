@@ -1,0 +1,6 @@
+.pnpm-store
+node_modules
+Dockerfile*
+.dockerignore
+dist
+dev-dist
