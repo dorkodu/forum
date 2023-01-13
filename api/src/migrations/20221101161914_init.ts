@@ -4,26 +4,44 @@ export async function up(knex: Knex): Promise<void> {
   return knex.schema
     .createTable("users", (table) => {
       table.bigint("id").primary()
+      table.string("name", 64)
       table.string("username", 16).unique()
-      table.string("email", 320).unique()
-      table.binary("password", 60)
       table.bigint("joined_at")
     })
-
-    .createTable("sessions", (table) => {
+    .createTable("discussions", (table) => {
       table.bigint("id").primary()
       table.bigint("user_id")
-      table.binary("selector", 32).unique()
-      table.binary("validator", 32)
-      table.bigint("created_at")
-      table.bigint("expires_at")
-      table.string("user_agent", 256)
-      table.specificType("ip", "inet")
+      table.bigint("date")
+      table.string("readme", 100000)
+    })
+    .createTable("comments", (table) => {
+      table.bigint("id").primary()
+      table.bigint("user_id")
+      table.bigint("date")
+      table.string("content", 500)
+    })
+    .createTable("arguments", (table) => {
+      table.bigint("id").primary()
+      table.bigint("user_id")
+      table.boolean("type")
+      table.bigint("date")
+      table.string("content", 500)
+      table.bigint("votes")
+    })
+    .createTable("argument_votes", (table) => {
+      table.bigint("id").primary()
+      table.bigint("user_id")
+      table.bigint("argument_id")
+      table.boolean("type")
+      table.unique(["user_id", "argument_id"])
     })
 }
 
 export async function down(knex: Knex): Promise<void> {
   return knex.schema
     .dropTable("users")
-    .dropTable("sessions")
+    .dropTable("discussions")
+    .dropTable("comments")
+    .dropTable("arguments")
+    .dropTable("argument_votes")
 }
