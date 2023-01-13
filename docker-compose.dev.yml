@@ -70,18 +70,6 @@ services:
     networks:
       - app
 
-  cherno_mailslurper:
-    image: marcopas/docker-mailslurper
-    volumes:
-      - ./mailslurper/config.json:/opt/mailslurper/config.json
-    ports:
-      - "2500:2500"
-      - "8080:8080"
-      - "8085:8085"
-    restart: always
-    networks:
-      - app
-
 volumes:
   pgdata:
   api_node_modules:
