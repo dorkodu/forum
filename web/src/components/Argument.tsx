@@ -2,6 +2,7 @@ import { useState } from "react"
 
 function Argument() {
   const [vote, setVote] = useState<"none" | "up" | "down">("none")
+
   return (
     <>
       <div>
@@ -15,8 +16,8 @@ function Argument() {
       <div>
         <span>votes: 123</span>
         &nbsp;
-        <button onClick={() => { setVote("up") }}>upvote</button>
-        <button onClick={() => { setVote("down") }}>downvote</button>
+        <button onClick={() => { setVote(vote === "up" ? "none" : "up") }}>upvote</button>
+        <button onClick={() => { setVote(vote === "down" ? "none" : "down") }}>downvote</button>
         &nbsp;
         <span>{vote}</span>
       </div>
