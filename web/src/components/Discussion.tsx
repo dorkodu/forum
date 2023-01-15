@@ -3,6 +3,7 @@ import Argument from "./Argument";
 import Comment from "./Comment"
 
 function Discussion() {
+  const [favourite, setFavourite] = useState(false);
   const [showing, setShowing] = useState<"comments" | "arguments">("arguments");
   const [time, setTime] = useState<"asc" | "desc">("desc");
   const [type, setType] = useState<"any" | "positive" | "negative">("any");
@@ -21,6 +22,10 @@ function Discussion() {
         <span>16h</span>
         <div>is milk white or black?</div>
         <div>
+          <button onClick={() => { setFavourite(!favourite) }}>{favourite ? "unfavourite" : "favourite"}</button>
+          &nbsp;
+          <span>favourites: 123</span>
+          &nbsp;
           <span>arguments: 123</span>
           &nbsp;
           <span>comments: 123</span>
