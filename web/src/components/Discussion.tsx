@@ -1,9 +1,9 @@
 import { useState } from "react"
 import Argument from "./Argument";
 import Comment from "./Comment"
+import DiscussionSummary from "./DiscussionSummary";
 
 function Discussion() {
-  const [favourite, setFavourite] = useState(false);
   const [showing, setShowing] = useState<"comments" | "arguments">("arguments");
   const [time, setTime] = useState<"asc" | "desc">("desc");
   const [type, setType] = useState<"any" | "positive" | "negative">("any");
@@ -14,23 +14,7 @@ function Discussion() {
 
   return (
     <>
-      <div>
-        <span>Berk Cambaz</span>
-        &nbsp;
-        <span>@berkcambaz</span>
-        &nbsp;
-        <span>16h</span>
-        <div>is milk white or black?</div>
-        <div>
-          <button onClick={() => { setFavourite(!favourite) }}>{favourite ? "unfavourite" : "favourite"}</button>
-          &nbsp;
-          <span>favourites: 123</span>
-          &nbsp;
-          <span>arguments: 123</span>
-          &nbsp;
-          <span>comments: 123</span>
-        </div>
-      </div>
+      <DiscussionSummary />
 
       <hr />
 
