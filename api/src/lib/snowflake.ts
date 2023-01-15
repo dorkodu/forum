@@ -57,13 +57,12 @@ class Snowflake {
 
 const generators = {
   "users": new Snowflake(),
-  "sessions": new Snowflake(),
-
-  "email_verify_login": new Snowflake(),
-  "email_verify_signup": new Snowflake(),
-  "email_confirm_email": new Snowflake(),
-  "email_revert_email": new Snowflake(),
-  "email_change_password": new Snowflake(),
+  "user_follows": new Snowflake(),
+  
+  "discussions": new Snowflake(),
+  "discussion_comments": new Snowflake(),
+  "discussion_arguments": new Snowflake(),
+  "argument_votes": new Snowflake(),
 }
 
 function id(generator: keyof typeof generators) {
