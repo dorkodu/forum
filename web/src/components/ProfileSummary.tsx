@@ -1,7 +1,11 @@
+import { useNavigate } from "react-router-dom"
+
 function ProfileSummary() {
+  const navigate = useNavigate();
+
   return (
     <>
-      <div>
+      <div onClick={() => { navigate("/profile/123") }}>
         <span>Berk Cambaz</span>
         &nbsp;
         <span>@berkcambaz</span>
