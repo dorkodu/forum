@@ -6,10 +6,10 @@ import RequireAuth from "../components/RequireAuth";
 
 const Welcome = React.lazy(() => import("./Welcome"));
 const Home = React.lazy(() => import("./Home"));
-const Profile = React.lazy(() => import("./Profile"));
 const Discussion = React.lazy(() => import("./Discussion"));
-const Follower = React.lazy(() => import("./Follower"));
-const Following = React.lazy(() => import("./Following"));
+const Profile = React.lazy(() => import("./profile/Profile"));
+const Follower = React.lazy(() => import("./profile/Follower"));
+const Following = React.lazy(() => import("./profile/Following"));
 const DorkoduID = React.lazy(() => import("./DorkoduID"));
 const NotFound = React.lazy(() => import("./NotFound"));
 

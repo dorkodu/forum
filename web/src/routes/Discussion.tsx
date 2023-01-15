@@ -1,9 +1,11 @@
-function Discussion() {
+import Discussion from "../components/Discussion"
+
+function DiscussionRoute() {
   return (
     <>
-      discussion
+      <Discussion />
     </>
   )
 }
 
-export default Discussion
+export default DiscussionRoute
