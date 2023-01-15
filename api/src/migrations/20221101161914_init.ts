@@ -7,25 +7,36 @@ export async function up(knex: Knex): Promise<void> {
       table.string("name", 64)
       table.string("username", 16).unique()
       table.bigint("joined_at")
+      table.bigint("follower_count")
+      table.bigint("following_count")
     })
+    .createTable("user_follows", (table) => {
+      table.bigint("id").primary()
+      table.bigint("follower_id")
+      table.bigint("following_id")
+      table.unique(["follower_id", "following_id"])
+    })
+
     .createTable("discussions", (table) => {
       table.bigint("id").primary()
       table.bigint("user_id")
       table.bigint("date")
       table.string("readme", 100000)
     })
-    .createTable("comments", (table) => {
+    .createTable("discussion_comments", (table) => {
       table.bigint("id").primary()
       table.bigint("user_id")
+      table.bigint("discussion_id")
       table.bigint("date")
       table.string("content", 500)
     })
-    .createTable("arguments", (table) => {
+    .createTable("discussion_arguments", (table) => {
       table.bigint("id").primary()
       table.bigint("user_id")
-      table.boolean("type")
+      table.bigint("discussion_id")
       table.bigint("date")
       table.string("content", 500)
+      table.boolean("type")
       table.bigint("votes")
     })
     .createTable("argument_votes", (table) => {
@@ -40,8 +51,10 @@ export async function up(knex: Knex): Promise<void> {
 export async function down(knex: Knex): Promise<void> {
   return knex.schema
     .dropTable("users")
+    .dropTable("user_follows")
+    
     .dropTable("discussions")
-    .dropTable("comments")
-    .dropTable("arguments")
+    .dropTable("discussion_comments")
+    .dropTable("discussion_arguments")
     .dropTable("argument_votes")
 }
