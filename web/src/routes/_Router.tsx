@@ -18,8 +18,8 @@ function Router() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />}>
-          {/* Navigate to "/welcome" on path "/" */}
-          <Route index element={<Navigate to="/welcome" />} />
+          {/* Navigate to "/home" on path "/" */}
+          <Route index element={<Navigate to="/home" />} />
 
           {/* Routes that don't require authentication */}
           <Route path="/welcome" element={<Welcome />} />
