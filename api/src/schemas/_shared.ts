@@ -8,6 +8,8 @@ const bio = z.string().max(500);
 
 const title = z.string().max(100);
 const readme = z.string().max(100000);
+const commentContent = z.string().max(500);
+const argumentContent = z.string().max(500);
 
 const token = z.string();
 const code = z.string();
@@ -26,6 +28,8 @@ export const sharedSchemas = {
 
   title,
   readme,
+  commentContent,
+  argumentContent,
 
   token,
   code,
