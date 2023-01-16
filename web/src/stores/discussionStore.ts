@@ -1,9 +1,22 @@
 import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
 import { request, sage } from "./api";
+import type { IDiscussion } from "@api/types/discussion";
+import type { IArgument } from "@api/types/argument";
+import type { IComment } from "@api/types/comment";
 
 interface State {
+  discussion: {
+    entities: { [key: string]: IDiscussion }
+  }
 
+  argument: {
+    entities: { [key: string]: IArgument }
+  }
+
+  comment: {
+    entities: { [key: string]: IComment }
+  }
 }
 
 interface Action {
@@ -17,21 +30,23 @@ interface Action {
   queryGetUserDiscussionFeed: () => Promise<boolean>;
   queryGetGuestDiscussionFeed: () => Promise<boolean>;
 
-  queryCreateComment: () => Promise<boolean>;
-  queryDeleteComment: () => Promise<boolean>;
-  queryGetComments: () => Promise<boolean>;
-
   queryCreateArgument: () => Promise<boolean>;
   queryDeleteArgument: () => Promise<boolean>;
   queryGetArguments: () => Promise<boolean>;
   queryVoteArgument: () => Promise<boolean>;
+
+  queryCreateComment: () => Promise<boolean>;
+  queryDeleteComment: () => Promise<boolean>;
+  queryGetComments: () => Promise<boolean>;
 }
 
 const initialState: State = {
-
+  discussion: { entities: {} },
+  argument: { entities: {} },
+  comment: { entities: {} },
 }
 
-export const useDiscussionStore = create(immer<State & Action>((_set, _get) => ({
+export const useDiscussionStore = create(immer<State & Action>((set, _get) => ({
   ...initialState,
 
   queryCreateDiscussion: async (title, readme) => {
@@ -41,6 +56,13 @@ export const useDiscussionStore = create(immer<State & Action>((_set, _get) => (
     )
 
     const status = !(!res?.a.data || res.a.error);
+    const discussion = res?.a.data;
+
+    set(state => {
+      if (!discussion) return;
+      state.discussion.entities[discussion.id] = discussion;
+    })
+
     return status;
   },
 
@@ -68,18 +90,6 @@ export const useDiscussionStore = create(immer<State & Action>((_set, _get) => (
     return false;
   },
 
-  queryCreateComment: async () => {
-    return false;
-  },
-
-  queryDeleteComment: async () => {
-    return false;
-  },
-
-  queryGetComments: async () => {
-    return false;
-  },
-
   queryCreateArgument: async () => {
     return false;
   },
@@ -93,6 +103,18 @@ export const useDiscussionStore = create(immer<State & Action>((_set, _get) => (
   },
 
   queryVoteArgument: async () => {
+    return false;
+  },
+
+  queryCreateComment: async () => {
+    return false;
+  },
+
+  queryDeleteComment: async () => {
+    return false;
+  },
+
+  queryGetComments: async () => {
     return false;
   },
 })))

@@ -7,11 +7,12 @@ import pg from "../pg";
 import { snowflake } from "../lib/snowflake";
 import { date } from "../lib/date";
 import { z } from "zod";
+import { IDiscussion } from "../types/discussion";
 
 const createDiscussion = sage.resource(
   {} as SchemaContext,
   {} as z.infer<typeof createDiscussionSchema>,
-  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+  async (arg, ctx): Promise<{ data?: IDiscussion, error?: ErrorCode }> => {
     const parsed = createDiscussionSchema.safeParse(arg);
     if (!parsed.success) return { error: ErrorCode.Default };
 
@@ -22,22 +23,22 @@ const createDiscussion = sage.resource(
 
     const row = {
       id: snowflake.id("discussions"),
-      user_id: info.userId,
+      userId: info.userId,
       date: date.utc(),
       title: title,
       readme: readme,
-      favourite_count: 0,
-      argument_count: 0,
-      comment_count: 0,
-      last_update_date: -1,
-      last_argument_date: -1,
-      last_comment_date: -1,
+      favouriteCount: 0,
+      argumentCount: 0,
+      commentCount: 0,
+      lastUpdateDate: -1,
+      lastArgumentDate: -1,
+      lastCommentDate: -1,
     }
 
     const result = await pg`INSERT INTO discussions ${pg(row)}`;
     if (result.count === 0) return { error: ErrorCode.Default };
 
-    return { data: {} };
+    return { data: row };
   }
 )
 
@@ -117,62 +118,7 @@ const favouriteDiscussion = sage.resource(
   }
 )
 
-const createComment = sage.resource(
-  {} as SchemaContext,
-  {} as z.infer<typeof createCommentSchema>,
-  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    const parsed = createCommentSchema.safeParse(arg);
-    if (!parsed.success) return { error: ErrorCode.Default };
 
-    const info = await auth.getAuthInfo(ctx);
-    if (!info) return { error: ErrorCode.Default };
-
-    const { discussionId, content } = parsed.data;
-
-    const row = {
-      id: snowflake.id("discussion_comments"),
-      user_id: info.userId,
-      discussion_id: discussionId,
-      date: date.utc(),
-      content: content,
-    }
-
-    const result = await pg`INSERT INTO discussion_comments ${pg(row)}`;
-    if (result.count === 0) return { error: ErrorCode.Default };
-
-    return { data: {} };
-  }
-)
-
-const deleteComment = sage.resource(
-  {} as SchemaContext,
-  {} as z.infer<typeof deleteCommentSchema>,
-  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    const parsed = deleteCommentSchema.safeParse(arg);
-    if (!parsed.success) return { error: ErrorCode.Default };
-
-    const info = await auth.getAuthInfo(ctx);
-    if (!info) return { error: ErrorCode.Default };
-
-    const { commentId } = parsed.data;
-
-    const result = await pg`
-      DELETE FROM discussion_comments
-      WHERE id=${commentId} AND user_id=${info.userId}
-    `;
-    if (result.count === 0) return { error: ErrorCode.Default };
-
-    return { data: {} };
-  }
-)
-
-const getComments = sage.resource(
-  {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    return { data: {} };
-  }
-)
 
 const createArgument = sage.resource(
   {} as SchemaContext,
@@ -241,6 +187,63 @@ const voteArgument = sage.resource(
   }
 )
 
+const createComment = sage.resource(
+  {} as SchemaContext,
+  {} as z.infer<typeof createCommentSchema>,
+  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+    const parsed = createCommentSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { discussionId, content } = parsed.data;
+
+    const row = {
+      id: snowflake.id("discussion_comments"),
+      user_id: info.userId,
+      discussion_id: discussionId,
+      date: date.utc(),
+      content: content,
+    }
+
+    const result = await pg`INSERT INTO discussion_comments ${pg(row)}`;
+    if (result.count === 0) return { error: ErrorCode.Default };
+
+    return { data: {} };
+  }
+)
+
+const deleteComment = sage.resource(
+  {} as SchemaContext,
+  {} as z.infer<typeof deleteCommentSchema>,
+  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+    const parsed = deleteCommentSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { commentId } = parsed.data;
+
+    const result = await pg`
+      DELETE FROM discussion_comments
+      WHERE id=${commentId} AND user_id=${info.userId}
+    `;
+    if (result.count === 0) return { error: ErrorCode.Default };
+
+    return { data: {} };
+  }
+)
+
+const getComments = sage.resource(
+  {} as SchemaContext,
+  undefined,
+  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+    return { data: {} };
+  }
+)
+
 export default {
   createDiscussion,
   deleteDiscussion,
@@ -252,12 +255,12 @@ export default {
   getUserDiscussionFeed,
   getGuestDiscussionFeed,
 
-  createComment,
-  deleteComment,
-  getComments,
-
   createArgument,
   deleteArgument,
   getArguments,
   voteArgument,
+
+  createComment,
+  deleteComment,
+  getComments,
 }

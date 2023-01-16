@@ -7,7 +7,7 @@ const pg = postgres({
   user: config.postgresUser,
   password: config.postgresPassword,
   database: config.postgresName,
-  transform: postgres.toCamel,
+  transform: postgres.camel,
 })
 
 export default pg
