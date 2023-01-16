@@ -88,12 +88,7 @@ const editDiscussion = sage.resource(
 const searchDiscussion = sage.resource(
   {} as SchemaContext,
   {} as z.infer<typeof searchDiscussionSchema>,
-  async (arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    const parsed = editDiscussionSchema.safeParse(arg);
-    if (!parsed.success) return { error: ErrorCode.Default };
-
-    //const { title } = parsed.data;
-
+  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
     return { data: {} };
   }
 )
