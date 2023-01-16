@@ -2,7 +2,7 @@ import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
 import auth from "./auth";
-import { createDiscussionSchema, deleteDiscussionSchema } from "../schemas/discussion";
+import { createDiscussionSchema, deleteDiscussionSchema, editDiscussionSchema } from "../schemas/discussion";
 import pg from "../pg";
 import { snowflake } from "../lib/snowflake";
 import { date } from "../lib/date";
@@ -65,8 +65,22 @@ const deleteDiscussion = sage.resource(
 
 const editDiscussion = sage.resource(
   {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+  {} as z.infer<typeof editDiscussionSchema>,
+  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+    const parsed = editDiscussionSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { discussionId, title, readme } = parsed.data;
+
+    const result = await pg`
+      UPDATE discussions SET title=${title}, readme=${readme}
+      WHERE id=${discussionId} AND user_id=${info.userId}
+    `;
+    if (result.count === 0) return { error: ErrorCode.Default };
+
     return { data: {} };
   }
 )

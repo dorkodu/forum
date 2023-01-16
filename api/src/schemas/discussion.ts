@@ -9,3 +9,9 @@ export const createDiscussionSchema = z.object({
 export const deleteDiscussionSchema = z.object({
   discussionId: z.string(),
 }).strict();
+
+export const editDiscussionSchema = z.object({
+  discussionId: z.string(),
+  title: sharedSchemas.title,
+  readme: sharedSchemas.readme,
+}).strict();
