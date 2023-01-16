@@ -2,6 +2,14 @@ import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
 
+const getUser = sage.resource(
+  {} as SchemaContext,
+  undefined,
+  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+    return { data: {} };
+  }
+)
+
 const editUser = sage.resource(
   {} as SchemaContext,
   undefined,
@@ -51,6 +59,7 @@ const getUserFollowing = sage.resource(
 )
 
 export default {
+  getUser,
   editUser,
   searchUser,
   
