@@ -158,4 +158,6 @@ async function queryUserData(token: string): Promise<UserData | undefined> {
 export default {
   auth,
   getAccessToken,
+
+  getAuthInfo,
 }
