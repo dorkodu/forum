@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useUserStore } from "../stores/userStore";
+import { useUserStore } from "../stores/authStore";
 
 function DorkoduID() {
   const navigate = useNavigate();

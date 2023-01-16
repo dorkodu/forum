@@ -1,44 +1,54 @@
 import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
-import { request, sage } from "./api";
-import { useAppStore } from "./appStore";
 
 interface State {
-  authorized: boolean;
+
 }
 
 interface Action {
-  queryAuth: () => Promise<boolean>;
-  queryGetAccessToken: (code: string) => Promise<boolean>;
+  queryGetUser: () => Promise<boolean>;
+  queryEditUser: () => Promise<boolean>;
+  querySearchUser: () => Promise<boolean>;
+
+  queryGetUserDiscussions: () => Promise<boolean>;
+
+  queryFollowUser: () => Promise<boolean>;
+  queryGetUserFollowers: () => Promise<boolean>;
+  queryGetUserFollowing: () => Promise<boolean>;
 }
 
 const initialState: State = {
-  authorized: false,
+
 }
 
-export const useUserStore = create(immer<State & Action>((set, _get) => ({
+export const useUserStore = create(immer<State & Action>((_set, _get) => ({
   ...initialState,
 
-  queryAuth: async () => {
-    const res = await sage.get(
-      { a: sage.query("auth", undefined) },
-      (query) => request(query)
-    )
-
-    const authorized = !(!res?.a.data || res.a.error);
-    set(state => { state.authorized = authorized })
-    useAppStore.getState().setAuthLoading(false);
-    return authorized;
+  queryGetUser: async () => {
+    return false;
   },
 
-  queryGetAccessToken: async (code) => {
-    const res = await sage.get(
-      { a: sage.query("getAccessToken", { code }) },
-      (query) => request(query)
-    )
+  queryEditUser: async () => {
+    return false;
+  },
 
-    const status = !(!res?.a.data || res.a.error);
-    set(state => { state.authorized = status })
-    return status;
+  querySearchUser: async () => {
+    return false;
+  },
+
+  queryGetUserDiscussions: async () => {
+    return false;
+  },
+
+  queryFollowUser: async () => {
+    return false;
+  },
+
+  queryGetUserFollowers: async () => {
+    return false;
+  },
+
+  queryGetUserFollowing: async () => {
+    return false;
   },
 })))

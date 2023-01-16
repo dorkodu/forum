@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useUserStore } from "../stores/userStore"
+import { useUserStore } from "../stores/authStore"
 
 function RequireAuth() {
   const authorized = useUserStore(state => state.authorized);
