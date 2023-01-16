@@ -1,12 +1,13 @@
 import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
+import { request, sage } from "./api";
 
 interface State {
 
 }
 
 interface Action {
-  queryCreateDiscussion: () => Promise<boolean>;
+  queryCreateDiscussion: (title: string, readme: string) => Promise<boolean>;
   queryDeleteDiscussion: () => Promise<boolean>;
   queryEditDiscussion: () => Promise<boolean>;
   querySearchDiscussion: () => Promise<boolean>;
@@ -33,8 +34,14 @@ const initialState: State = {
 export const useDiscussionStore = create(immer<State & Action>((_set, _get) => ({
   ...initialState,
 
-  queryCreateDiscussion: async () => {
-    return false;
+  queryCreateDiscussion: async (title, readme) => {
+    const res = await sage.get(
+      { a: sage.query("createDiscussion", { title, readme }) },
+      (query) => request(query)
+    )
+
+    const status = !(!res?.a.data || res.a.error);
+    return status;
   },
 
   queryDeleteDiscussion: async () => {

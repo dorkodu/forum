@@ -1,7 +1,33 @@
-import { useState } from "react"
+import { useReducer } from "react"
+import { useDiscussionStore } from "../stores/discussionStore";
+
+interface State {
+  title: string;
+  readme: string;
+}
 
 function DiscussionCreate() {
-  const [discussion, setDiscussion] = useState({ title: "", readme: "" })
+  const [discussion, setDiscussion] = useReducer((prev: State, next: State) => {
+    const newDiscussion = { ...prev, ...next };
+
+    if (newDiscussion.title.length > 100)
+      newDiscussion.title = newDiscussion.title.substring(0, 100);
+
+    if (newDiscussion.readme.length > 100000)
+      newDiscussion.title = newDiscussion.title.substring(0, 100000);
+
+    return newDiscussion;
+  }, { title: "", readme: "" })
+
+  const queryCreateDiscussion = useDiscussionStore(state => state.queryCreateDiscussion);
+
+  const createDiscussion = async () => {
+    if (discussion.title.length === 0) return;
+    if (discussion.readme.length === 0) return;
+
+    const status = await queryCreateDiscussion(discussion.title, discussion.readme);
+    console.log(status);
+  }
 
   return (
     <>
@@ -22,7 +48,7 @@ function DiscussionCreate() {
 
       <br />
 
-      <button>create</button>
+      <button onClick={createDiscussion}>create</button>
     </>
   )
 }
