@@ -1,0 +1,14 @@
+import { z } from "zod";
+
+export type IArgument = IArgumentParsed;
+export type IArgumentRaw = z.input<typeof iArgumentSchema>
+export type IArgumentParsed = z.output<typeof iArgumentSchema>
+export const iArgumentSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  discussionId: z.string(),
+  date: z.string().transform((arg) => parseInt(arg)),
+  content: z.string(),
+  type: z.boolean(),
+  votes: z.string().transform((arg) => parseInt(arg)),
+}).strict();
