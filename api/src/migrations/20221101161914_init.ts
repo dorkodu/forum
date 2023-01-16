@@ -6,6 +6,7 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("id").primary()
       table.string("name", 64)
       table.string("username", 16).unique()
+      table.string("bio", 500)
       table.bigint("joined_at")
       table.bigint("follower_count")
       table.bigint("following_count")
