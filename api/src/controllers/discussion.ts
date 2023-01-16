@@ -2,14 +2,15 @@ import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
 import auth from "./auth";
-import { createDiscussionSchema } from "../schemas/discussion";
+import { createDiscussionSchema, deleteDiscussionSchema } from "../schemas/discussion";
 import pg from "../pg";
 import { snowflake } from "../lib/snowflake";
 import { date } from "../lib/date";
+import { z } from "zod";
 
 const createDiscussion = sage.resource(
   {} as SchemaContext,
-  undefined,
+  {} as z.infer<typeof createDiscussionSchema>,
   async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
     const parsed = createDiscussionSchema.safeParse(arg);
     if (!parsed.success) return { error: ErrorCode.Default };
@@ -42,8 +43,22 @@ const createDiscussion = sage.resource(
 
 const deleteDiscussion = sage.resource(
   {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+  {} as z.infer<typeof deleteDiscussionSchema>,
+  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+    const parsed = deleteDiscussionSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { discussionId } = parsed.data;
+
+    const result = await pg`
+      DELETE FROM discussions
+      WHERE id=${discussionId} AND user_id=${info.userId}
+    `;
+    if (result.count === 0) return { error: ErrorCode.Default };
+
     return { data: {} };
   }
 )
