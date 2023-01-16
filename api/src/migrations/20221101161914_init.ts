@@ -21,7 +21,14 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("id").primary()
       table.bigint("user_id")
       table.bigint("date")
+      table.string("title", 100)
       table.string("readme", 100000)
+      table.bigint("favourite_count")
+      table.bigint("argument_count")
+      table.bigint("comment_count")
+      table.bigint("last_update_date")
+      table.bigint("last_argument_date")
+      table.bigint("last_comment_date")
     })
     .createTable("discussion_comments", (table) => {
       table.bigint("id").primary()
@@ -52,7 +59,7 @@ export async function down(knex: Knex): Promise<void> {
   return knex.schema
     .dropTable("users")
     .dropTable("user_follows")
-    
+
     .dropTable("discussions")
     .dropTable("discussion_comments")
     .dropTable("discussion_arguments")
