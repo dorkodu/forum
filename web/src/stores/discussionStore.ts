@@ -20,8 +20,11 @@ interface State {
 }
 
 interface Action {
+  getDiscussionById: (discussionId: string | undefined) => IDiscussion | undefined;
+
   queryCreateDiscussion: (title: string, readme: string) => Promise<boolean>;
   queryDeleteDiscussion: () => Promise<boolean>;
+  queryGetDiscussion: (discussionId: string | undefined) => Promise<boolean>;
   queryEditDiscussion: () => Promise<boolean>;
   querySearchDiscussion: () => Promise<boolean>;
 
@@ -46,8 +49,13 @@ const initialState: State = {
   comment: { entities: {} },
 }
 
-export const useDiscussionStore = create(immer<State & Action>((set, _get) => ({
+export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
   ...initialState,
+
+  getDiscussionById: (discussionId) => {
+    if (!discussionId) return undefined;
+    return get().discussion.entities[discussionId];
+  },
 
   queryCreateDiscussion: async (title, readme) => {
     const res = await sage.get(
@@ -72,6 +80,25 @@ export const useDiscussionStore = create(immer<State & Action>((set, _get) => ({
 
   queryEditDiscussion: async () => {
     return false;
+  },
+
+  queryGetDiscussion: async (discussionId) => {
+    if (!discussionId) return false;
+
+    const res = await sage.get(
+      { a: sage.query("getDiscussion", { discussionId }) },
+      (query) => request(query)
+    )
+
+    const status = !(!res?.a.data || res.a.error);
+    const discussion = res?.a.data;
+
+    set(state => {
+      if (!discussion) return;
+      state.discussion.entities[discussion.id] = discussion;
+    })
+
+    return status;
   },
 
   querySearchDiscussion: async () => {

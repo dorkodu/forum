@@ -10,5 +10,5 @@ export const iArgumentSchema = z.object({
   date: z.string().transform((arg) => parseInt(arg)),
   content: z.string(),
   type: z.boolean(),
-  votes: z.string().transform((arg) => parseInt(arg)),
+  voteCount: z.string().transform((arg) => parseInt(arg)),
 }).strict();

@@ -62,7 +62,7 @@ function DiscussionCreate() {
         create
       </button>
 
-      {discussion.loading ? <><br />loading...</> : ""}
+      {discussion.loading && <><br />loading...</>}
       {discussion.status === true && <><br />success...</>}
       {discussion.status === false && <><br />fail...</>}
     </>

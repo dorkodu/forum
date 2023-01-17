@@ -2,12 +2,12 @@ import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
 import auth from "./auth";
-import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, searchDiscussionSchema } from "../schemas/discussion";
+import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, getDiscussionSchema } from "../schemas/discussion";
 import pg from "../pg";
 import { snowflake } from "../lib/snowflake";
 import { date } from "../lib/date";
 import { z } from "zod";
-import { IDiscussion } from "../types/discussion";
+import { IDiscussion, IDiscussionRaw, iDiscussionSchema } from "../types/discussion";
 
 const createDiscussion = sage.resource(
   {} as SchemaContext,
@@ -64,6 +64,32 @@ const deleteDiscussion = sage.resource(
   }
 )
 
+const getDiscussion = sage.resource(
+  {} as SchemaContext,
+  {} as z.infer<typeof getDiscussionSchema>,
+  async (arg, ctx): Promise<{ data?: IDiscussion, error?: ErrorCode }> => {
+    const parsed = getDiscussionSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { discussionId } = parsed.data;
+
+    const [result]: [IDiscussionRaw?] = await pg`
+      SELECT 
+        id, user_id, date, title, readme, 
+        favourite_count, argument_count, comment_count,
+        last_update_date, last_argument_date, last_comment_date
+      FROM discussions WHERE id=${discussionId}
+    `;
+    const res = iDiscussionSchema.safeParse(result);
+    if (!res.success) return { error: ErrorCode.Default };
+
+    return { data: res.data };
+  }
+)
+
 const editDiscussion = sage.resource(
   {} as SchemaContext,
   {} as z.infer<typeof editDiscussionSchema>,
@@ -88,7 +114,7 @@ const editDiscussion = sage.resource(
 
 const searchDiscussion = sage.resource(
   {} as SchemaContext,
-  {} as z.infer<typeof searchDiscussionSchema>,
+  undefined,
   async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
     return { data: {} };
   }
@@ -117,8 +143,6 @@ const favouriteDiscussion = sage.resource(
     return { data: {} };
   }
 )
-
-
 
 const createArgument = sage.resource(
   {} as SchemaContext,
@@ -247,6 +271,7 @@ const getComments = sage.resource(
 export default {
   createDiscussion,
   deleteDiscussion,
+  getDiscussion,
   editDiscussion,
   searchDiscussion,
 

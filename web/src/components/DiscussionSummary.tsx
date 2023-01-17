@@ -1,9 +1,16 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDiscussionStore } from "../stores/discussionStore";
 
-function DiscussionSummary() {
+interface Props {
+  discussionId: string | undefined;
+}
+
+function DiscussionSummary({ discussionId }: Props) {
   const navigate = useNavigate();
-  const [favourite, setFavourite] = useState(false);
+
+  const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
+
+  if (!discussion) return (<></>)
 
   return (
     <>
@@ -15,11 +22,11 @@ function DiscussionSummary() {
         <span>16h</span>
         <div>is milk white or black?</div>
         <div>
-          <button onClick={(ev) => { ev.stopPropagation(); setFavourite(!favourite); }}>
+          <button onClick={(ev) => { /* ev.stopPropagation(); setFavourite(!favourite); */ }}>
             {favourite ? "unfavourite" : "favourite"}
           </button>
           &nbsp;
-          <span>favourites: 123</span>
+          <span>favourites: {discussion?.favouriteCount}</span>
           &nbsp;
           <span>arguments: 123</span>
           &nbsp;

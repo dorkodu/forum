@@ -10,14 +10,14 @@ export const deleteDiscussionSchema = z.object({
   discussionId: z.string(),
 }).strict();
 
+export const getDiscussionSchema = z.object({
+  discussionId: z.string(),
+}).strict();
+
 export const editDiscussionSchema = z.object({
   discussionId: z.string(),
   title: sharedSchemas.title,
   readme: sharedSchemas.readme,
-}).strict();
-
-export const searchDiscussionSchema = z.object({
-  title: sharedSchemas.title,
 }).strict();
 
 

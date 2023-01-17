@@ -1,102 +1,154 @@
-import { useState } from "react"
+import { useEffect, useReducer } from "react"
+import { useDiscussionStore } from "../stores/discussionStore";
 import Argument from "./Argument";
 import Comment from "./Comment"
 import DiscussionSummary from "./DiscussionSummary";
 
-function Discussion() {
-  const [showing, setShowing] = useState<"comments" | "arguments">("arguments");
-  const [time, setTime] = useState<"asc" | "desc">("desc");
-  const [type, setType] = useState<"any" | "positive" | "negative">("any");
-  const [votes, setVotes] = useState<"any" | "most" | "least">("any");
+interface Props {
+  discussionId: string | undefined;
+}
 
-  const [comment, setComment] = useState({ text: "" });
-  const [argument, setArgument] = useState({ text: "", type: "+" as "+" | "-" });
+interface State {
+  loading: boolean;
+  status: boolean | undefined;
+
+  show: "comments" | "arguments";
+  time: "asc" | "desc";
+  type: "any" | "positive" | "negative";
+  votes: "any" | "most" | "least";
+
+  comment: { text: string };
+  argument: { text: string, type: "positive" | "negative" }
+}
+
+function Discussion({ discussionId }: Props) {
+  const [state, setState] = useReducer((prev: State, next: State) => {
+    const newState = { ...prev, ...next };
+
+    if (newState.comment.text.length > 500)
+      newState.comment.text = newState.comment.text.substring(0, 500);
+
+    if (newState.argument.text.length > 500)
+      newState.argument.text = newState.argument.text.substring(0, 500);
+
+    return newState;
+  }, {
+    loading: true,
+    status: false,
+
+    show: "arguments",
+    time: "desc",
+    type: "any",
+    votes: "most",
+    comment: { text: "" },
+    argument: { text: "", type: "positive" },
+  });
+
+  const queryGetDiscussion = useDiscussionStore(state => state.queryGetDiscussion);
+  const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
+
+  useEffect(() => {
+    (async () => {
+      setState({ ...state, loading: true, status: undefined });
+      const status = await queryGetDiscussion(discussionId);
+      setState({ ...state, loading: false, status: status });
+    })()
+  }, [])
+
+  if (!discussion) {
+    return (
+      <>
+        {state.loading && <>loading...</>}
+        {state.status === false && <>fail...</>}
+      </>
+    )
+  }
 
   return (
     <>
-      <DiscussionSummary />
+      <DiscussionSummary discussionId={discussionId} />
 
       <hr />
 
       <div>
-        readme
+        {discussion.title}
         <br />
-        so the milk is cow's product and it's...
+        {discussion.title}
       </div>
 
       <hr />
 
       <div>
-        <button onClick={() => { setShowing("comments") }}>show comments</button>
-        <button onClick={() => { setShowing("arguments") }}>show arguments</button>
+        <button onClick={() => setState({ ...state, show: "comments" })}>show comments</button>
+        <button onClick={() => setState({ ...state, show: "arguments" })}>show arguments</button>
         <br />
-        {showing === "comments" &&
+        {state.show === "comments" &&
           <>
-            <button onClick={() => { setTime("asc") }}>time asc</button>
-            <button onClick={() => { setTime("desc") }}>time desc</button>
+            <button onClick={() => setState({ ...state, time: "asc" })}>time asc</button>
+            <button onClick={() => setState({ ...state, time: "desc" })}>time desc</button>
             &nbsp;
-            <span>{time}</span>
+            <span>{state.time}</span>
           </>
         }
-        {showing === "arguments" &&
+        {state.show === "arguments" &&
           <>
-            <button onClick={() => { setTime("asc") }}>time asc</button>
-            <button onClick={() => { setTime("desc") }}>time desc</button>
+            <button onClick={() => setState({ ...state, time: "asc" })}>time asc</button>
+            <button onClick={() => setState({ ...state, time: "desc" })}>time desc</button>
             &nbsp;
-            <span>{time}</span>
+            <span>{state.time}</span>
             <br />
-            <button onClick={() => { setType("any") }}>show all</button>
-            <button onClick={() => { setType("positive") }}>show positive</button>
-            <button onClick={() => { setType("negative") }}>show negative</button>
+            <button onClick={() => setState({ ...state, type: "any" })}>show all</button>
+            <button onClick={() => setState({ ...state, type: "negative" })}>show positive</button>
+            <button onClick={() => setState({ ...state, type: "positive" })}>show negative</button>
             &nbsp;
-            <span>{type}</span>
+            <span>{state.type}</span>
             <br />
-            <button onClick={() => { setVotes("any") }}>any votes</button>
-            <button onClick={() => { setVotes("most") }}>most votes</button>
-            <button onClick={() => { setVotes("least") }}>least votes</button>
+            <button onClick={() => setState({ ...state, votes: "any" })}>any votes</button>
+            <button onClick={() => setState({ ...state, votes: "most" })}>most votes</button>
+            <button onClick={() => setState({ ...state, votes: "least" })}>least votes</button>
             &nbsp;
-            <span>{votes}</span>
+            <span>{state.votes}</span>
           </>
         }
       </div>
 
       <hr />
 
-      <div>showing {showing}</div>
+      <div>showing {state.show}</div>
 
       <hr />
 
-      {showing === "arguments" &&
+      {state.show === "arguments" &&
         <>
           <input
             type="text"
             placeholder="write argument..."
-            defaultValue={argument.text}
-            onChange={(ev) => { setArgument({ ...argument, text: ev.target.value }) }}
+            defaultValue={state.argument.text}
+            onChange={(ev) => setState({ ...state, argument: { ...state.argument, text: ev.target.value } })}
           />
-          <button onClick={() => { setArgument({ ...argument, type: "+" }) }}>+</button>
-          <button onClick={() => { setArgument({ ...argument, type: "-" }) }}>-</button>
+          <button onClick={() => setState({ ...state, argument: { ...state.argument, type: "positive" } })}>+</button>
+          <button onClick={() => setState({ ...state, argument: { ...state.argument, type: "negative" } })}>-</button>
           &nbsp;
-          <span>type: {argument.type}</span>
+          <span>type: {state.argument.type}</span>
           <br />
           <button>send</button>
         </>
       }
-      {showing === "comments" &&
+      {state.show === "comments" &&
         <>
           <input
             type="text"
             placeholder="write comment..."
-            defaultValue={comment.text}
-            onChange={(ev) => { setComment({ ...comment, text: ev.target.value }) }}
+            defaultValue={state.comment.text}
+            onChange={(ev) => setState({ ...state, comment: { ...state.comment, text: ev.target.value } })}
           />
           <br />
           <button>send</button>
         </>
       }
 
-      {showing === "arguments" && [...Array(5)].map((_v, i) => <div key={i}><hr /><Argument /></div>)}
-      {showing === "comments" && [...Array(5)].map((_v, i) => <div key={i}><hr /><Comment /></div>)}
+      {state.show === "arguments" && [...Array(5)].map((_v, i) => <div key={i}><hr /><Argument /></div>)}
+      {state.show === "comments" && [...Array(5)].map((_v, i) => <div key={i}><hr /><Comment /></div>)}
     </>
   )
 }

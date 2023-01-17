@@ -7,7 +7,7 @@ export async function up(knex: Knex): Promise<void> {
       table.string("name", 64)
       table.string("username", 16).unique()
       table.string("bio", 500)
-      table.bigint("joined_at")
+      table.bigint("join_date")
       table.bigint("follower_count")
       table.bigint("following_count")
     })
@@ -45,7 +45,7 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("date")
       table.string("content", 500)
       table.boolean("type")
-      table.bigint("votes")
+      table.bigint("vote_count")
     })
     .createTable("argument_votes", (table) => {
       table.bigint("id").primary()

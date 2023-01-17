@@ -36,6 +36,7 @@ export const schema = sage.schema(
     /* discussion */
     createDiscussion: discussion.createDiscussion,
     deleteDiscussion: discussion.deleteDiscussion,
+    getDiscussion: discussion.getDiscussion,
     editDiscussion: discussion.editDiscussion,
     searchDiscussion: discussion.searchDiscussion,
 
