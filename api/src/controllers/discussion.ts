@@ -90,6 +90,9 @@ const getDiscussion = sage.resource(
     const res = iDiscussionSchema.safeParse(result);
     if (!res.success) return { error: ErrorCode.Default };
 
+    if (ctx.userIds === undefined) ctx.userIds = new Set([res.data.userId]);
+    else ctx.userIds.add(res.data.userId);
+
     return { data: res.data };
   }
 )

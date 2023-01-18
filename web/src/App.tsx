@@ -2,12 +2,12 @@ import { Loader, MantineProvider } from "@mantine/core";
 import { Suspense, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { useAppStore } from "./stores/appStore";
-import { useUserStore } from "./stores/authStore";
+import { useAuthStore } from "./stores/authStore";
 import theme from "./styles/theme";
 
 function App() {
   const loading = useAppStore((state) => state.getLoading());
-  const queryAuth = useUserStore((state) => state.queryAuth);
+  const queryAuth = useAuthStore((state) => state.queryAuth);
   useEffect(() => {
     queryAuth();
   }, []);

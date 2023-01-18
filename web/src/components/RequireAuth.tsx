@@ -1,8 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useUserStore } from "../stores/authStore"
+import { useAuthStore } from "../stores/authStore"
 
 function RequireAuth() {
-  const authorized = useUserStore(state => state.authorized);
+  const authorized = useAuthStore(state => state.authorized);
 
   return authorized ? <Outlet /> : < Navigate to="/welcome" replace />
 }

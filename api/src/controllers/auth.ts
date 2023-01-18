@@ -52,6 +52,7 @@ const getAccessToken = sage.resource(
         id: userData.id,
         name: userData.username,
         username: userData.username,
+        bio: "",
         join_date: date.utc(),
         follower_count: 0,
         following_count: 0,

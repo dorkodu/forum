@@ -12,6 +12,11 @@ export interface SchemaContext {
 
   triedAuth?: boolean;
   userId?: string;
+
+  userIds?: Set<string>;
+  discussionIds?: Set<string>;
+  argumentIds?: Set<string>;
+  commentIds?: Set<string>;
 }
 
 export type Schema = typeof schema

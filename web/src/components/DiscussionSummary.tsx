@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useDiscussionStore } from "../stores/discussionStore";
+import { useUserStore } from "../stores/userStore";
 
 interface Props {
   discussionId: string | undefined;
@@ -9,20 +10,21 @@ function DiscussionSummary({ discussionId }: Props) {
   const navigate = useNavigate();
 
   const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
+  const user = useUserStore(state => state.getUserById(discussion?.userId));
 
-  if (!discussion) return (<></>)
+  if (!discussion || !user) return (<></>)
 
   return (
     <>
       <div onClick={() => { navigate("/discussion/123") }}>
-        <span>Berk Cambaz</span>
+        <span>{user.name}</span>
         &nbsp;
-        <span>@berkcambaz</span>
+        <span>@{user.username}</span>
         &nbsp;
-        <span>16h</span>
+        <span>{discussion.date}</span>
         <div>{discussion.title}</div>
         <div>
-          <button onClick={(ev) => { /* ev.stopPropagation(); setFavourite(!favourite); */ }}>
+          <button onClick={(_ev) => { /* ev.stopPropagation(); setFavourite(!favourite); */ }}>
             {discussion.favourited ? "unfavourite" : "favourite"}
           </button>
           &nbsp;

@@ -1,7 +1,5 @@
 import { z } from "zod";
-import { sharedSchemas } from "./_shared";
 
-export const editUserSchema = z.object({
-  name: sharedSchemas.name.optional(),
-  bio: sharedSchemas.bio.optional(),
+export const getUserSchema = z.object({
+  ids: z.string().array().optional(),
 }).strict();

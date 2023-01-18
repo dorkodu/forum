@@ -4,6 +4,7 @@ import { request, sage } from "./api";
 import type { IDiscussion } from "@api/types/discussion";
 import type { IArgument } from "@api/types/argument";
 import type { IComment } from "@api/types/comment";
+import { useUserStore } from "./userStore";
 
 interface State {
   discussion: {
@@ -86,16 +87,25 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     if (!discussionId) return false;
 
     const res = await sage.get(
-      { a: sage.query("getDiscussion", { discussionId }) },
+      {
+        a: sage.query("getDiscussion", { discussionId }, { ctx: "a" }),
+        b: sage.query("getUser", {}, { ctx: "a", wait: "a" })
+      },
       (query) => request(query)
     )
 
-    const status = !(!res?.a.data || res.a.error);
+    const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
     const discussion = res?.a.data;
+    const users = res?.b.data;
 
     set(state => {
       if (!discussion) return;
       state.discussion.entities[discussion.id] = discussion;
+    })
+
+    useUserStore.setState((store) => {
+      if (!users) return;
+      users.forEach((user) => { store.user.entities[user.id] = user; })
     })
 
     return status;

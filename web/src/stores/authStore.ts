@@ -16,7 +16,7 @@ const initialState: State = {
   authorized: false,
 }
 
-export const useUserStore = create(immer<State & Action>((set, _get) => ({
+export const useAuthStore = create(immer<State & Action>((set, _get) => ({
   ...initialState,
 
   queryAuth: async () => {
