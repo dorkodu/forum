@@ -34,12 +34,12 @@ interface Action {
   queryGetUserDiscussionFeed: () => Promise<boolean>;
   queryGetGuestDiscussionFeed: () => Promise<boolean>;
 
-  queryCreateArgument: () => Promise<boolean>;
+  queryCreateArgument: (discussionId: string, content: string, type: boolean) => Promise<boolean>;
   queryDeleteArgument: () => Promise<boolean>;
   queryGetArguments: () => Promise<boolean>;
   queryVoteArgument: () => Promise<boolean>;
 
-  queryCreateComment: () => Promise<boolean>;
+  queryCreateComment: (discussionId: string, content: string) => Promise<boolean>;
   queryDeleteComment: () => Promise<boolean>;
   queryGetComments: () => Promise<boolean>;
 }
@@ -127,8 +127,21 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return false;
   },
 
-  queryCreateArgument: async () => {
-    return false;
+  queryCreateArgument: async (discussionId, content, type) => {
+    const res = await sage.get(
+      { a: sage.query("createArgument", { discussionId, content, type }) },
+      (query) => request(query)
+    )
+
+    const status = !(!res?.a.data || res.a.error);
+    const argument = res?.a.data;
+
+    set(state => {
+      if (!argument) return;
+      state.argument.entities[argument.id] = argument;
+    })
+
+    return status;
   },
 
   queryDeleteArgument: async () => {
@@ -143,8 +156,21 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return false;
   },
 
-  queryCreateComment: async () => {
-    return false;
+  queryCreateComment: async (discussionId, content) => {
+    const res = await sage.get(
+      { a: sage.query("createComment", { discussionId, content }) },
+      (query) => request(query)
+    )
+
+    const status = !(!res?.a.data || res.a.error);
+    const comment = res?.a.data;
+
+    set(state => {
+      if (!comment) return;
+      state.comment.entities[comment.id] = comment;
+    })
+
+    return status;
   },
 
   queryDeleteComment: async () => {

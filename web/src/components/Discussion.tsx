@@ -11,6 +11,7 @@ interface Props {
 interface State {
   loading: boolean;
   status: boolean | undefined;
+  action: { loading: boolean, status: boolean | undefined };
 
   show: "comments" | "arguments";
   time: "asc" | "desc";
@@ -18,7 +19,7 @@ interface State {
   votes: "any" | "most" | "least";
 
   comment: { text: string };
-  argument: { text: string, type: "positive" | "negative" }
+  argument: { text: string, type: boolean }
 }
 
 function Discussion({ discussionId }: Props) {
@@ -35,16 +36,19 @@ function Discussion({ discussionId }: Props) {
   }, {
     loading: true,
     status: false,
+    action: { loading: false, status: undefined },
 
     show: "arguments",
     time: "desc",
     type: "any",
     votes: "most",
     comment: { text: "" },
-    argument: { text: "", type: "positive" },
+    argument: { text: "", type: true },
   });
 
   const queryGetDiscussion = useDiscussionStore(state => state.queryGetDiscussion);
+  const queryCreateArgument = useDiscussionStore(state => state.queryCreateArgument);
+  const queryCreateComment = useDiscussionStore(state => state.queryCreateComment);
   const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
 
   useEffect(() => {
@@ -54,6 +58,28 @@ function Discussion({ discussionId }: Props) {
       setState({ ...state, loading: false, status: status });
     })()
   }, [])
+
+  const createArgument = async () => {
+    if (state.argument.text.length === 0) return;
+    if (state.argument.text.length > 500) return;
+    if (!discussion) return;
+    if (state.action.loading) return;
+
+    setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
+    const status = await queryCreateArgument(discussion.id, state.argument.text, state.argument.type);
+    setState({ ...state, action: { ...state.action, loading: false, status: status } });
+  }
+
+  const createComment = async () => {
+    if (state.comment.text.length === 0) return;
+    if (state.comment.text.length > 500) return;
+    if (!discussion) return;
+    if (state.action.loading) return;
+
+    setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
+    const status = await queryCreateComment(discussion.id, state.comment.text);
+    setState({ ...state, action: { ...state.action, loading: false, status: status } });
+  }
 
   if (!discussion) {
     return (
@@ -124,12 +150,12 @@ function Discussion({ discussionId }: Props) {
             defaultValue={state.argument.text}
             onChange={(ev) => setState({ ...state, argument: { ...state.argument, text: ev.target.value } })}
           />
-          <button onClick={() => setState({ ...state, argument: { ...state.argument, type: "positive" } })}>+</button>
-          <button onClick={() => setState({ ...state, argument: { ...state.argument, type: "negative" } })}>-</button>
+          <button onClick={() => setState({ ...state, argument: { ...state.argument, type: true } })}>+</button>
+          <button onClick={() => setState({ ...state, argument: { ...state.argument, type: false } })}>-</button>
           &nbsp;
-          <span>type: {state.argument.type}</span>
+          <span>type: {state.argument.type ? "positive" : "negative"}</span>
           <br />
-          <button>send</button>
+          <button onClick={createArgument}>send</button>
         </>
       }
       {state.show === "comments" &&
@@ -141,7 +167,7 @@ function Discussion({ discussionId }: Props) {
             onChange={(ev) => setState({ ...state, comment: { ...state.comment, text: ev.target.value } })}
           />
           <br />
-          <button>send</button>
+          <button onClick={createComment}>send</button>
         </>
       }
 

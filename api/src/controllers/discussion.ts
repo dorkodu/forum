@@ -8,6 +8,8 @@ import { snowflake } from "../lib/snowflake";
 import { date } from "../lib/date";
 import { z } from "zod";
 import { IDiscussion, IDiscussionRaw, iDiscussionSchema } from "../types/discussion";
+import { IComment } from "../types/comment";
+import { IArgument } from "../types/argument";
 
 const createDiscussion = sage.resource(
   {} as SchemaContext,
@@ -154,7 +156,7 @@ const favouriteDiscussion = sage.resource(
 const createArgument = sage.resource(
   {} as SchemaContext,
   {} as z.infer<typeof createArgumentSchema>,
-  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+  async (arg, ctx): Promise<{ data?: IArgument, error?: ErrorCode }> => {
     const parsed = createArgumentSchema.safeParse(arg);
     if (!parsed.success) return { error: ErrorCode.Default };
 
@@ -165,18 +167,18 @@ const createArgument = sage.resource(
 
     const row = {
       id: snowflake.id("discussion_arguments"),
-      user_id: info.userId,
-      discussion_id: discussionId,
+      userId: info.userId,
+      discussionId: discussionId,
       date: date.utc(),
       content: content,
       type: type,
-      votes: 0,
+      voteCount: 0,
     }
 
     const result = await pg`INSERT INTO discussion_arguments ${pg(row)}`;
     if (result.count === 0) return { error: ErrorCode.Default };
 
-    return { data: {} };
+    return { data: row };
   }
 )
 
@@ -221,7 +223,7 @@ const voteArgument = sage.resource(
 const createComment = sage.resource(
   {} as SchemaContext,
   {} as z.infer<typeof createCommentSchema>,
-  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+  async (arg, ctx): Promise<{ data?: IComment, error?: ErrorCode }> => {
     const parsed = createCommentSchema.safeParse(arg);
     if (!parsed.success) return { error: ErrorCode.Default };
 
@@ -232,8 +234,8 @@ const createComment = sage.resource(
 
     const row = {
       id: snowflake.id("discussion_comments"),
-      user_id: info.userId,
-      discussion_id: discussionId,
+      userId: info.userId,
+      discussionId: discussionId,
       date: date.utc(),
       content: content,
     }
@@ -241,7 +243,7 @@ const createComment = sage.resource(
     const result = await pg`INSERT INTO discussion_comments ${pg(row)}`;
     if (result.count === 0) return { error: ErrorCode.Default };
 
-    return { data: {} };
+    return { data: row };
   }
 )
 
