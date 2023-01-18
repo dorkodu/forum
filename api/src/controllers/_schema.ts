@@ -10,8 +10,10 @@ export interface SchemaContext {
   readonly res: Response;
   readonly next: NextFunction;
 
-  triedAuth?: boolean;
-  userId?: string;
+  shared: {
+    triedAuth?: boolean;
+    userId?: string;
+  }
 
   userIds?: Set<string>;
   discussionIds?: Set<string>;

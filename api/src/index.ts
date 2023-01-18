@@ -14,7 +14,8 @@ async function main() {
   app.use(cookieParser());
 
   app.use("/api", async (req, res, next) => {
-    res.status(200).send(await schema.execute(() => ({ req, res, next }), req.body));
+    const shared = { triedAuth: undefined, userId: undefined };
+    res.status(200).send(await schema.execute(() => ({ req, res, next, shared }), req.body));
   });
 
   app.listen(config.port, () => { console.log(`Server has started on port ${config.port}`) });

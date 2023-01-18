@@ -23,6 +23,45 @@ interface State {
 }
 
 function Discussion({ discussionId }: Props) {
+  const queryGetDiscussion = useDiscussionStore(state => state.queryGetDiscussion);
+  const queryGetComments = useDiscussionStore(state => state.queryGetComments);
+  const queryCreateArgument = useDiscussionStore(state => state.queryCreateArgument);
+  const queryCreateComment = useDiscussionStore(state => state.queryCreateComment);
+
+  const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
+  const comments = useDiscussionStore(state => state.getComments(discussionId));
+
+  const createArgument = async () => {
+    if (state.argument.text.length === 0) return;
+    if (state.argument.text.length > 500) return;
+    if (!discussion) return;
+    if (state.action.loading) return;
+
+    setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
+    const status = await queryCreateArgument(discussion.id, state.argument.text, state.argument.type);
+    setState({ ...state, action: { ...state.action, loading: false, status: status } });
+  }
+
+  const createComment = async () => {
+    if (state.comment.text.length === 0) return;
+    if (state.comment.text.length > 500) return;
+    if (!discussion) return;
+    if (state.action.loading) return;
+
+    setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
+    const status = await queryCreateComment(discussion.id, state.comment.text);
+    setState({ ...state, action: { ...state.action, loading: false, status: status } });
+  }
+
+  const getComments = async (type: "newer" | "older", refresh?: boolean) => {
+    if (!discussion) return;
+    if (state.action.loading) return;
+
+    setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
+    const status = await queryGetComments(discussion.id, type, refresh);
+    setState({ ...state, action: { ...state.action, loading: false, status: status } });
+  }
+
   const [state, setState] = useReducer((prev: State, next: State) => {
     const newState = { ...prev, ...next };
 
@@ -46,10 +85,6 @@ function Discussion({ discussionId }: Props) {
     argument: { text: "", type: true },
   });
 
-  const queryGetDiscussion = useDiscussionStore(state => state.queryGetDiscussion);
-  const queryCreateArgument = useDiscussionStore(state => state.queryCreateArgument);
-  const queryCreateComment = useDiscussionStore(state => state.queryCreateComment);
-  const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
 
   useEffect(() => {
     (async () => {
@@ -58,28 +93,6 @@ function Discussion({ discussionId }: Props) {
       setState({ ...state, loading: false, status: status });
     })()
   }, [])
-
-  const createArgument = async () => {
-    if (state.argument.text.length === 0) return;
-    if (state.argument.text.length > 500) return;
-    if (!discussion) return;
-    if (state.action.loading) return;
-
-    setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
-    const status = await queryCreateArgument(discussion.id, state.argument.text, state.argument.type);
-    setState({ ...state, action: { ...state.action, loading: false, status: status } });
-  }
-
-  const createComment = async () => {
-    if (state.comment.text.length === 0) return;
-    if (state.comment.text.length > 500) return;
-    if (!discussion) return;
-    if (state.action.loading) return;
-
-    setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
-    const status = await queryCreateComment(discussion.id, state.comment.text);
-    setState({ ...state, action: { ...state.action, loading: false, status: status } });
-  }
 
   if (!discussion) {
     return (

@@ -14,9 +14,6 @@ const argumentContent = z.string().max(500);
 const token = z.string();
 const code = z.string();
 
-const anchor = z.string();
-const type = z.enum(["newer", "older"]);
-
 const service = z.string().max(128);
 
 export const sharedSchemas = {
@@ -33,9 +30,6 @@ export const sharedSchemas = {
 
   token,
   code,
-
-  anchor,
-  type,
 
   service,
 }

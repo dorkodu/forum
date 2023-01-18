@@ -17,7 +17,7 @@ async function middleware(ctx: SchemaContext) {
   const auth = await queryAuth(rawToken);
   if (!auth) return;
 
-  ctx.userId = auth.userId;
+  ctx.shared.userId = auth.userId;
 }
 
 const auth = sage.resource(
@@ -70,11 +70,11 @@ const getAccessToken = sage.resource(
 )
 
 async function getAuthInfo(ctx: SchemaContext) {
-  if (!ctx.triedAuth) await middleware(ctx);
-  ctx.triedAuth = true;
+  if (!ctx.shared.triedAuth) await middleware(ctx);
+  ctx.shared.triedAuth = true;
 
-  if (ctx.userId === undefined) return undefined;
-  return { userId: ctx.userId };
+  if (ctx.shared.userId === undefined) return undefined;
+  return { userId: ctx.shared.userId };
 }
 
 async function queryAuth(rawToken: string): Promise<{ userId: string } | undefined> {

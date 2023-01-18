@@ -2,13 +2,13 @@ import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
 import auth from "./auth";
-import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, getDiscussionSchema } from "../schemas/discussion";
+import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, getCommentsSchema, getDiscussionSchema } from "../schemas/discussion";
 import pg from "../pg";
 import { snowflake } from "../lib/snowflake";
 import { date } from "../lib/date";
 import { z } from "zod";
 import { IDiscussion, IDiscussionRaw, iDiscussionSchema } from "../types/discussion";
-import { IComment } from "../types/comment";
+import { IComment, ICommentParsed, ICommentRaw, iCommentSchema } from "../types/comment";
 import { IArgument } from "../types/argument";
 
 const createDiscussion = sage.resource(
@@ -271,9 +271,34 @@ const deleteComment = sage.resource(
 
 const getComments = sage.resource(
   {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    return { data: {} };
+  {} as z.infer<typeof getCommentsSchema>,
+  async (arg, ctx): Promise<{ data?: IComment[], error?: ErrorCode }> => {
+    const parsed = getCommentsSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { discussionId, anchorId, type } = parsed.data;
+
+    const result = await pg<ICommentRaw[]>`
+      SELECT id, user_id, discussion_id, date, content FROM discussion_comments
+      WHERE discussion_id=${discussionId}
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND id>${anchorId}` : pg`AND id<${anchorId}`}
+      ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      LIMIT 20
+    `;
+
+    const res: ICommentParsed[] = [];
+    result.forEach(comment => {
+      const parsed = iCommentSchema.safeParse(comment);
+      if (parsed.success) res.push(parsed.data);
+    })
+
+    if (ctx.userIds === undefined) ctx.userIds = new Set();
+    res.forEach((comment) => { ctx.userIds?.add(comment.userId) })
+
+    return { data: res };
   }
 )
 

@@ -21,6 +21,7 @@ const getUser = sage.resource(
     if (parsed.data.ids) ids = parsed.data.ids;
     else if (ctx.userIds) ids = Array.from(ctx.userIds);
     if (!ids) return { error: ErrorCode.Default };
+    if (ids.length > 20) return { error: ErrorCode.Default };
 
     const result = await pg<IUserRaw[]>`
       SELECT id, name, username, bio, join_date, follower_count, following_count

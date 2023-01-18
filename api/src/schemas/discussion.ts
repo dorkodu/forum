@@ -21,6 +21,17 @@ export const editDiscussionSchema = z.object({
 }).strict();
 
 
+export const createArgumentSchema = z.object({
+  discussionId: z.string(),
+  content: sharedSchemas.argumentContent,
+  type: z.boolean(),
+}).strict();
+
+export const deleteArgumentSchema = z.object({
+  argumentId: z.string(),
+}).strict();
+
+
 export const createCommentSchema = z.object({
   discussionId: z.string(),
   content: sharedSchemas.commentContent,
@@ -30,13 +41,8 @@ export const deleteCommentSchema = z.object({
   commentId: z.string(),
 }).strict();
 
-
-export const createArgumentSchema = z.object({
+export const getCommentsSchema = z.object({
   discussionId: z.string(),
-  content: sharedSchemas.argumentContent,
-  type: z.boolean(),
-}).strict();
-
-export const deleteArgumentSchema = z.object({
-  argumentId: z.string(),
+  anchorId: z.string(),
+  type: z.enum(["newer", "older"]),
 }).strict();
