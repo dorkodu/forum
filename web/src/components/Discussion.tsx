@@ -71,9 +71,7 @@ function Discussion({ discussionId }: Props) {
       <hr />
 
       <div>
-        {discussion.title}
-        <br />
-        {discussion.title}
+        {discussion.readme}
       </div>
 
       <hr />

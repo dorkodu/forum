@@ -31,6 +31,12 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("last_argument_date")
       table.bigint("last_comment_date")
     })
+    .createTable("discussion_favourites", (table) => {
+      table.bigint("id").primary()
+      table.bigint("user_id")
+      table.bigint("discussion_id")
+      table.unique(["user_id", "discussion_id"])
+    })
     .createTable("discussion_comments", (table) => {
       table.bigint("id").primary()
       table.bigint("user_id")
@@ -62,6 +68,7 @@ export async function down(knex: Knex): Promise<void> {
     .dropTable("user_follows")
 
     .dropTable("discussions")
+    .dropTable("discussion_favourites")
     .dropTable("discussion_comments")
     .dropTable("discussion_arguments")
     .dropTable("argument_votes")

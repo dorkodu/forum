@@ -20,19 +20,23 @@ function DiscussionSummary({ discussionId }: Props) {
         <span>@berkcambaz</span>
         &nbsp;
         <span>16h</span>
-        <div>is milk white or black?</div>
+        <div>{discussion.title}</div>
         <div>
           <button onClick={(ev) => { /* ev.stopPropagation(); setFavourite(!favourite); */ }}>
-            {favourite ? "unfavourite" : "favourite"}
+            {discussion.favourited ? "unfavourite" : "favourite"}
           </button>
           &nbsp;
-          <span>favourites: {discussion?.favouriteCount}</span>
+          <span>favourites: {discussion.favouriteCount}</span>
           &nbsp;
-          <span>arguments: 123</span>
+          <span>arguments: {discussion.argumentCount}</span>
           &nbsp;
-          <span>comments: 123</span>
+          <span>comments: {discussion.commentCount}</span>
+          <br />
+          <span>last update: {discussion.lastUpdateDate}</span>
           &nbsp;
-          <span>last update: now</span>
+          <span>last argument: {discussion.lastArgumentDate}</span>
+          &nbsp;
+          <span>last comment: {discussion.lastCommentDate}</span>
         </div>
       </div>
     </>
