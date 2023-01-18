@@ -185,7 +185,7 @@ function Discussion({ discussionId }: Props) {
       }
 
       {state.show === "arguments" && [...Array(5)].map((_v, i) => <div key={i}><hr /><Argument /></div>)}
-      {state.show === "comments" && [...Array(5)].map((_v, i) => <div key={i}><hr /><Comment /></div>)}
+      {state.show === "comments" && comments.map((comment) => <div key={comment.id}><hr /><Comment commentId={comment.id} /></div>)}
     </>
   )
 }

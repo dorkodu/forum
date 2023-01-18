@@ -1,14 +1,27 @@
-function Comment() {
+import { useDiscussionStore } from "../stores/discussionStore";
+import { useUserStore } from "../stores/userStore";
+
+interface Props {
+  commentId: string;
+}
+
+function Comment({ commentId }: Props) {
+
+  const comment = useDiscussionStore(state => state.getComment(commentId));
+  const user = useUserStore(state => state.getUserById(comment?.userId));
+
+  if (!comment || !user) return (<></>)
+
   return (
     <>
       <div>
-        <span>Berk Cambaz</span>
+        <span>{user.name}</span>
         &nbsp;
-        <span>@berkcambaz</span>
+        <span>@{user.username}</span>
         &nbsp;
-        <span>16h</span>
+        <span>{comment.date}</span>
       </div>
-      <div>hello, world!</div>
+      <div>{comment.content}</div>
     </>
   )
 }

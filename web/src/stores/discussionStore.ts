@@ -30,6 +30,7 @@ interface State {
 interface Action {
   getDiscussionById: (discussionId: string | undefined) => IDiscussion | undefined;
 
+  getComment: (commentId: string | undefined) => IComment | undefined;
   getComments: (discussionId: string | undefined) => IComment[];
   setComments: (discussionId: string, comments: IComment[]) => void;
   getCommentAnchor: (discussionId: string, type: "newer" | "older", refresh?: boolean) => string;
@@ -69,9 +70,18 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return get().discussion.entities[discussionId];
   },
 
+  getComment: (commentId) => {
+    if (!commentId) return undefined;
+    return get().comment.entities[commentId];
+  },
+
   getComments: (discussionId) => {
-    const comments: IComment[] = [];
-    return comments;
+    if (!discussionId) return [];
+
+    const object = get().discussion.comments[discussionId];
+    if (!object) return [];
+
+    return Object.values(object);
   },
 
   setComments: (discussionId, comments) => {
@@ -81,6 +91,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
       comments.forEach((comment) => {
         state.discussion.comments[discussionId]![comment.id] = comment;
+        state.comment.entities[comment.id] = comment;
       })
     })
   },
@@ -130,18 +141,26 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
       (query) => request(query)
     )
 
-    const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
+    const status =
+      !(!res?.a.data || res.a.error) &&
+      !(!res?.b.data || res.b.error) &&
+      !(!res?.c.data || res.c.error) &&
+      !(!res?.d.data || res.d.error)
+
     const discussion = res?.a.data;
     const users = res?.b.data;
+    const comments = res?.c.data;
+    const commentUsers = res?.d.data;
+
+    if (comments) get().setComments(discussionId, comments);
 
     set(state => {
-      if (!discussion) return;
-      state.discussion.entities[discussion.id] = discussion;
+      if (discussion) state.discussion.entities[discussion.id] = discussion;
     })
 
     useUserStore.setState((store) => {
-      if (!users) return;
-      users.forEach((user) => { store.user.entities[user.id] = user; })
+      if (users) users.forEach((user) => { store.user.entities[user.id] = user; })
+      if (commentUsers) commentUsers.forEach((commentUser) => { store.user.entities[commentUser.id] = commentUser; })
     })
 
     return status;
