@@ -125,6 +125,10 @@ function Discussion({ discussionId }: Props) {
             <button onClick={() => setState({ ...state, time: "desc" })}>time desc</button>
             &nbsp;
             <span>{state.time}</span>
+            <br />
+            <button onClick={() => getComments("older")}>load older</button>
+            <button onClick={() => getComments("newer")}>load newer</button>
+            <button onClick={() => getComments("newer", true)}>refresh</button>
           </>
         }
         {state.show === "arguments" &&
