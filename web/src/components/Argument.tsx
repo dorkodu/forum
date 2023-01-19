@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useReducer } from "react"
+import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 
@@ -6,11 +7,31 @@ interface Props {
   argumentId: string;
 }
 
+interface State {
+  loading: boolean,
+  status: boolean | undefined,
+}
+
 function Argument({ argumentId }: Props) {
-  const [vote, setVote] = useState<"none" | "up" | "down">("none")
+  const [state, setState] = useReducer(
+    (prev: State, next: State) => ({ ...prev, ...next }),
+    { loading: false, status: undefined }
+  )
+
+  const queryDeleteArgument = useDiscussionStore(state => state.queryDeleteArgument);
 
   const argument = useDiscussionStore(state => state.getArgument(argumentId));
   const user = useUserStore(state => state.getUserById(argument?.userId));
+  const currentUserId = useAuthStore(state => state.userId);
+
+  const deleteArgument = async () => {
+    if (!argument) return;
+    if (state.loading) return;
+
+    setState({ ...state, loading: true, status: undefined });
+    const status = await queryDeleteArgument(argument);
+    setState({ ...state, loading: false, status: status });
+  }
 
   if (!argument || !user) return (<></>)
 
@@ -22,15 +43,23 @@ function Argument({ argumentId }: Props) {
         <span>@{user.username}</span>
         &nbsp;
         <span>{argument.date}</span>
+        {user.id === currentUserId &&
+          <>
+            &nbsp;
+            <button onClick={deleteArgument}>delete</button>
+          </>
+        }
       </div>
       <div>{argument.content}</div>
       <div>
+        <span>type: {argument.type ? "+" : "-"}</span>
+        &nbsp;
         <span>votes: {argument.voteCount}</span>
         &nbsp;
-        <button onClick={() => { setVote(vote === "up" ? "none" : "up") }}>upvote</button>
-        <button onClick={() => { setVote(vote === "down" ? "none" : "down") }}>downvote</button>
+        <button onClick={() => { }}>upvote</button>
+        <button onClick={() => { }}>downvote</button>
         &nbsp;
-        <span>{vote}</span>
+        <span>{!argument.voted ? "none" : argument.votedType ? "up" : "down"}</span>
       </div>
     </>
   )

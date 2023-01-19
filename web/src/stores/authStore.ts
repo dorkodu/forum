@@ -5,6 +5,7 @@ import { useAppStore } from "./appStore";
 
 interface State {
   authorized: boolean;
+  userId: string | undefined;
 }
 
 interface Action {
@@ -14,6 +15,7 @@ interface Action {
 
 const initialState: State = {
   authorized: false,
+  userId: undefined,
 }
 
 export const useAuthStore = create(immer<State & Action>((set, _get) => ({
@@ -26,8 +28,15 @@ export const useAuthStore = create(immer<State & Action>((set, _get) => ({
     )
 
     const authorized = !(!res?.a.data || res.a.error);
-    set(state => { state.authorized = authorized })
+    const userId = res?.a.data?.userId;
+
+    set(state => {
+      state.authorized = authorized;
+      state.userId = userId;
+    })
+
     useAppStore.getState().setAuthLoading(false);
+
     return authorized;
   },
 

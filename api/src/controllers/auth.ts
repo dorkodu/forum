@@ -23,9 +23,10 @@ async function middleware(ctx: SchemaContext) {
 const auth = sage.resource(
   {} as SchemaContext,
   undefined,
-  async (_arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    if (!await getAuthInfo(ctx)) return { error: ErrorCode.Default };
-    return { data: {} };
+  async (_arg, ctx): Promise<{ data?: { userId: string }, error?: ErrorCode }> => {
+    const info = await getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+    return { data: { userId: info.userId } };
   }
 )
 
