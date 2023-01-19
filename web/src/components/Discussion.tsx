@@ -150,9 +150,13 @@ function Discussion({ discussionId }: Props) {
             &nbsp;
             <span>{state.argumentType}</span>
             <br />
-            <button onClick={() => getArguments("older")}>load older</button>
-            <button onClick={() => getArguments("newer")}>load newer</button>
-            <button onClick={() => getArguments("newer", true)}>refresh</button>
+            {(state.argumentType === "newer" || state.argumentType === "older") &&
+              <>
+                <button onClick={() => getArguments("older")}>load older</button>
+                <button onClick={() => getArguments("newer")}>load newer</button>
+              </>
+            }
+            <button onClick={() => getArguments(state.argumentType, true)}>refresh</button>
           </>
         }
       </div>

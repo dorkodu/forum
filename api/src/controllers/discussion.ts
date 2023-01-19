@@ -10,6 +10,7 @@ import { z } from "zod";
 import { IDiscussion, IDiscussionRaw, iDiscussionSchema } from "../types/discussion";
 import { IComment, ICommentParsed, ICommentRaw, iCommentSchema } from "../types/comment";
 import { IArgument, IArgumentParsed, IArgumentRaw, iArgumentSchema } from "../types/argument";
+import postgres from "postgres";
 
 const createDiscussion = sage.resource(
   {} as SchemaContext,
@@ -216,20 +217,39 @@ const getArguments = sage.resource(
 
     const { discussionId, anchorId, type } = parsed.data;
 
-    const result = await pg<IArgumentRaw[]>`
-      SELECT 
-        da.id, da.user_id, da.discussion_id, 
-        da.date, da.content, da.type, da.vote_count,
-        (av.user_id IS NOT NULL) AS voted, 
-        av.type AS voted_type
-      FROM discussion_arguments da
-      LEFT JOIN argument_votes av
-      ON da.id=av.argument_id AND da.user_id=${info.userId}
-      WHERE discussion_id=${discussionId}
-      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND id>${anchorId}` : pg`AND id<${anchorId}`}
-      ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
-      LIMIT 20
-    `;
+    let result: postgres.RowList<IArgumentRaw[]>;
+
+    if (type === "newer" || type === "older") {
+      result = await pg<IArgumentRaw[]>`
+        SELECT 
+          da.id, da.user_id, da.discussion_id, 
+          da.date, da.content, da.type, da.vote_count,
+          (av.user_id IS NOT NULL) AS voted, 
+          av.type AS voted_type
+        FROM discussion_arguments da
+        LEFT JOIN argument_votes av
+        ON da.id=av.argument_id AND da.user_id=${info.userId}
+        WHERE da.discussion_id=${discussionId}
+        ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND da.id>${anchorId}` : pg`AND da.id<${anchorId}`}
+        ORDER BY da.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+        LIMIT 20
+      `;
+    }
+    else {
+      result = await pg<IArgumentRaw[]>`
+        SELECT 
+          da.id, da.user_id, da.discussion_id, 
+          da.date, da.content, da.type, da.vote_count,
+          (av.user_id IS NOT NULL) AS voted, 
+          av.type AS voted_type
+        FROM discussion_arguments da
+        LEFT JOIN argument_votes av
+        ON da.id=av.argument_id AND da.user_id=${info.userId}
+        WHERE discussion_id=${discussionId}
+        ORDER BY da.vote_count ${type === "top" ? pg`DESC` : pg`ASC`}
+        LIMIT 20
+      `;
+    }
 
     const res: IArgumentParsed[] = [];
     result.forEach(argument => {
