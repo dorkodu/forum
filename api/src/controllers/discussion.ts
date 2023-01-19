@@ -214,7 +214,7 @@ const getArguments = sage.resource(
     const info = await auth.getAuthInfo(ctx);
     if (!info) return { error: ErrorCode.Default };
 
-    const { discussionId, anchorId, type, /*sort*/ } = parsed.data;
+    const { discussionId, anchorId, type } = parsed.data;
 
     const result = await pg<IArgumentRaw[]>`
       SELECT 

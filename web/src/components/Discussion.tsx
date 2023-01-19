@@ -14,15 +14,38 @@ interface State {
   action: { loading: boolean, status: boolean | undefined };
 
   show: "comments" | "arguments";
-  time: "asc" | "desc";
-  type: "any" | "positive" | "negative";
-  votes: "any" | "most" | "least";
 
+  commentType: "newer" | "older";
+  argumentType: "newer" | "older" | "top" | "bottom";
+
+  argument: { text: string, type: boolean };
   comment: { text: string };
-  argument: { text: string, type: boolean }
 }
 
 function Discussion({ discussionId }: Props) {
+  const [state, setState] = useReducer((prev: State, next: State) => {
+    const newState = { ...prev, ...next };
+
+    if (newState.comment.text.length > 500)
+      newState.comment.text = newState.comment.text.substring(0, 500);
+
+    if (newState.argument.text.length > 500)
+      newState.argument.text = newState.argument.text.substring(0, 500);
+
+    return newState;
+  }, {
+    loading: true,
+    status: false,
+    action: { loading: false, status: undefined },
+
+    show: "arguments",
+    argumentType: "newer",
+    commentType: "newer",
+
+    argument: { text: "", type: true },
+    comment: { text: "" },
+  });
+
   const queryGetDiscussion = useDiscussionStore(state => state.queryGetDiscussion);
   const queryGetArguments = useDiscussionStore(state => state.queryGetArguments);
   const queryGetComments = useDiscussionStore(state => state.queryGetComments);
@@ -30,8 +53,8 @@ function Discussion({ discussionId }: Props) {
   const queryCreateComment = useDiscussionStore(state => state.queryCreateComment);
 
   const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
-  const comments = useDiscussionStore(state => state.getComments(discussionId));
-  const _arguments = useDiscussionStore(state => state.getArguments(discussionId));
+  const comments = useDiscussionStore(_state => _state.getComments(discussionId, state.commentType));
+  const _arguments = useDiscussionStore(_state => _state.getArguments(discussionId, state.argumentType));
 
   const createArgument = async () => {
     if (state.argument.text.length === 0) return;
@@ -55,12 +78,12 @@ function Discussion({ discussionId }: Props) {
     setState({ ...state, action: { ...state.action, loading: false, status: status } });
   }
 
-  const getArguments = async (type: "newer" | "older", refresh?: boolean) => {
+  const getArguments = async (type: "newer" | "older" | "top" | "bottom", refresh?: boolean) => {
     if (!discussion) return;
     if (state.action.loading) return;
 
     setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
-    const status = await queryGetArguments(discussion.id, "new", type, refresh);
+    const status = await queryGetArguments(discussion.id, type, refresh);
     setState({ ...state, action: { ...state.action, loading: false, status: status } });
   }
 
@@ -72,30 +95,6 @@ function Discussion({ discussionId }: Props) {
     const status = await queryGetComments(discussion.id, type, refresh);
     setState({ ...state, action: { ...state.action, loading: false, status: status } });
   }
-
-  const [state, setState] = useReducer((prev: State, next: State) => {
-    const newState = { ...prev, ...next };
-
-    if (newState.comment.text.length > 500)
-      newState.comment.text = newState.comment.text.substring(0, 500);
-
-    if (newState.argument.text.length > 500)
-      newState.argument.text = newState.argument.text.substring(0, 500);
-
-    return newState;
-  }, {
-    loading: true,
-    status: false,
-    action: { loading: false, status: undefined },
-
-    show: "arguments",
-    time: "desc",
-    type: "any",
-    votes: "most",
-    comment: { text: "" },
-    argument: { text: "", type: true },
-  });
-
 
   useEffect(() => {
     (async () => {
@@ -132,10 +131,10 @@ function Discussion({ discussionId }: Props) {
         <br />
         {state.show === "comments" &&
           <>
-            <button onClick={() => setState({ ...state, time: "asc" })}>time asc</button>
-            <button onClick={() => setState({ ...state, time: "desc" })}>time desc</button>
+            <button onClick={() => setState({ ...state, commentType: "newer" })}>newer</button>
+            <button onClick={() => setState({ ...state, commentType: "older" })}>older</button>
             &nbsp;
-            <span>{state.time}</span>
+            <span>{state.commentType}</span>
             <br />
             <button onClick={() => getComments("older")}>load older</button>
             <button onClick={() => getComments("newer")}>load newer</button>
@@ -144,22 +143,12 @@ function Discussion({ discussionId }: Props) {
         }
         {state.show === "arguments" &&
           <>
-            <button onClick={() => setState({ ...state, time: "asc" })}>time asc</button>
-            <button onClick={() => setState({ ...state, time: "desc" })}>time desc</button>
+            <button onClick={() => setState({ ...state, argumentType: "newer" })}>newer</button>
+            <button onClick={() => setState({ ...state, argumentType: "older" })}>older</button>
+            <button onClick={() => setState({ ...state, argumentType: "top" })}>top</button>
+            <button onClick={() => setState({ ...state, argumentType: "bottom" })}>bottom</button>
             &nbsp;
-            <span>{state.time}</span>
-            <br />
-            <button onClick={() => setState({ ...state, type: "any" })}>show all</button>
-            <button onClick={() => setState({ ...state, type: "negative" })}>show positive</button>
-            <button onClick={() => setState({ ...state, type: "positive" })}>show negative</button>
-            &nbsp;
-            <span>{state.type}</span>
-            <br />
-            <button onClick={() => setState({ ...state, votes: "any" })}>any votes</button>
-            <button onClick={() => setState({ ...state, votes: "most" })}>most votes</button>
-            <button onClick={() => setState({ ...state, votes: "least" })}>least votes</button>
-            &nbsp;
-            <span>{state.votes}</span>
+            <span>{state.argumentType}</span>
             <br />
             <button onClick={() => getArguments("older")}>load older</button>
             <button onClick={() => getArguments("newer")}>load newer</button>

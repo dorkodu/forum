@@ -11,8 +11,14 @@ interface State {
   discussion: {
     entities: { [key: string]: IDiscussion }
 
-    // arguments[discussionId][argumentId] -> IArgument
-    arguments: { [key: string]: { [key: string]: IArgument } }
+    // arguments[discussionId].normal[argumentId] -> IArgument
+    arguments: {
+      [key: string]: {
+        normal: { [key: string]: IArgument },
+        top: IArgument[],     // arguments with highest vote count
+        bottom: IArgument[],  // arguments with lowest vote count
+      }
+    }
 
     // comments[discussionId][commentId] -> IComment
     comments: { [key: string]: { [key: string]: IComment } }
@@ -31,12 +37,12 @@ interface Action {
   getDiscussionById: (discussionId: string | undefined) => IDiscussion | undefined;
 
   getArgument: (argumentId: string | undefined) => IArgument | undefined;
-  getArguments: (discussionId: string | undefined) => IArgument[];
-  setArguments: (discussionId: string, argumentsArray: IArgument[]) => void;
+  getArguments: (discussionId: string | undefined, type: "newer" | "older" | "top" | "bottom") => IArgument[];
+  setArguments: (discussionId: string, argumentsArray: IArgument[], type: "newer" | "older" | "top" | "bottom") => void;
   getArgumentAnchor: (discussionId: string, type: "newer" | "older", refresh?: boolean) => string;
 
   getComment: (commentId: string | undefined) => IComment | undefined;
-  getComments: (discussionId: string | undefined) => IComment[];
+  getComments: (discussionId: string | undefined, type: "newer" | "older") => IComment[];
   setComments: (discussionId: string, comments: IComment[]) => void;
   getCommentAnchor: (discussionId: string, type: "newer" | "older", refresh?: boolean) => string;
 
@@ -55,8 +61,7 @@ interface Action {
   queryDeleteArgument: () => Promise<boolean>;
   queryGetArguments: (
     discussionId: string,
-    sort: "new" | "old" | "top" | "bottom",
-    type: "newer" | "older",
+    type: "newer" | "older" | "top" | "bottom",
     refresh?: boolean
   ) => Promise<boolean>;
   queryVoteArgument: () => Promise<boolean>;
@@ -86,29 +91,38 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return get().argument.entities[argumentId];
   },
 
-  getArguments: (discussionId) => {
+  getArguments: (discussionId, type) => {
     if (!discussionId) return [];
 
-    const object = get().discussion.arguments[discussionId];
+    if (type === "top") return get().discussion.arguments[discussionId]?.top ?? [];
+    else if (type === "bottom") return get().discussion.arguments[discussionId]?.bottom ?? [];
+
+    const object = get().discussion.arguments[discussionId]?.normal;
     if (!object) return [];
 
-    return Object.values(object);
+    const arr: IArgument[] = Object.values(object)
+    const sorted = array.sort(arr, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b))
+    return sorted;
   },
 
-  setArguments: (discussionId, argumentsArray) => {
+  setArguments: (discussionId, argumentsArray, type) => {
     set(state => {
       if (!state.discussion.arguments[discussionId])
-        state.discussion.arguments[discussionId] = {};
+        state.discussion.arguments[discussionId] = { normal: {}, top: [], bottom: [] };
 
-      argumentsArray.forEach((argument) => {
-        state.discussion.arguments[discussionId]![argument.id] = argument;
-        state.argument.entities[argument.id] = argument;
-      })
+      if (type === "top") state.discussion.arguments[discussionId]!.top = argumentsArray;
+      else if (type === "bottom") state.discussion.arguments[discussionId]!.bottom = argumentsArray;
+      else {
+        argumentsArray.forEach((argument) => {
+          state.discussion.arguments[discussionId]!.normal[argument.id] = argument;
+          state.argument.entities[argument.id] = argument;
+        })
+      }
     })
   },
 
   getArgumentAnchor: (discussionId, type, refresh) => {
-    const argumentsArray = get().discussion.arguments[discussionId];
+    const argumentsArray = get().discussion.arguments[discussionId]?.normal;
     let anchorId = "-1";
     if (argumentsArray) anchorId = array.getAnchor(Object.values(argumentsArray), "id", "-1", type, refresh);
     return anchorId;
@@ -120,13 +134,15 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return get().comment.entities[commentId];
   },
 
-  getComments: (discussionId) => {
+  getComments: (discussionId, type) => {
     if (!discussionId) return [];
 
     const object = get().discussion.comments[discussionId];
     if (!object) return [];
 
-    return Object.values(object);
+    const arr: IComment[] = Object.values(object)
+    const sorted = array.sort(arr, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b))
+    return sorted;
   },
 
   setComments: (discussionId, comments) => {
@@ -249,18 +265,20 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return false;
   },
 
-  queryGetArguments: async (discussionId, sort, type, refresh) => {
-    const anchorId = get().getArgumentAnchor(discussionId, type, refresh);
+  queryGetArguments: async (discussionId, type, refresh) => {
+    let anchorId = "-1";
+    if (type !== "top" && type !== "bottom")
+      anchorId = get().getArgumentAnchor(discussionId, type, refresh);
 
     const res = await sage.get(
-      { a: sage.query("getArguments", { discussionId, sort, anchorId, type }) },
+      { a: sage.query("getArguments", { discussionId, anchorId, type }) },
       (query) => request(query)
     )
 
     const status = !(!res?.a.data || res.a.error);
     const argumentsArray = res?.a.data;
 
-    if (argumentsArray) get().setArguments(discussionId, argumentsArray);
+    if (argumentsArray) get().setArguments(discussionId, argumentsArray, type);
     return status;
   },
 
