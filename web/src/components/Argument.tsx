@@ -1,20 +1,31 @@
 import { useState } from "react"
+import { useDiscussionStore } from "../stores/discussionStore";
+import { useUserStore } from "../stores/userStore";
 
-function Argument() {
+interface Props {
+  argumentId: string;
+}
+
+function Argument({ argumentId }: Props) {
   const [vote, setVote] = useState<"none" | "up" | "down">("none")
+
+  const argument = useDiscussionStore(state => state.getArgument(argumentId));
+  const user = useUserStore(state => state.getUserById(argument?.userId));
+
+  if (!argument || !user) return (<></>)
 
   return (
     <>
       <div>
-        <span>Berk Cambaz</span>
+        <span>{user.name}</span>
         &nbsp;
-        <span>@berkcambaz</span>
+        <span>@{user.username}</span>
         &nbsp;
-        <span>16h</span>
+        <span>{argument.date}</span>
       </div>
-      <div>hello, world!</div>
+      <div>{argument.content}</div>
       <div>
-        <span>votes: 123</span>
+        <span>votes: {argument.voteCount}</span>
         &nbsp;
         <button onClick={() => { setVote(vote === "up" ? "none" : "up") }}>upvote</button>
         <button onClick={() => { setVote(vote === "down" ? "none" : "down") }}>downvote</button>

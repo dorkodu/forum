@@ -31,6 +31,13 @@ export const deleteArgumentSchema = z.object({
   argumentId: z.string(),
 }).strict();
 
+export const getArgumentsSchema = z.object({
+  discussionId: z.string(),
+  anchorId: z.string(),
+  type: z.enum(["newer", "older"]),
+  sort: z.enum(["new", "old", "top", "bottom"]),
+}).strict();
+
 
 export const createCommentSchema = z.object({
   discussionId: z.string(),

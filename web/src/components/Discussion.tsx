@@ -24,12 +24,14 @@ interface State {
 
 function Discussion({ discussionId }: Props) {
   const queryGetDiscussion = useDiscussionStore(state => state.queryGetDiscussion);
+  const queryGetArguments = useDiscussionStore(state => state.queryGetArguments);
   const queryGetComments = useDiscussionStore(state => state.queryGetComments);
   const queryCreateArgument = useDiscussionStore(state => state.queryCreateArgument);
   const queryCreateComment = useDiscussionStore(state => state.queryCreateComment);
 
   const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
   const comments = useDiscussionStore(state => state.getComments(discussionId));
+  const _arguments = useDiscussionStore(state => state.getArguments(discussionId));
 
   const createArgument = async () => {
     if (state.argument.text.length === 0) return;
@@ -50,6 +52,15 @@ function Discussion({ discussionId }: Props) {
 
     setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
     const status = await queryCreateComment(discussion.id, state.comment.text);
+    setState({ ...state, action: { ...state.action, loading: false, status: status } });
+  }
+
+  const getArguments = async (type: "newer" | "older", refresh?: boolean) => {
+    if (!discussion) return;
+    if (state.action.loading) return;
+
+    setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
+    const status = await queryGetArguments(discussion.id, "new", type, refresh);
     setState({ ...state, action: { ...state.action, loading: false, status: status } });
   }
 
@@ -149,6 +160,10 @@ function Discussion({ discussionId }: Props) {
             <button onClick={() => setState({ ...state, votes: "least" })}>least votes</button>
             &nbsp;
             <span>{state.votes}</span>
+            <br />
+            <button onClick={() => getArguments("older")}>load older</button>
+            <button onClick={() => getArguments("newer")}>load newer</button>
+            <button onClick={() => getArguments("newer", true)}>refresh</button>
           </>
         }
       </div>
@@ -188,7 +203,7 @@ function Discussion({ discussionId }: Props) {
         </>
       }
 
-      {state.show === "arguments" && [...Array(5)].map((_v, i) => <div key={i}><hr /><Argument /></div>)}
+      {state.show === "arguments" && _arguments.map((argument) => <div key={argument.id}><hr /><Argument argumentId={argument.id} /></div>)}
       {state.show === "comments" && comments.map((comment) => <div key={comment.id}><hr /><Comment commentId={comment.id} /></div>)}
     </>
   )

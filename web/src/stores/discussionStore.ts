@@ -30,6 +30,11 @@ interface State {
 interface Action {
   getDiscussionById: (discussionId: string | undefined) => IDiscussion | undefined;
 
+  getArgument: (argumentId: string | undefined) => IArgument | undefined;
+  getArguments: (discussionId: string | undefined) => IArgument[];
+  setArguments: (discussionId: string, argumentsArray: IArgument[]) => void;
+  getArgumentAnchor: (discussionId: string, type: "newer" | "older", refresh?: boolean) => string;
+
   getComment: (commentId: string | undefined) => IComment | undefined;
   getComments: (discussionId: string | undefined) => IComment[];
   setComments: (discussionId: string, comments: IComment[]) => void;
@@ -48,7 +53,12 @@ interface Action {
 
   queryCreateArgument: (discussionId: string, content: string, type: boolean) => Promise<boolean>;
   queryDeleteArgument: () => Promise<boolean>;
-  queryGetArguments: () => Promise<boolean>;
+  queryGetArguments: (
+    discussionId: string,
+    sort: "new" | "old" | "top" | "bottom",
+    type: "newer" | "older",
+    refresh?: boolean
+  ) => Promise<boolean>;
   queryVoteArgument: () => Promise<boolean>;
 
   queryCreateComment: (discussionId: string, content: string) => Promise<boolean>;
@@ -69,6 +79,41 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     if (!discussionId) return undefined;
     return get().discussion.entities[discussionId];
   },
+
+
+  getArgument: (argumentId) => {
+    if (!argumentId) return undefined;
+    return get().argument.entities[argumentId];
+  },
+
+  getArguments: (discussionId) => {
+    if (!discussionId) return [];
+
+    const object = get().discussion.arguments[discussionId];
+    if (!object) return [];
+
+    return Object.values(object);
+  },
+
+  setArguments: (discussionId, argumentsArray) => {
+    set(state => {
+      if (!state.discussion.arguments[discussionId])
+        state.discussion.arguments[discussionId] = {};
+
+      argumentsArray.forEach((argument) => {
+        state.discussion.arguments[discussionId]![argument.id] = argument;
+        state.argument.entities[argument.id] = argument;
+      })
+    })
+  },
+
+  getArgumentAnchor: (discussionId, type, refresh) => {
+    const argumentsArray = get().discussion.arguments[discussionId];
+    let anchorId = "-1";
+    if (argumentsArray) anchorId = array.getAnchor(Object.values(argumentsArray), "id", "-1", type, refresh);
+    return anchorId;
+  },
+
 
   getComment: (commentId) => {
     if (!commentId) return undefined;
@@ -102,6 +147,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     if (comments) anchorId = array.getAnchor(Object.values(comments), "id", "-1", type, refresh);
     return anchorId;
   },
+
 
   queryCreateDiscussion: async (title, readme) => {
     const res = await sage.get(
@@ -203,8 +249,19 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return false;
   },
 
-  queryGetArguments: async () => {
-    return false;
+  queryGetArguments: async (discussionId, sort, type, refresh) => {
+    const anchorId = get().getArgumentAnchor(discussionId, type, refresh);
+
+    const res = await sage.get(
+      { a: sage.query("getArguments", { discussionId, sort, anchorId, type }) },
+      (query) => request(query)
+    )
+
+    const status = !(!res?.a.data || res.a.error);
+    const argumentsArray = res?.a.data;
+
+    if (argumentsArray) get().setArguments(discussionId, argumentsArray);
+    return status;
   },
 
   queryVoteArgument: async () => {
@@ -220,10 +277,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     const status = !(!res?.a.data || res.a.error);
     const comment = res?.a.data;
 
-    set(state => {
-      if (!comment) return;
-      state.comment.entities[comment.id] = comment;
-    })
+    if (comment) get().setComments(discussionId, [comment]);
 
     return status;
   },

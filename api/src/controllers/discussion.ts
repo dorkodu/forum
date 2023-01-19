@@ -2,14 +2,14 @@ import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
 import auth from "./auth";
-import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, getCommentsSchema, getDiscussionSchema } from "../schemas/discussion";
+import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, getArgumentsSchema, getCommentsSchema, getDiscussionSchema } from "../schemas/discussion";
 import pg from "../pg";
 import { snowflake } from "../lib/snowflake";
 import { date } from "../lib/date";
 import { z } from "zod";
 import { IDiscussion, IDiscussionRaw, iDiscussionSchema } from "../types/discussion";
 import { IComment, ICommentParsed, ICommentRaw, iCommentSchema } from "../types/comment";
-import { IArgument } from "../types/argument";
+import { IArgument, IArgumentParsed, IArgumentRaw, iArgumentSchema } from "../types/argument";
 
 const createDiscussion = sage.resource(
   {} as SchemaContext,
@@ -178,7 +178,7 @@ const createArgument = sage.resource(
     const result = await pg`INSERT INTO discussion_arguments ${pg(row)}`;
     if (result.count === 0) return { error: ErrorCode.Default };
 
-    return { data: row };
+    return { data: { ...row, voted: false, votedType: true } };
   }
 )
 
@@ -206,9 +206,41 @@ const deleteArgument = sage.resource(
 
 const getArguments = sage.resource(
   {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    return { data: {} };
+  {} as z.infer<typeof getArgumentsSchema>,
+  async (arg, ctx): Promise<{ data?: IArgument[], error?: ErrorCode }> => {
+    const parsed = getArgumentsSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { discussionId, anchorId, type, /*sort*/ } = parsed.data;
+
+    const result = await pg<IArgumentRaw[]>`
+      SELECT 
+        da.id, da.user_id, da.discussion_id, 
+        da.date, da.content, da.type, da.vote_count,
+        (av.user_id IS NOT NULL) AS voted, 
+        av.type AS voted_type
+      FROM discussion_arguments da
+      LEFT JOIN argument_votes av
+      ON da.id=av.argument_id AND da.user_id=${info.userId}
+      WHERE discussion_id=${discussionId}
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND id>${anchorId}` : pg`AND id<${anchorId}`}
+      ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      LIMIT 20
+    `;
+
+    const res: IArgumentParsed[] = [];
+    result.forEach(argument => {
+      const parsed = iArgumentSchema.safeParse(argument);
+      if (parsed.success) res.push(parsed.data);
+    })
+
+    if (ctx.userIds === undefined) ctx.userIds = new Set();
+    res.forEach((argument) => { ctx.userIds?.add(argument.userId) })
+
+    return { data: res };
   }
 )
 

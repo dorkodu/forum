@@ -11,6 +11,8 @@ interface State {
 interface Action {
   getUserById: (userId: string | undefined) => IUser | undefined;
 
+  setUsers: (users: IUser[]) => void;
+
   queryGetUser: () => Promise<boolean>;
   queryEditUser: () => Promise<boolean>;
   querySearchUser: () => Promise<boolean>;
@@ -26,12 +28,20 @@ const initialState: State = {
   user: { entities: {} },
 }
 
-export const useUserStore = create(immer<State & Action>((_set, get) => ({
+export const useUserStore = create(immer<State & Action>((set, get) => ({
   ...initialState,
 
   getUserById: (userId) => {
     if (!userId) return undefined;
     return get().user.entities[userId];
+  },
+
+  setUsers: (users) => {
+    set(state => {
+      users.forEach((user) => {
+        state.user.entities[user.id] = user;
+      })
+    })
   },
 
   queryGetUser: async () => {
