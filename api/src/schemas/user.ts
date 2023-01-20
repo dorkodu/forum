@@ -11,6 +11,11 @@ export const getUserDiscussionsSchema = z.object({
   type: z.enum(["newer", "older"]),
 }).strict();
 
+export const followUserSchema = z.object({
+  userId: z.string(),
+  type: z.boolean(),
+}).strict();
+
 export const getUserFollowersSchema = z.object({
   userId: z.string().optional(),
   anchorId: z.string(),

@@ -11,4 +11,6 @@ export const iUserSchema = z.object({
   joinDate: z.string().transform((arg) => parseInt(arg)),
   followerCount: z.string().transform((arg) => parseInt(arg)),
   followingCount: z.string().transform((arg) => parseInt(arg)),
+  follower: z.boolean(),
+  following: z.boolean(),
 }).strict();
