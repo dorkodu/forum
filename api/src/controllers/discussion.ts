@@ -113,7 +113,7 @@ const editDiscussion = sage.resource(
     const { discussionId, title, readme } = parsed.data;
 
     const result = await pg`
-      UPDATE discussions SET title=${title}, readme=${readme}
+      UPDATE discussions SET title=${title}, readme=${readme}, last_update_date=${date.utc()}
       WHERE id=${discussionId} AND user_id=${info.userId}
     `;
     if (result.count === 0) return { error: ErrorCode.Default };
@@ -176,8 +176,12 @@ const createArgument = sage.resource(
       voteCount: 0,
     }
 
-    const result = await pg`INSERT INTO discussion_arguments ${pg(row)}`;
-    if (result.count === 0) return { error: ErrorCode.Default };
+    const [result0, result1] = await pg.begin(pg => [
+      pg`INSERT INTO discussion_arguments ${pg(row)}`,
+      pg`UPDATE discussions SET last_argument_date=${date.utc()} WHERE id=${discussionId}`,
+    ]);
+    if (result0.count === 0) return { error: ErrorCode.Default };
+    if (result1.count === 0) return { error: ErrorCode.Default };
 
     return { data: { ...row, voted: false, votedType: true } };
   }
@@ -292,8 +296,12 @@ const createComment = sage.resource(
       content: content,
     }
 
-    const result = await pg`INSERT INTO discussion_comments ${pg(row)}`;
-    if (result.count === 0) return { error: ErrorCode.Default };
+    const [result0, result1] = await pg.begin(pg => [
+      pg`INSERT INTO discussion_comments ${pg(row)}`,
+      pg`UPDATE discussions SET last_comment_date=${date.utc()} WHERE id=${discussionId}`,
+    ]);
+    if (result0.count === 0) return { error: ErrorCode.Default };
+    if (result1.count === 0) return { error: ErrorCode.Default };
 
     return { data: row };
   }
