@@ -1,20 +1,25 @@
+import { IUser } from "@api/types/user";
 import { useNavigate } from "react-router-dom"
 
-function ProfileSummary() {
+interface Props {
+  user: IUser;
+}
+
+function ProfileSummary({ user }: Props) {
   const navigate = useNavigate();
 
   return (
     <>
-      <div onClick={() => { navigate("/profile/123") }}>
-        <span>Berk Cambaz</span>
+      <div onClick={() => navigate(`/profile/${user.username}`)}>
+        <span>{user.name}</span>
         &nbsp;
-        <span>@berkcambaz</span>
+        <span>@{user.username}</span>
       </div>
-      <div>hello, world</div>
+      <div>{user.bio}</div>
       <div>
-        <span>123 followers</span>
+        <span>{user.followerCount} followers</span>
         &nbsp;
-        <span>123 following</span>
+        <span>{user.followingCount} following</span>
       </div>
     </>
   )

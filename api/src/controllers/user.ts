@@ -1,7 +1,7 @@
 import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
-import { getUserDiscussionsSchema, getUserSchema } from "../schemas/user";
+import { getUserDiscussionsSchema, getUserFollowersSchema, getUserFollowingSchema, getUserSchema } from "../schemas/user";
 import { z } from "zod";
 import auth from "./auth";
 import pg from "../pg";
@@ -124,17 +124,65 @@ const followUser = sage.resource(
 
 const getUserFollowers = sage.resource(
   {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    return { data: {} };
+  {} as z.infer<typeof getUserFollowersSchema>,
+  async (arg, ctx): Promise<{ data?: IUser[], error?: ErrorCode }> => {
+    const parsed = getUserFollowersSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { anchorId, type } = parsed.data;
+    const userId = parsed.data.userId ?? ctx.userId;
+    if (!userId) return { error: ErrorCode.Default };
+
+    const result = await pg<IUserRaw[]>`
+      SELECT id, name, username, bio, join_date, follower_count, following_count FROM users
+      WHERE id IN (SELECT follower_id FROM user_follows WHERE following_id=${userId})
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND id>${anchorId}` : pg`AND id<${anchorId}`}
+      ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      LIMIT 20
+    `;
+
+    const res: IUserParsed[] = [];
+    result.forEach(argument => {
+      const parsed = iUserSchema.safeParse(argument);
+      if (parsed.success) res.push(parsed.data);
+    })
+
+    return { data: res };
   }
 )
 
 const getUserFollowing = sage.resource(
   {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    return { data: {} };
+  {} as z.infer<typeof getUserFollowingSchema>,
+  async (arg, ctx): Promise<{ data?: IUser[], error?: ErrorCode }> => {
+    const parsed = getUserFollowingSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { anchorId, type } = parsed.data;
+    const userId = parsed.data.userId ?? ctx.userId;
+    if (!userId) return { error: ErrorCode.Default };
+
+    const result = await pg<IUserRaw[]>`
+      SELECT id, name, username, bio, join_date, follower_count, following_count FROM users
+      WHERE id IN (SELECT following_id FROM user_follows WHERE follower_id=${userId})
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND id>${anchorId}` : pg`AND id<${anchorId}`}
+      ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      LIMIT 20
+    `;
+
+    const res: IUserParsed[] = [];
+    result.forEach(argument => {
+      const parsed = iUserSchema.safeParse(argument);
+      if (parsed.success) res.push(parsed.data);
+    })
+
+    return { data: res };
   }
 )
 
