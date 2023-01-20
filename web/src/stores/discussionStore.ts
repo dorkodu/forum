@@ -100,6 +100,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
       delete state.discussion.entities[discussion.id];
       delete state.discussion.arguments[discussion.id];
       delete state.discussion.comments[discussion.id];
+      delete state.discussion.users[discussion.userId]?.[discussion.id];
 
       // TODO: Delete arguments/comments from state.(argument/discussion) too.
     })
