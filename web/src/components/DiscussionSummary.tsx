@@ -65,12 +65,12 @@ function DiscussionSummary({ discussionId }: Props) {
         {user.id === currentUserId &&
           <>
             &nbsp;
-            <button onClick={deleteDiscussion}>delete</button>
+            <button onClick={(ev) => { ev.stopPropagation(); deleteDiscussion(); }}>delete</button>
           </>
         }
         <div>{discussion.title}</div>
         <div>
-          <button onClick={favouriteDiscussion}>
+          <button onClick={(ev) => { ev.stopPropagation(); favouriteDiscussion(); }}>
             {discussion.favourited ? "unfavourite" : "favourite"}
           </button>
           &nbsp;
