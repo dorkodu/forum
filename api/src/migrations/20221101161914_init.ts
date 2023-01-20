@@ -57,6 +57,7 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("id").primary()
       table.bigint("user_id")
       table.bigint("argument_id")
+      table.bigint("discussion_id")
       table.boolean("type")
       table.unique(["user_id", "argument_id"])
     })

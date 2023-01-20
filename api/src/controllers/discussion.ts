@@ -63,6 +63,13 @@ const deleteDiscussion = sage.resource(
     `;
     if (result.count === 0) return { error: ErrorCode.Default };
 
+    await pg.begin(pg => [
+      pg`DELETE FROM discussion_favourites WHERE discussion_id=${discussionId}`,
+      pg`DELETE FROM discussion_comments WHERE discussion_id=${discussionId}`,
+      pg`DELETE FROM discussion_arguments WHERE discussion_id=${discussionId}`,
+      pg`DELETE FROM argument_votes WHERE discussion_id=${discussionId}`,
+    ])
+
     return { data: {} };
   }
 )
@@ -330,19 +337,26 @@ const voteArgument = sage.resource(
       if (result1.count === 0) return { error: ErrorCode.Default };
     }
     else {
+      const [result0]: [{ discussionId: string }?] = await pg`
+        SELECT discussion_id FROM discussion_arguments 
+        WHERE id=${argumentId}
+      `;
+      if (!result0) return { error: ErrorCode.Default };
+
       const row = {
         id: snowflake.id("argument_votes"),
         userId: info.userId,
         argumentId: argumentId,
+        discussionId: result0.discussionId,
         type: type === "up",
       }
 
-      const [result0]: [{ type: boolean }?] = await pg`
+      const [result1]: [{ type: boolean }?] = await pg`
         SELECT type FROM argument_votes 
         WHERE user_id=${info.userId} AND argument_id=${argumentId}
       `;
 
-      const voted = result0?.type;
+      const voted = result1?.type;
       let count: number;
       if (voted === true && type === "down") count = -2;
       else if (voted === false && type === "up") count = +2;
@@ -350,23 +364,23 @@ const voteArgument = sage.resource(
       else if (voted === undefined && type === "down") count = -1;
       else return { error: ErrorCode.Default };
 
-      const [result1, result2] = await pg.begin(pg => {
-        const result1 = voted === undefined ?
+      const [result2, result3] = await pg.begin(pg => {
+        const result2 = voted === undefined ?
           pg`INSERT INTO argument_votes ${pg(row)}` :
           pg`
             UPDATE argument_votes SET type=${row.type} 
             WHERE user_id=${info.userId} AND argument_id=${argumentId}
             `;
 
-        const result2 = pg`
+        const result3 = pg`
           UPDATE discussion_arguments SET vote_count=vote_count+${count} 
           WHERE id=${argumentId}
         `;
 
-        return [result1, result2];
+        return [result2, result3];
       })
-      if (result1.count === 0) return { error: ErrorCode.Default };
       if (result2.count === 0) return { error: ErrorCode.Default };
+      if (result3.count === 0) return { error: ErrorCode.Default };
     }
 
     return { data: {} };

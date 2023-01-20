@@ -35,6 +35,7 @@ interface State {
 
 interface Action {
   getDiscussionById: (discussionId: string | undefined) => IDiscussion | undefined;
+  deleteDiscussion: (discussion: IDiscussion) => void;
 
   deleteArgument: (argument: IArgument | undefined) => void;
   getArgument: (argumentId: string | undefined) => IArgument | undefined;
@@ -49,7 +50,7 @@ interface Action {
   getCommentAnchor: (discussionId: string, type: "newer" | "older", refresh?: boolean) => string;
 
   queryCreateDiscussion: (title: string, readme: string) => Promise<boolean>;
-  queryDeleteDiscussion: () => Promise<boolean>;
+  queryDeleteDiscussion: (discussion: IDiscussion) => Promise<boolean>;
   queryGetDiscussion: (discussionId: string | undefined) => Promise<boolean>;
   queryEditDiscussion: () => Promise<boolean>;
   querySearchDiscussion: () => Promise<boolean>;
@@ -85,6 +86,16 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
   getDiscussionById: (discussionId) => {
     if (!discussionId) return undefined;
     return get().discussion.entities[discussionId];
+  },
+
+  deleteDiscussion: (discussion) => {
+    set(state => {
+      delete state.discussion.entities[discussion.id];
+      delete state.discussion.arguments[discussion.id];
+      delete state.discussion.comments[discussion.id];
+
+      // TODO: Delete arguments/comments from state.(argument/discussion) too.
+    })
   },
 
 
@@ -220,8 +231,16 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return status;
   },
 
-  queryDeleteDiscussion: async () => {
-    return false;
+  queryDeleteDiscussion: async (discussion) => {
+    const res = await sage.get(
+      { a: sage.query("deleteDiscussion", { discussionId: discussion.id }) },
+      (query) => request(query)
+    )
+
+    const status = !(!res?.a.data || res.a.error);
+    if (status) get().deleteDiscussion(discussion);
+
+    return status;
   },
 
   queryEditDiscussion: async () => {
@@ -362,8 +381,6 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     set(state => {
       const a = state.argument.entities[argument.id];
       if (a && status) {
-        //d.favourited = status ? !d.favourited : d.favourited;
-        //d.favouriteCount += d.favourited ? +1 : -1;
         const older = a.votedType === true ? -1 : a.votedType === false ? +1 : 0;
         const newer = voteType === "up" ? +1 : voteType === "down" ? -1 : 0;
         const total = older + newer;

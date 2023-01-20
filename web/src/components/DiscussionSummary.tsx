@@ -1,5 +1,6 @@
 import { useReducer } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 
@@ -22,8 +23,10 @@ function DiscussionSummary({ discussionId }: Props) {
   const location = useLocation();
 
   const queryFavouriteDiscussion = useDiscussionStore(state => state.queryFavouriteDiscussion);
+  const queryDeleteDiscussion = useDiscussionStore(state => state.queryDeleteDiscussion);
   const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
   const user = useUserStore(state => state.getUserById(discussion?.userId));
+  const currentUserId = useAuthStore(state => state.userId);
 
   const gotoDiscussion = () => {
     if (!discussion) return;
@@ -40,6 +43,15 @@ function DiscussionSummary({ discussionId }: Props) {
     setState({ ...state, loading: false, status: status });
   }
 
+  const deleteDiscussion = async () => {
+    if (!discussion) return;
+    if (state.loading) return;
+
+    setState({ ...state, loading: true, status: undefined });
+    const status = await queryDeleteDiscussion(discussion);
+    setState({ ...state, loading: false, status: status });
+  }
+
   if (!discussion || !user) return (<></>)
 
   return (
@@ -50,6 +62,12 @@ function DiscussionSummary({ discussionId }: Props) {
         <span>@{user.username}</span>
         &nbsp;
         <span>{discussion.date}</span>
+        {user.id === currentUserId &&
+          <>
+            &nbsp;
+            <button onClick={deleteDiscussion}>delete</button>
+          </>
+        }
         <div>{discussion.title}</div>
         <div>
           <button onClick={favouriteDiscussion}>
