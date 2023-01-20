@@ -1,7 +1,7 @@
 import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
-import { followUserSchema, getUserDiscussionsSchema, getUserFollowersSchema, getUserFollowingSchema, getUserSchema } from "../schemas/user";
+import { editUserSchema, followUserSchema, getUserDiscussionsSchema, getUserFollowersSchema, getUserFollowingSchema, getUserSchema } from "../schemas/user";
 import { z } from "zod";
 import auth from "./auth";
 import pg from "../pg";
@@ -71,8 +71,26 @@ const getUser = sage.resource(
 
 const editUser = sage.resource(
   {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+  {} as z.infer<typeof editUserSchema>,
+  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+    const parsed = editUserSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { name, bio } = parsed.data;
+    if (!name && !bio) return { error: ErrorCode.Default };
+
+    const result = await pg`
+      UPDATE users
+      ${(name && bio) ? pg`SET name=${name}, bio=${bio}` : pg``}
+      ${name ? pg`SET name=${name}` : pg``}
+      ${bio ? pg`SET bio=${bio}` : pg``}
+      WHERE id=${info.userId}
+    `;
+    if (result.count === 0) return { error: ErrorCode.Default };
+
     return { data: {} };
   }
 )
@@ -199,14 +217,14 @@ const getUserFollowers = sage.resource(
         u.follower_count, u.following_count,
         (uf1.id IS NOT NULL) AS following,
         (uf2.id IS NOT NULL) AS follower
-      FROM users
+      FROM users u
       LEFT JOIN user_follows uf1
       ON u.id=uf1.follower_id AND uf1.following_id=${info.userId}
       LEFT JOIN user_follows uf2
       ON u.id=uf2.following_id AND uf2.follower_id=${info.userId}
-      WHERE id IN (SELECT follower_id FROM user_follows WHERE following_id=${userId})
-      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND id>${anchorId}` : pg`AND id<${anchorId}`}
-      ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      WHERE u.id IN (SELECT follower_id FROM user_follows WHERE following_id=${userId})
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id>${anchorId}` : pg`AND u.id<${anchorId}`}
+      ORDER BY u.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
       LIMIT 20
     `;
 
@@ -240,14 +258,14 @@ const getUserFollowing = sage.resource(
         u.follower_count, u.following_count,
         (uf1.id IS NOT NULL) AS following,
         (uf2.id IS NOT NULL) AS follower
-      FROM users
+      FROM users u
       LEFT JOIN user_follows uf1
       ON u.id=uf1.follower_id AND uf1.following_id=${info.userId}
       LEFT JOIN user_follows uf2
       ON u.id=uf2.following_id AND uf2.follower_id=${info.userId}
-      WHERE id IN (SELECT following_id FROM user_follows WHERE follower_id=${userId})
-      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND id>${anchorId}` : pg`AND id<${anchorId}`}
-      ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      WHERE u.id IN (SELECT following_id FROM user_follows WHERE follower_id=${userId})
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id>${anchorId}` : pg`AND u.id<${anchorId}`}
+      ORDER BY u.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
       LIMIT 20
     `;
 

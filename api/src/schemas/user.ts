@@ -5,6 +5,11 @@ export const getUserSchema = z.object({
   username: z.string().optional(),
 }).strict();
 
+export const editUserSchema = z.object({
+  name: z.string().trim().optional(),
+  bio: z.string().trim().optional(),
+}).strict();
+
 export const getUserDiscussionsSchema = z.object({
   userId: z.string().optional(),
   anchorId: z.string(),

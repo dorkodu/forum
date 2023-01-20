@@ -33,7 +33,7 @@ interface Action {
   getUserFollowingAnchor: (user: IUser, type: "newer" | "older", refresh?: boolean) => string;
 
   queryGetUser: () => Promise<boolean>;
-  queryEditUser: () => Promise<boolean>;
+  queryEditUser: (name: string | undefined, bio: string | undefined) => Promise<boolean>;
   querySearchUser: () => Promise<boolean>;
 
   queryGetUserDiscussions: () => Promise<boolean>;
@@ -142,8 +142,24 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
     return false;
   },
 
-  queryEditUser: async () => {
-    return false;
+  queryEditUser: async (name, bio) => {
+    const res = await sage.get(
+      { a: sage.query("editUser", { name, bio }) },
+      (query) => request(query)
+    )
+
+    const status = !(!res?.a.data || res.a.error);
+
+    set(state => {
+      const userId = useAuthStore.getState().userId;
+      if (!userId) return;
+      const user = state.user.entities[userId];
+      if (!user) return;
+      if (name) user.name = name.trim();
+      if (bio) user.name = bio.trim();
+    })
+
+    return status;
   },
 
   querySearchUser: async () => {
@@ -165,6 +181,9 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
     const status = !(!res?.a.data || res.a.error);
 
     set(state => {
+      // TODO: Add/remove follower/following
+      // TEST: Go to followers or following and follow that user, it won't appear there
+      
       const currentUserId = useAuthStore.getState().userId;
       const current = currentUserId && state.user.entities[currentUserId];
       const target = state.user.entities[user.id];
@@ -177,6 +196,7 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
         target.follower = type;
       }
     })
+
 
     return status;
   },
