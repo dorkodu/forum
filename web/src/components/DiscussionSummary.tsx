@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 
@@ -8,15 +8,22 @@ interface Props {
 
 function DiscussionSummary({ discussionId }: Props) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
   const user = useUserStore(state => state.getUserById(discussion?.userId));
+
+  const gotoDiscussion = () => {
+    if (!discussion) return;
+    const target = `/discussion/${discussion.id}`;
+    if (location.pathname !== target) navigate(target);
+  }
 
   if (!discussion || !user) return (<></>)
 
   return (
     <>
-      <div onClick={() => { navigate("/discussion/123") }}>
+      <div onClick={gotoDiscussion}>
         <span>{user.name}</span>
         &nbsp;
         <span>@{user.username}</span>
