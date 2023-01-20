@@ -54,7 +54,7 @@ interface Action {
   queryEditDiscussion: () => Promise<boolean>;
   querySearchDiscussion: () => Promise<boolean>;
 
-  queryFavouriteDiscussion: () => Promise<boolean>;
+  queryFavouriteDiscussion: (discussion: IDiscussion) => Promise<boolean>;
 
   queryGetUserDiscussionFeed: () => Promise<boolean>;
   queryGetGuestDiscussionFeed: () => Promise<boolean>;
@@ -261,8 +261,23 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return false;
   },
 
-  queryFavouriteDiscussion: async () => {
-    return false;
+  queryFavouriteDiscussion: async (discussion) => {
+    const res = await sage.get(
+      { a: sage.query("favouriteDiscussion", { discussionId: discussion.id, favourited: !discussion.favourited }) },
+      (query) => request(query)
+    )
+
+    const status = !(!res?.a.data || res.a.error);
+
+    set(state => {
+      const d = state.discussion.entities[discussion.id];
+      if (d) {
+        d.favourited = status ? !d.favourited : d.favourited;
+        d.favouriteCount += d.favourited ? +1 : -1;
+      }
+    })
+
+    return status;
   },
 
   queryGetUserDiscussionFeed: async () => {

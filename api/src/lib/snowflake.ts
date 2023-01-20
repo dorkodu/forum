@@ -60,6 +60,7 @@ const generators = {
   "user_follows": new Snowflake(),
   
   "discussions": new Snowflake(),
+  "discussion_favourites": new Snowflake(),
   "discussion_comments": new Snowflake(),
   "discussion_arguments": new Snowflake(),
   "argument_votes": new Snowflake(),

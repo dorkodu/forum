@@ -1,3 +1,4 @@
+import { useReducer } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
@@ -6,10 +7,21 @@ interface Props {
   discussionId: string | undefined;
 }
 
+interface State {
+  loading: boolean,
+  status: boolean | undefined,
+}
+
 function DiscussionSummary({ discussionId }: Props) {
+  const [state, setState] = useReducer(
+    (prev: State, next: State) => ({ ...prev, ...next }),
+    { loading: false, status: undefined }
+  )
+
   const navigate = useNavigate();
   const location = useLocation();
 
+  const queryFavouriteDiscussion = useDiscussionStore(state => state.queryFavouriteDiscussion);
   const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
   const user = useUserStore(state => state.getUserById(discussion?.userId));
 
@@ -17,6 +29,15 @@ function DiscussionSummary({ discussionId }: Props) {
     if (!discussion) return;
     const target = `/discussion/${discussion.id}`;
     if (location.pathname !== target) navigate(target);
+  }
+
+  const favouriteDiscussion = async () => {
+    if (!discussion) return;
+    if (state.loading) return;
+
+    setState({ ...state, loading: true, status: undefined });
+    const status = await queryFavouriteDiscussion(discussion);
+    setState({ ...state, loading: false, status: status });
   }
 
   if (!discussion || !user) return (<></>)
@@ -31,7 +52,7 @@ function DiscussionSummary({ discussionId }: Props) {
         <span>{discussion.date}</span>
         <div>{discussion.title}</div>
         <div>
-          <button onClick={(_ev) => { /* ev.stopPropagation(); setFavourite(!favourite); */ }}>
+          <button onClick={favouriteDiscussion}>
             {discussion.favourited ? "unfavourite" : "favourite"}
           </button>
           &nbsp;

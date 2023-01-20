@@ -20,6 +20,11 @@ export const editDiscussionSchema = z.object({
   readme: sharedSchemas.readme,
 }).strict();
 
+export const favouriteDiscussionSchema = z.object({
+  discussionId: z.string(),
+  favourited: z.boolean(),
+}).strict();
+
 
 export const createArgumentSchema = z.object({
   discussionId: z.string(),

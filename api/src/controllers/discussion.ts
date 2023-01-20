@@ -2,7 +2,7 @@ import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
 import auth from "./auth";
-import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, getArgumentsSchema, getCommentsSchema, getDiscussionSchema } from "../schemas/discussion";
+import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, favouriteDiscussionSchema, getArgumentsSchema, getCommentsSchema, getDiscussionSchema } from "../schemas/discussion";
 import pg from "../pg";
 import { snowflake } from "../lib/snowflake";
 import { date } from "../lib/date";
@@ -148,8 +148,40 @@ const getGuestDiscussionFeed = sage.resource(
 
 const favouriteDiscussion = sage.resource(
   {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+  {} as z.infer<typeof favouriteDiscussionSchema>,
+  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+    const parsed = favouriteDiscussionSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { discussionId, favourited } = parsed.data;
+
+    let results: [postgres.RowList<postgres.Row[]>, postgres.RowList<postgres.Row[]>];
+    if (favourited) {
+      const row = {
+        id: snowflake.id("discussion_favourites"),
+        userId: info.userId,
+        discussionId: discussionId,
+      }
+
+      results = await pg.begin(pg => [
+        pg`UPDATE discussions SET favourite_count=favourite_count+1 WHERE id=${discussionId}`,
+        pg`INSERT INTO discussion_favourites ${pg(row)}`,
+      ]);
+      if (results[0].count === 0) return { error: ErrorCode.Default };
+      if (results[1].count === 0) return { error: ErrorCode.Default };
+    }
+    else {
+      results = await pg.begin(pg => [
+        pg`UPDATE discussions SET favourite_count=favourite_count-1 WHERE id=${discussionId}`,
+        pg`DELETE FROM discussion_favourites WHERE user_id=${info.userId} AND discussion_id=${discussionId}`,
+      ]);
+      if (results[0].count === 0) return { error: ErrorCode.Default };
+      if (results[1].count === 0) return { error: ErrorCode.Default };
+    }
+
     return { data: {} };
   }
 )
