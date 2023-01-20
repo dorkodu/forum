@@ -288,7 +288,7 @@ const getArguments = sage.resource(
         FROM discussion_arguments da
         LEFT JOIN argument_votes av
         ON da.id=av.argument_id AND da.user_id=${info.userId}
-        WHERE discussion_id=${discussionId}
+        WHERE da.discussion_id=${discussionId}
         ORDER BY da.vote_count ${type === "top" ? pg`DESC` : pg`ASC`}
         LIMIT 20
       `;
