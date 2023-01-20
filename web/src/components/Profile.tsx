@@ -48,7 +48,7 @@ function Profile({ user }: Props) {
         {user.id !== currentUserId &&
           <>
             &nbsp;
-            <button onClick={followUser}>un/follow</button>
+            <button onClick={followUser}>{user.follower ? "unfollow" : "follow"}</button>
           </>
         }
       </div>

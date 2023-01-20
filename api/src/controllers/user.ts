@@ -23,8 +23,17 @@ const getUser = sage.resource(
 
     if (username) {
       const [result]: [IUserRaw?] = await pg`
-        SELECT id, name, username, bio, join_date, follower_count, following_count
-        FROM users WHERE username=${username}
+        SELECT 
+          u.id, u.name, u.username, u.bio, u.join_date, 
+          u.follower_count, u.following_count,
+          (uf1.id IS NOT NULL) AS following,
+          (uf2.id IS NOT NULL) AS follower
+        FROM users u
+        LEFT JOIN user_follows uf1
+        ON u.id=uf1.follower_id AND uf1.following_id=${info.userId}
+        LEFT JOIN user_follows uf2
+        ON u.id=uf2.following_id AND uf2.follower_id=${info.userId}
+        WHERE username=${username}
       `;
       if (!result) return { error: ErrorCode.Default };
 
@@ -185,7 +194,16 @@ const getUserFollowers = sage.resource(
     if (!userId) return { error: ErrorCode.Default };
 
     const result = await pg<IUserRaw[]>`
-      SELECT id, name, username, bio, join_date, follower_count, following_count FROM users
+      SELECT 
+        u.id, u.name, u.username, u.bio, u.join_date, 
+        u.follower_count, u.following_count,
+        (uf1.id IS NOT NULL) AS following,
+        (uf2.id IS NOT NULL) AS follower
+      FROM users
+      LEFT JOIN user_follows uf1
+      ON u.id=uf1.follower_id AND uf1.following_id=${info.userId}
+      LEFT JOIN user_follows uf2
+      ON u.id=uf2.following_id AND uf2.follower_id=${info.userId}
       WHERE id IN (SELECT follower_id FROM user_follows WHERE following_id=${userId})
       ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND id>${anchorId}` : pg`AND id<${anchorId}`}
       ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
@@ -217,7 +235,16 @@ const getUserFollowing = sage.resource(
     if (!userId) return { error: ErrorCode.Default };
 
     const result = await pg<IUserRaw[]>`
-      SELECT id, name, username, bio, join_date, follower_count, following_count FROM users
+      SELECT
+        u.id, u.name, u.username, u.bio, u.join_date,
+        u.follower_count, u.following_count,
+        (uf1.id IS NOT NULL) AS following,
+        (uf2.id IS NOT NULL) AS follower
+      FROM users
+      LEFT JOIN user_follows uf1
+      ON u.id=uf1.follower_id AND uf1.following_id=${info.userId}
+      LEFT JOIN user_follows uf2
+      ON u.id=uf2.following_id AND uf2.follower_id=${info.userId}
       WHERE id IN (SELECT following_id FROM user_follows WHERE follower_id=${userId})
       ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND id>${anchorId}` : pg`AND id<${anchorId}`}
       ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}

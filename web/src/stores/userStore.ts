@@ -155,7 +155,7 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
   },
 
   queryFollowUser: async (user) => {
-    const type = !user.following;
+    const type = !user.follower;
 
     const res = await sage.get(
       { a: sage.query("followUser", { userId: user.id, type: type }) },
@@ -174,7 +174,7 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
       }
       if (target) {
         target.followerCount += type ? +1 : -1;
-        target.following = type;
+        target.follower = type;
       }
     })
 
