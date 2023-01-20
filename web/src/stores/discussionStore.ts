@@ -11,6 +11,9 @@ interface State {
   discussion: {
     entities: { [key: string]: IDiscussion }
 
+    // users[userId][discussionId] -> IDiscussion
+    users: { [key: string]: { [key: string]: IDiscussion } }
+
     // arguments[discussionId].normal[argumentId] -> IArgument
     arguments: {
       [key: string]: {
@@ -36,6 +39,10 @@ interface State {
 interface Action {
   getDiscussionById: (discussionId: string | undefined) => IDiscussion | undefined;
   deleteDiscussion: (discussion: IDiscussion) => void;
+
+  getUserDiscussions: (userId: string | undefined, type: "newer" | "older") => IDiscussion[];
+  setUserDiscussions: (userId: string, discussions: IDiscussion[]) => void;
+  getUserDiscussionAnchor: (userId: string, type: "newer" | "older", refresh?: boolean) => string;
 
   deleteArgument: (argument: IArgument | undefined) => void;
   getArgument: (argumentId: string | undefined) => IArgument | undefined;
@@ -75,7 +82,7 @@ interface Action {
 }
 
 const initialState: State = {
-  discussion: { entities: {}, arguments: {}, comments: {} },
+  discussion: { entities: {}, users: {}, arguments: {}, comments: {} },
   argument: { entities: {} },
   comment: { entities: {} },
 }
@@ -96,6 +103,37 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
       // TODO: Delete arguments/comments from state.(argument/discussion) too.
     })
+  },
+
+
+  getUserDiscussions: (userId, type) => {
+    if (!userId) return [];
+
+    const object = get().discussion.users[userId];
+    if (!object) return [];
+
+    const arr: IDiscussion[] = Object.values(object)
+    const sorted = array.sort(arr, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b))
+    return sorted;
+  },
+
+  setUserDiscussions: (userId, discussions) => {
+    set(state => {
+      if (!state.discussion.users[userId])
+        state.discussion.users[userId] = {};
+
+      discussions.forEach((discussion) => {
+        state.discussion.entities[discussion.id] = discussion;
+        state.discussion.users[userId]![discussion.id] = discussion;
+      })
+    })
+  },
+
+  getUserDiscussionAnchor: (userId, type, refresh) => {
+    const discussions = get().discussion.users[userId];
+    let anchorId = "-1";
+    if (discussions) anchorId = array.getAnchor(Object.values(discussions), "id", "-1", type, refresh);
+    return anchorId;
   },
 
 

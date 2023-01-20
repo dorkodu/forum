@@ -16,6 +16,7 @@ export interface SchemaContext {
   }
 
   userIds?: Set<string>;
+  userId?: string;
   discussionIds?: Set<string>;
   argumentIds?: Set<string>;
   commentIds?: Set<string>;

@@ -10,6 +10,7 @@ interface State {
 
 interface Action {
   getUserById: (userId: string | undefined) => IUser | undefined;
+  getUserByUsername: (username: string | undefined) => IUser | undefined;
 
   setUsers: (users: IUser[]) => void;
 
@@ -34,6 +35,19 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
   getUserById: (userId) => {
     if (!userId) return undefined;
     return get().user.entities[userId];
+  },
+
+  getUserByUsername: (username) => {
+    if (!username) return undefined;
+
+    const users = Object.values(get().user.entities);
+    for (let i = 0; i < users.length; ++i) {
+      const user = users[i];
+      if (user && user.username !== username) continue;
+      return user;
+    }
+
+    return undefined;
   },
 
   setUsers: (users) => {

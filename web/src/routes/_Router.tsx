@@ -25,9 +25,9 @@ function Router() {
           {/* Routes that don't require authentication */}
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/home" element={<Home />} />
-          <Route path="/profile/:id" element={<Profile />} />
-          <Route path="/profile/:id/followers" element={<Follower />} />
-          <Route path="/profile/:id/following" element={<Following />} />
+          <Route path="/profile/:username" element={<Profile />} />
+          <Route path="/profile/:username/followers" element={<Follower />} />
+          <Route path="/profile/:username/following" element={<Following />} />
           <Route path="/discussion/:id" element={<Discussion />} />
           <Route path="/create-discussion" element={<DiscussionCreate />} />
           <Route path="/dorkodu-id" element={<DorkoduID />} />

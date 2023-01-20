@@ -1,12 +1,12 @@
-import DiscussionSummary from "../../components/DiscussionSummary"
+import { useParams } from "react-router-dom";
 import Profile from "../../components/Profile"
 
 function ProfileRoute() {
+  const params = useParams<{ username: string }>();
+
   return (
     <>
-      <Profile />
-
-      {[...Array(5)].map((_v, i) => <div key={i}><hr /><DiscussionSummary /></div>)}
+      <Profile username={params.username} />
     </>
   )
 }
