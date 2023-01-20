@@ -1,11 +1,13 @@
+import { IUser } from "@api/types/user";
 import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
 import { request, sage } from "./api";
 import { useAppStore } from "./appStore";
+import { useUserStore } from "./userStore";
 
 interface State {
   authorized: boolean;
-  userId: string | undefined;
+  user: IUser | undefined;
 }
 
 interface Action {
@@ -15,7 +17,7 @@ interface Action {
 
 const initialState: State = {
   authorized: false,
-  userId: undefined,
+  user: undefined,
 }
 
 export const useAuthStore = create(immer<State & Action>((set, _get) => ({
@@ -28,11 +30,16 @@ export const useAuthStore = create(immer<State & Action>((set, _get) => ({
     )
 
     const authorized = !(!res?.a.data || res.a.error);
-    const userId = res?.a.data?.userId;
+    const user = res?.a.data;
 
     set(state => {
       state.authorized = authorized;
-      state.userId = userId;
+      state.user = user;
+    })
+
+    useUserStore.setState(state => {
+      if (!user) return;
+      state.user.entities[user.id] = user;
     })
 
     useAppStore.getState().setAuthLoading(false);

@@ -21,7 +21,7 @@ function ProfileSummary({ user }: Props) {
 
   const navigate = useNavigate();
   const queryFollowUser = useUserStore(state => state.queryFollowUser);
-  const currentUserId = useAuthStore(state => state.userId);
+  const currentUser = useAuthStore(state => state.user);
 
   const followUser = async () => {
     if (state.loading) return;
@@ -43,7 +43,7 @@ function ProfileSummary({ user }: Props) {
         <span>{user.followerCount} followers</span>
         &nbsp;
         <span>{user.followingCount} following</span>
-        {user.id !== currentUserId &&
+        {user.id !== currentUser?.id &&
           <>
             &nbsp;
             <button onClick={followUser}>{user.follower ? "unfollow" : "follow"}</button>

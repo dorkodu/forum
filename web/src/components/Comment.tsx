@@ -22,7 +22,7 @@ function Comment({ commentId }: Props) {
 
   const comment = useDiscussionStore(state => state.getComment(commentId));
   const user = useUserStore(state => state.getUserById(comment?.userId));
-  const currentUserId = useAuthStore(state => state.userId);
+  const currentUser = useAuthStore(state => state.user);
 
   const deleteComment = async () => {
     if (!comment) return;
@@ -43,7 +43,7 @@ function Comment({ commentId }: Props) {
         <span>@{user.username}</span>
         &nbsp;
         <span>{comment.date}</span>
-        {user.id === currentUserId &&
+        {user.id === currentUser?.id &&
           <>
             &nbsp;
             <button onClick={deleteComment}>delete</button>

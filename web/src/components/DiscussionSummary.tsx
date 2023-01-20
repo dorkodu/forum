@@ -26,7 +26,7 @@ function DiscussionSummary({ discussionId }: Props) {
   const queryDeleteDiscussion = useDiscussionStore(state => state.queryDeleteDiscussion);
   const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
   const user = useUserStore(state => state.getUserById(discussion?.userId));
-  const currentUserId = useAuthStore(state => state.userId);
+  const currentUser = useAuthStore(state => state.user);
 
   const gotoDiscussion = () => {
     if (!discussion) return;
@@ -62,7 +62,7 @@ function DiscussionSummary({ discussionId }: Props) {
         <span>@{user.username}</span>
         &nbsp;
         <span>{discussion.date}</span>
-        {user.id === currentUserId &&
+        {user.id === currentUser?.id &&
           <>
             &nbsp;
             <button onClick={(ev) => { ev.stopPropagation(); deleteDiscussion(); }}>delete</button>

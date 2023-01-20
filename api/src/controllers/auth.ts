@@ -9,6 +9,7 @@ import { config } from "../config";
 import { date } from "../lib/date";
 import pg from "../pg";
 import { util } from "../lib/util";
+import { IUser, IUserRaw, iUserSchema } from "../types/user";
 
 async function middleware(ctx: SchemaContext) {
   const rawToken = token.get(ctx.req);
@@ -23,10 +24,20 @@ async function middleware(ctx: SchemaContext) {
 const auth = sage.resource(
   {} as SchemaContext,
   undefined,
-  async (_arg, ctx): Promise<{ data?: { userId: string }, error?: ErrorCode }> => {
+  async (_arg, ctx): Promise<{ data?: IUser, error?: ErrorCode }> => {
     const info = await getAuthInfo(ctx);
     if (!info) return { error: ErrorCode.Default };
-    return { data: { userId: info.userId } };
+
+    const [result]: [IUserRaw?] = await pg`
+      SELECT id, name, username, bio, join_date, follower_count, following_count,
+      FALSE AS follower, FALSE AS following
+      FROM users WHERE id=${info.userId}
+    `
+    if (!result) return { error: ErrorCode.Default };
+
+    const res = iUserSchema.safeParse(result);
+    if (res.success) return { data: res.data };
+    return { error: ErrorCode.Default };
   }
 )
 

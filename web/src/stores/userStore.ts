@@ -151,10 +151,12 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
     const status = !(!res?.a.data || res.a.error);
 
     set(state => {
-      const userId = useAuthStore.getState().userId;
-      if (!userId) return;
-      const user = state.user.entities[userId];
+      const currentUser = useAuthStore.getState().user;
+      if (!currentUser) return;
+
+      const user = state.user.entities[currentUser.id];
       if (!user) return;
+
       if (name) user.name = name.trim();
       if (bio) user.name = bio.trim();
     })
@@ -180,16 +182,16 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
 
     const status = !(!res?.a.data || res.a.error);
 
-    set(state => {
-      // TODO: Add/remove follower/following
-      // TEST: Go to followers or following and follow that user, it won't appear there
-      
-      const currentUserId = useAuthStore.getState().userId;
-      const current = currentUserId && state.user.entities[currentUserId];
-      const target = state.user.entities[user.id];
+    const currentUser = useAuthStore.getState().user;
+    const targetUser = user;
 
-      if (current) {
+    set(state => {
+      const current = currentUser && state.user.entities[currentUser.id];
+      const target = state.user.entities[targetUser.id];
+
+      if (current && target) {
         current.followingCount += type ? +1 : -1;
+        target.following = type;
       }
       if (target) {
         target.followerCount += type ? +1 : -1;
@@ -197,6 +199,14 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
       }
     })
 
+    if (currentUser && targetUser) {
+      if (type) get().addUserFollowing(currentUser, [user]);
+      else get().removeUserFollowing(currentUser, [user]);
+    }
+    if (targetUser) {
+      if (currentUser && type) get().addUserFollowers(user, [currentUser]);
+      else if (currentUser) get().removeUserFollowers(user, [currentUser]);
+    }
 
     return status;
   },
