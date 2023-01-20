@@ -109,6 +109,7 @@ function Discussion({ discussionId }: Props) {
       <>
         {state.loading && <>loading...</>}
         {state.status === false && <>fail...</>}
+        {!state.loading && state.status && <>deleted...</>}
       </>
     )
   }
