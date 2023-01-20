@@ -369,7 +369,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
   queryVoteArgument: async (argument, type) => {
     let voteType: "up" | "down" | "none" = "none";
-    if (argument.votedType !== type) voteType = type ? "up" : "down";
+    if (!argument.voted || argument.votedType !== type) voteType = type ? "up" : "down";
 
     const res = await sage.get(
       { a: sage.query("voteArgument", { argumentId: argument.id, type: voteType }) },
@@ -381,7 +381,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     set(state => {
       const a = state.argument.entities[argument.id];
       if (a && status) {
-        const older = a.votedType === true ? -1 : a.votedType === false ? +1 : 0;
+        const older = a.voted && a.votedType === true ? -1 : a.voted && a.votedType === false ? +1 : 0;
         const newer = voteType === "up" ? +1 : voteType === "down" ? -1 : 0;
         const total = older + newer;
         a.voteCount += total;
