@@ -18,11 +18,21 @@ function Argument({ argumentId }: Props) {
     { loading: false, status: undefined }
   )
 
+  const queryVoteArgument = useDiscussionStore(state => state.queryVoteArgument);
   const queryDeleteArgument = useDiscussionStore(state => state.queryDeleteArgument);
 
   const argument = useDiscussionStore(state => state.getArgument(argumentId));
   const user = useUserStore(state => state.getUserById(argument?.userId));
   const currentUserId = useAuthStore(state => state.userId);
+
+  const voteArgument = async (type: boolean) => {
+    if (!argument) return;
+    if (state.loading) return;
+
+    setState({ ...state, loading: true, status: undefined });
+    const status = await queryVoteArgument(argument, type);
+    setState({ ...state, loading: false, status: status });
+  }
 
   const deleteArgument = async () => {
     if (!argument) return;
@@ -56,8 +66,8 @@ function Argument({ argumentId }: Props) {
         &nbsp;
         <span>votes: {argument.voteCount}</span>
         &nbsp;
-        <button onClick={() => { }}>upvote</button>
-        <button onClick={() => { }}>downvote</button>
+        <button onClick={() => voteArgument(true)}>upvote</button>
+        <button onClick={() => voteArgument(false)}>downvote</button>
         &nbsp;
         <span>{!argument.voted ? "none" : argument.votedType ? "up" : "down"}</span>
       </div>

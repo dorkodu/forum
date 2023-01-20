@@ -2,7 +2,7 @@ import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
 import auth from "./auth";
-import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, favouriteDiscussionSchema, getArgumentsSchema, getCommentsSchema, getDiscussionSchema } from "../schemas/discussion";
+import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, favouriteDiscussionSchema, getArgumentsSchema, getCommentsSchema, getDiscussionSchema, voteArgumentSchema } from "../schemas/discussion";
 import pg from "../pg";
 import { snowflake } from "../lib/snowflake";
 import { date } from "../lib/date";
@@ -302,8 +302,73 @@ const getArguments = sage.resource(
 
 const voteArgument = sage.resource(
   {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+  {} as z.infer<typeof voteArgumentSchema>,
+  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+    const parsed = voteArgumentSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { argumentId, type } = parsed.data;
+
+    if (type === "none") {
+      const [result0]: [{ type: boolean }?] = await pg`
+        DELETE FROM argument_votes 
+        WHERE user_id=${info.userId} AND argument_id=${argumentId}
+        RETURNING type
+      `;
+      if (!result0) return { error: ErrorCode.Default };
+
+      const voted = result0.type;
+      let count = voted ? -1 : +1;
+
+      const result1 = await pg`
+        UPDATE discussion_arguments SET vote_count=vote_count+${count}
+        WHERE id=${argumentId}
+      `;
+      if (result1.count === 0) return { error: ErrorCode.Default };
+    }
+    else {
+      const row = {
+        id: snowflake.id("argument_votes"),
+        userId: info.userId,
+        argumentId: argumentId,
+        type: type === "up",
+      }
+
+      const [result0]: [{ type: boolean }?] = await pg`
+        SELECT type FROM argument_votes 
+        WHERE user_id=${info.userId} AND argument_id=${argumentId}
+      `;
+
+      const voted = result0?.type;
+      let count: number;
+      if (voted === true && type === "down") count = -2;
+      else if (voted === false && type === "up") count = +2;
+      else if (voted === undefined && type === "up") count = +1;
+      else if (voted === undefined && type === "down") count = -1;
+      else return { error: ErrorCode.Default };
+
+      const [result1, result2] = await pg.begin(pg => {
+        const result1 = voted === undefined ?
+          pg`INSERT INTO argument_votes ${pg(row)}` :
+          pg`
+            UPDATE argument_votes SET type=${row.type} 
+            WHERE user_id=${info.userId} AND argument_id=${argumentId}
+            `;
+
+        const result2 = pg`
+          UPDATE discussion_arguments SET vote_count=vote_count+${count} 
+          WHERE id=${argumentId}
+        `;
+
+        return [result1, result2];
+      })
+      if (result1.count === 0) return { error: ErrorCode.Default };
+      if (result2.count === 0) return { error: ErrorCode.Default };
+    }
+
     return { data: {} };
   }
 )

@@ -42,6 +42,11 @@ export const getArgumentsSchema = z.object({
   type: z.enum(["newer", "older", "top", "bottom"]),
 }).strict();
 
+export const voteArgumentSchema = z.object({
+  argumentId: z.string(),
+  type: z.enum(["up", "down", "none"]),
+}).strict();
+
 
 export const createCommentSchema = z.object({
   discussionId: z.string(),

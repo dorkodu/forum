@@ -15,8 +15,8 @@ interface State {
     arguments: {
       [key: string]: {
         normal: { [key: string]: IArgument },
-        top: Set<IArgument>,     // arguments with highest vote count
-        bottom: Set<IArgument>,  // arguments with lowest vote count
+        top: IArgument[],     // arguments with highest vote count
+        bottom: IArgument[],  // arguments with lowest vote count
       }
     }
 
@@ -66,7 +66,7 @@ interface Action {
     type: "newer" | "older" | "top" | "bottom",
     refresh?: boolean
   ) => Promise<boolean>;
-  queryVoteArgument: () => Promise<boolean>;
+  queryVoteArgument: (argument: IArgument, type: boolean) => Promise<boolean>;
 
   queryCreateComment: (discussionId: string, content: string) => Promise<boolean>;
   queryDeleteComment: (comment: IComment) => Promise<boolean>;
@@ -94,8 +94,17 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     set(state => {
       delete state.argument.entities[argument.id];
       delete state.discussion.arguments[argument.discussionId]?.normal[argument.id];
-      state.discussion.arguments[argument.discussionId]?.top.delete(argument);
-      state.discussion.arguments[argument.discussionId]?.bottom.delete(argument);
+      let top = state.discussion.arguments[argument.discussionId]?.top;
+      let bottom = state.discussion.arguments[argument.discussionId]?.bottom;
+
+      if (top) {
+        state.discussion.arguments[argument.discussionId]!.top =
+          top?.filter((arg) => arg.id !== argument.id);
+      }
+      if (bottom) {
+        state.discussion.arguments[argument.discussionId]!.bottom =
+          bottom?.filter((arg) => arg.id !== argument.id);
+      }
     })
   },
 
@@ -109,11 +118,11 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
     if (type === "top") {
       const set = get().discussion.arguments[discussionId]?.top;
-      return set ? Array.from(set) : [];
+      return set ?? [];
     }
     else if (type === "bottom") {
       const set = get().discussion.arguments[discussionId]?.bottom;
-      return set ? Array.from(set) : [];
+      return set ?? [];
     }
 
     const object = get().discussion.arguments[discussionId]?.normal;
@@ -127,10 +136,10 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
   setArguments: (discussionId, argumentsArray, type) => {
     set(state => {
       if (!state.discussion.arguments[discussionId])
-        state.discussion.arguments[discussionId] = { normal: {}, top: new Set(), bottom: new Set() };
+        state.discussion.arguments[discussionId] = { normal: {}, top: [], bottom: [] };
 
-      if (type === "top") state.discussion.arguments[discussionId]!.top = new Set(argumentsArray);
-      else if (type === "bottom") state.discussion.arguments[discussionId]!.bottom = new Set(argumentsArray);
+      if (type === "top") state.discussion.arguments[discussionId]!.top = argumentsArray;
+      else if (type === "bottom") state.discussion.arguments[discussionId]!.bottom = argumentsArray;
       else {
         argumentsArray.forEach((argument) => {
           state.discussion.arguments[discussionId]!.normal[argument.id] = argument;
@@ -271,8 +280,8 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
     set(state => {
       const d = state.discussion.entities[discussion.id];
-      if (d) {
-        d.favourited = status ? !d.favourited : d.favourited;
+      if (d && status) {
+        d.favourited = !d.favourited;
         d.favouriteCount += d.favourited ? +1 : -1;
       }
     })
@@ -339,8 +348,32 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return status;
   },
 
-  queryVoteArgument: async () => {
-    return false;
+  queryVoteArgument: async (argument, type) => {
+    let voteType: "up" | "down" | "none" = "none";
+    if (argument.votedType !== type) voteType = type ? "up" : "down";
+
+    const res = await sage.get(
+      { a: sage.query("voteArgument", { argumentId: argument.id, type: voteType }) },
+      (query) => request(query)
+    )
+
+    const status = !(!res?.a.data || res.a.error);
+
+    set(state => {
+      const a = state.argument.entities[argument.id];
+      if (a && status) {
+        //d.favourited = status ? !d.favourited : d.favourited;
+        //d.favouriteCount += d.favourited ? +1 : -1;
+        const older = a.votedType === true ? -1 : a.votedType === false ? +1 : 0;
+        const newer = voteType === "up" ? +1 : voteType === "down" ? -1 : 0;
+        const total = older + newer;
+        a.voteCount += total;
+        a.voted = voteType !== "none";
+        a.votedType = voteType === "up" ? true : voteType === "down" ? false : null;
+      }
+    })
+
+    return status;
   },
 
   queryCreateComment: async (discussionId, content) => {
