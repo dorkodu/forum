@@ -147,9 +147,34 @@ const getUserDiscussionFeed = sage.resource(
     const info = await auth.getAuthInfo(ctx);
     if (!info) return { error: ErrorCode.Default };
 
-    //const { anchorId, type } = parsed.data;
+    const { anchorId, type } = parsed.data;
 
-    return { data: [] };
+    const result = await pg`
+      SELECT 
+        d.id, d.user_id, d.date, d.title, d.readme, 
+        d.favourite_count, d.argument_count, d.comment_count,
+        d.last_update_date, d.last_argument_date, d.last_comment_date,
+        (df.user_id IS NOT NULL) AS favourited
+      FROM discussions d
+      LEFT JOIN discussion_favourites df
+      ON d.id=df.discussion_id AND df.user_id=${info.userId}
+      WHERE df.user_id IS NOT NULL
+      ${anchorId === "-1" ? pg`` :
+        type === "newer" ? pg`AND d.id>${anchorId}` : pg`AND d.id<${anchorId}`}
+      ORDER BY d.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      LIMIT 20
+    `;
+
+    const res: IDiscussionParsed[] = [];
+    result.forEach(user => {
+      const parsed = iDiscussionSchema.safeParse(user);
+      if (parsed.success) res.push(parsed.data);
+    });
+
+    if (ctx.userIds === undefined) ctx.userIds = new Set();
+    res.forEach((discussion) => { ctx.userIds?.add(discussion.userId) });
+
+    return { data: res };
   }
 )
 
@@ -162,24 +187,45 @@ const getGuestDiscussionFeed = sage.resource(
 
     const { anchorId, type } = parsed.data;
 
-    const result = await pg`
-      SELECT 
-        id, user_id, date, title, readme, 
-        favourite_count, argument_count, comment_count,
-        last_update_date, last_argument_date, last_comment_date,
-        FALSE AS favourited
-      FROM discussions
-      ${anchorId === "-1" ? pg`` :
-        type === "newer" ? pg`WHERE id>${anchorId}` : pg`WHERE id<${anchorId}`}
-      ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
-      LIMIT 20
-    `;
-
+    const info = await auth.getAuthInfo(ctx);
+    let result: postgres.RowList<postgres.Row[]>;
     const res: IDiscussionParsed[] = [];
+
+    if (info) {
+      result = await pg`
+        SELECT 
+          d.id, d.user_id, d.date, d.title, d.readme, 
+          d.favourite_count, d.argument_count, d.comment_count,
+          d.last_update_date, d.last_argument_date, d.last_comment_date,
+          (df.user_id IS NOT NULL) AS favourited
+        FROM discussions d
+        LEFT JOIN discussion_favourites df
+        ON d.id=df.discussion_id AND df.user_id=${info.userId}
+        ${anchorId === "-1" ? pg`` :
+          type === "newer" ? pg`WHERE d.id>${anchorId}` : pg`WHERE d.id<${anchorId}`}
+        ORDER BY d.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+        LIMIT 20
+      `;
+    }
+    else {
+      result = await pg`
+        SELECT 
+          id, user_id, date, title, readme, 
+          favourite_count, argument_count, comment_count,
+          last_update_date, last_argument_date, last_comment_date,
+          FALSE AS favourited
+        FROM discussions
+        ${anchorId === "-1" ? pg`` :
+          type === "newer" ? pg`WHERE id>${anchorId}` : pg`WHERE id<${anchorId}`}
+        ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+        LIMIT 20
+      `;
+    }
+
     result.forEach(user => {
       const parsed = iDiscussionSchema.safeParse(user);
       if (parsed.success) res.push(parsed.data);
-    })
+    });
 
     if (ctx.userIds === undefined) ctx.userIds = new Set();
     res.forEach((discussion) => { ctx.userIds?.add(discussion.userId) })
