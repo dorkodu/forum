@@ -34,6 +34,11 @@ function DiscussionSummary({ discussionId }: Props) {
     if (location.pathname !== target) navigate(target);
   }
 
+  const gotoDiscussionEditor = () => {
+    if (!discussion) return;
+    navigate(`/discussion-editor/${discussion.id}`);
+  }
+
   const favouriteDiscussion = async () => {
     if (!discussion) return;
     if (state.loading) return;
@@ -66,6 +71,8 @@ function DiscussionSummary({ discussionId }: Props) {
           <>
             &nbsp;
             <button onClick={(ev) => { ev.stopPropagation(); deleteDiscussion(); }}>delete</button>
+            &nbsp;
+            <button onClick={(ev) => { ev.stopPropagation(); gotoDiscussionEditor(); }}>edit</button>
           </>
         }
         <div>{discussion.title}</div>

@@ -80,13 +80,10 @@ const editUser = sage.resource(
     if (!info) return { error: ErrorCode.Default };
 
     const { name, bio } = parsed.data;
-    if (!name && !bio) return { error: ErrorCode.Default };
 
     const result = await pg`
       UPDATE users
-      ${(name && bio) ? pg`SET name=${name}, bio=${bio}` : pg``}
-      ${name ? pg`SET name=${name}` : pg``}
-      ${bio ? pg`SET bio=${bio}` : pg``}
+      SET name=${name}, bio=${bio}
       WHERE id=${info.userId}
     `;
     if (result.count === 0) return { error: ErrorCode.Default };

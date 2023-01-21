@@ -59,7 +59,7 @@ interface Action {
   queryCreateDiscussion: (title: string, readme: string) => Promise<boolean>;
   queryDeleteDiscussion: (discussion: IDiscussion) => Promise<boolean>;
   queryGetDiscussion: (discussionId: string | undefined) => Promise<boolean>;
-  queryEditDiscussion: () => Promise<boolean>;
+  queryEditDiscussion: (discussionId: string, title: string, readme: string) => Promise<boolean>;
   querySearchDiscussion: () => Promise<boolean>;
 
   queryFavouriteDiscussion: (discussion: IDiscussion) => Promise<boolean>;
@@ -282,8 +282,25 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return status;
   },
 
-  queryEditDiscussion: async () => {
-    return false;
+  queryEditDiscussion: async (discussionId, title, readme) => {
+    const res = await sage.get(
+      { a: sage.query("editDiscussion", { discussionId, title, readme }) },
+      (query) => request(query)
+    )
+
+    const status = !(!res?.a.data || res.a.error);
+
+    set(state => {
+      if (!status) return;
+
+      const discussion = state.discussion.entities[discussionId];
+      if (!discussion) return;
+
+      discussion.title = title;
+      discussion.readme = readme;
+    })
+
+    return status;
   },
 
   queryGetDiscussion: async (discussionId) => {

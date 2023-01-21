@@ -33,7 +33,7 @@ interface Action {
   getUserFollowingAnchor: (user: IUser, type: "newer" | "older", refresh?: boolean) => string;
 
   queryGetUser: () => Promise<boolean>;
-  queryEditUser: (name: string | undefined, bio: string | undefined) => Promise<boolean>;
+  queryEditUser: (name: string, bio: string) => Promise<boolean>;
   querySearchUser: () => Promise<boolean>;
 
   queryGetUserDiscussions: () => Promise<boolean>;
@@ -157,14 +157,16 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
     const status = !(!res?.a.data || res.a.error);
 
     set(state => {
+      if (!status) return;
+
       const currentUserId = useAuthStore.getState().userId;
       if (!currentUserId) return;
 
       const user = state.user.entities[currentUserId];
       if (!user) return;
 
-      if (name) user.name = name.trim();
-      if (bio) user.name = bio.trim();
+      user.name = name.trim();
+      user.name = bio.trim();
     })
 
     return status;
@@ -193,6 +195,8 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
     const targetUser = user;
 
     set(state => {
+      if (!status) return;
+
       const current = currentUser && state.user.entities[currentUser.id];
       const target = state.user.entities[targetUser.id];
 
@@ -206,7 +210,7 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
       }
     })
 
-    if (currentUser && targetUser) {
+    if (status && currentUser && targetUser) {
       if (type) get().addUserFollowing(currentUser, [targetUser]);
       else get().removeUserFollowing(currentUser, [targetUser]);
 

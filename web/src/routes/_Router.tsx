@@ -7,7 +7,7 @@ import RequireAuth from "../components/RequireAuth";
 const Welcome = React.lazy(() => import("./Welcome"));
 const Home = React.lazy(() => import("./Home"));
 const Discussion = React.lazy(() => import("./Discussion"));
-const DiscussionCreate = React.lazy(() => import("./DiscussionCreate"));
+const DiscussionEditor = React.lazy(() => import("./DiscussionEditor"));
 const Profile = React.lazy(() => import("./profile/Profile"));
 const Follower = React.lazy(() => import("./profile/Follower"));
 const Following = React.lazy(() => import("./profile/Following"));
@@ -29,7 +29,8 @@ function Router() {
           <Route path="/profile/:username/followers" element={<Follower />} />
           <Route path="/profile/:username/following" element={<Following />} />
           <Route path="/discussion/:id" element={<Discussion />} />
-          <Route path="/create-discussion" element={<DiscussionCreate />} />
+          <Route path="/discussion-editor" element={<DiscussionEditor />} />
+          <Route path="/discussion-editor/:id" element={<DiscussionEditor />} />
           <Route path="/dorkodu-id" element={<DorkoduID />} />
 
           {/* Routes that require authentication */}

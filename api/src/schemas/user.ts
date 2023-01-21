@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { sharedSchemas } from "./_shared";
 
 export const getUserSchema = z.object({
   ids: z.string().array().optional(),
@@ -6,8 +7,8 @@ export const getUserSchema = z.object({
 }).strict();
 
 export const editUserSchema = z.object({
-  name: z.string().trim().optional(),
-  bio: z.string().trim().optional(),
+  name: sharedSchemas.name,
+  bio: sharedSchemas.bio,
 }).strict();
 
 export const getUserDiscussionsSchema = z.object({
