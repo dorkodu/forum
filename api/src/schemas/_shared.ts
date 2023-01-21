@@ -6,10 +6,10 @@ const email = z.string().email().max(320).trim();
 const password = z.string().min(8);
 const bio = z.string().max(500).trim();
 
-const title = z.string().max(100).trim();
-const readme = z.string().max(100000).trim();
-const commentContent = z.string().max(500).trim();
-const argumentContent = z.string().max(500).trim();
+const title = z.string().min(1).max(100).trim();
+const readme = z.string().min(1).max(100000).trim();
+const commentContent = z.string().min(1).max(500).trim();
+const argumentContent = z.string().min(1).max(500).trim();
 
 const token = z.string();
 const code = z.string();

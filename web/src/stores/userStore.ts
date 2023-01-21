@@ -166,7 +166,7 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
       if (!user) return;
 
       user.name = name.trim();
-      user.name = bio.trim();
+      user.bio = bio.trim();
     })
 
     return status;
