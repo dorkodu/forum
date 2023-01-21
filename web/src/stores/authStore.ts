@@ -1,4 +1,3 @@
-import { IUser } from "@api/types/user";
 import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
 import { request, sage } from "./api";
@@ -7,7 +6,7 @@ import { useUserStore } from "./userStore";
 
 interface State {
   authorized: boolean;
-  user: IUser | undefined;
+  userId: string | undefined;
 }
 
 interface Action {
@@ -17,7 +16,7 @@ interface Action {
 
 const initialState: State = {
   authorized: false,
-  user: undefined,
+  userId: undefined,
 }
 
 export const useAuthStore = create(immer<State & Action>((set, _get) => ({
@@ -34,14 +33,10 @@ export const useAuthStore = create(immer<State & Action>((set, _get) => ({
 
     set(state => {
       state.authorized = authorized;
-      state.user = user;
+      state.userId = user?.id;
     })
 
-    useUserStore.setState(state => {
-      if (!user) return;
-      state.user.entities[user.id] = user;
-    })
-
+    useUserStore.getState().setUsers(user ? [user] : []);
     useAppStore.getState().setAuthLoading(false);
 
     return authorized;

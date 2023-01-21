@@ -21,7 +21,7 @@ function Profile({ user }: Props) {
 
   const navigate = useNavigate();
   const queryFollowUser = useUserStore(state => state.queryFollowUser);
-  const currentUser = useAuthStore(state => state.user);
+  const currentUserId = useAuthStore(state => state.userId);
 
   const followUser = async () => {
     if (state.loading) return;
@@ -45,7 +45,7 @@ function Profile({ user }: Props) {
         <span onClick={() => navigate(`/profile/${user.username}/following`)}>
           {user.followingCount} following
         </span>
-        {user.id !== currentUser?.id &&
+        {user.id !== currentUserId &&
           <>
             &nbsp;
             <button onClick={followUser}>{user.follower ? "unfollow" : "follow"}</button>

@@ -10,10 +10,10 @@ interface State {
     entities: { [key: string]: IUser }
 
     // user.followers[userId][followerId] -> IUser
-    followers: { [key: string]: { [key: string]: IUser } }
+    followers: { [key: string]: { [key: string]: boolean } }
 
     // user.following[userId][followingId] -> IUser
-    following: { [key: string]: { [key: string]: IUser } }
+    following: { [key: string]: { [key: string]: boolean } }
   }
 }
 
@@ -71,7 +71,7 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
   setUsers: (users) => {
     set(state => {
       users.forEach((user) => {
-        state.user.entities[user.id] = user;
+        if (!state.user.entities[user.id]) state.user.entities[user.id] = user;
       })
     })
   },
@@ -81,60 +81,66 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
     if (!user) return [];
     const followers = get().user.followers[user.id];
     if (!followers) return [];
-    return Object.values(followers);
+
+    const out: IUser[] = [];
+    const keys = Object.keys(followers);
+    keys.forEach(key => {
+      const user = get().user.entities[key];
+      if (user) out.push(user);
+    })
+
+    return out;
   },
 
   getUserFollowing: (user) => {
     if (!user) return [];
     const following = get().user.following[user.id];
     if (!following) return [];
-    return Object.values(following);
+
+    const out: IUser[] = [];
+    const keys = Object.keys(following);
+    keys.forEach(key => {
+      const user = get().user.entities[key];
+      if (user) out.push(user);
+    })
+
+    return out;
   },
 
   addUserFollowers: (user, followers) => {
-    get().setUsers(followers);
-
     set(state => {
       if (!state.user.followers[user.id]) state.user.followers[user.id] = {};
-      followers.forEach(follower => { state.user.followers[user.id]![follower.id] = follower })
+      followers.forEach(follower => { state.user.followers[user.id]![follower.id] = true })
     })
   },
 
   addUserFollowing: (user, following) => {
-    get().setUsers(following);
-
     set(state => {
       if (!state.user.following[user.id]) state.user.following[user.id] = {};
-      following.forEach(following => { state.user.following[user.id]![following.id] = following })
+      following.forEach(_following => { state.user.following[user.id]![_following.id] = true })
     })
   },
 
   removeUserFollowers: (user, followers) => {
     set(state => {
       delete state.user.followers[user.id];
-      followers.forEach(follower => { delete state.user.following[follower.id]?.[user.id] })
+      followers.forEach(follower => { delete state.user.followers[follower.id]?.[user.id] })
     })
   },
 
   removeUserFollowing: (user, following) => {
     set(state => {
       delete state.user.following[user.id];
-      following.forEach(_following => { delete state.user.followers[_following.id]?.[user.id] })
+      following.forEach(_following => { delete state.user.following[_following.id]?.[user.id] })
     })
   },
 
   getUserFollowersAnchor: (user, type, refresh) => {
-    const followers = get().user.followers[user.id];
-    let anchorId = "-1";
-    if (followers) anchorId = array.getAnchor(Object.values(followers), "id", "-1", type, refresh);
-    return anchorId;
+    return array.getAnchor(get().getUserFollowers(user), "id", "-1", type, refresh);
   },
 
   getUserFollowingAnchor: (user, type, refresh) => {
-    const following = get().user.following[user.id];
-    let anchorId = "-1";
-    if (following) anchorId = array.getAnchor(Object.values(following), "id", "-1", type, refresh);
-    return anchorId;
+    return array.getAnchor(get().getUserFollowing(user), "id", "-1", type, refresh);
   },
 
 
@@ -151,10 +157,10 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
     const status = !(!res?.a.data || res.a.error);
 
     set(state => {
-      const currentUser = useAuthStore.getState().user;
-      if (!currentUser) return;
+      const currentUserId = useAuthStore.getState().userId;
+      if (!currentUserId) return;
 
-      const user = state.user.entities[currentUser.id];
+      const user = state.user.entities[currentUserId];
       if (!user) return;
 
       if (name) user.name = name.trim();
@@ -182,7 +188,8 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
 
     const status = !(!res?.a.data || res.a.error);
 
-    const currentUser = useAuthStore.getState().user;
+    const currentUserId = useAuthStore.getState().userId;
+    const currentUser = currentUserId && get().user.entities[currentUserId];
     const targetUser = user;
 
     set(state => {
@@ -200,12 +207,11 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
     })
 
     if (currentUser && targetUser) {
-      if (type) get().addUserFollowing(currentUser, [user]);
-      else get().removeUserFollowing(currentUser, [user]);
-    }
-    if (targetUser) {
-      if (currentUser && type) get().addUserFollowers(user, [currentUser]);
-      else if (currentUser) get().removeUserFollowers(user, [currentUser]);
+      if (type) get().addUserFollowing(currentUser, [targetUser]);
+      else get().removeUserFollowing(currentUser, [targetUser]);
+
+      if (type) get().addUserFollowers(targetUser, [currentUser]);
+      else get().removeUserFollowers(targetUser, [currentUser]);
     }
 
     return status;

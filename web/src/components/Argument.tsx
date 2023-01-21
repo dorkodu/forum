@@ -23,7 +23,7 @@ function Argument({ argumentId }: Props) {
 
   const argument = useDiscussionStore(state => state.getArgument(argumentId));
   const user = useUserStore(state => state.getUserById(argument?.userId));
-  const currentUser = useAuthStore(state => state.user);
+  const currentUserId = useAuthStore(state => state.userId);
 
   const voteArgument = async (type: boolean) => {
     if (!argument) return;
@@ -53,7 +53,7 @@ function Argument({ argumentId }: Props) {
         <span>@{user.username}</span>
         &nbsp;
         <span>{argument.date}</span>
-        {user.id === currentUser?.id &&
+        {user.id === currentUserId &&
           <>
             &nbsp;
             <button onClick={deleteArgument}>delete</button>
