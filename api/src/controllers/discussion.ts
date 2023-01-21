@@ -2,12 +2,12 @@ import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
 import auth from "./auth";
-import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, favouriteDiscussionSchema, getArgumentsSchema, getCommentsSchema, getDiscussionSchema, voteArgumentSchema } from "../schemas/discussion";
+import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, favouriteDiscussionSchema, getArgumentsSchema, getCommentsSchema, getDiscussionSchema, getGuestDiscussionFeedSchema, getUserDiscussionFeedSchema, voteArgumentSchema } from "../schemas/discussion";
 import pg from "../pg";
 import { snowflake } from "../lib/snowflake";
 import { date } from "../lib/date";
 import { z } from "zod";
-import { IDiscussion, IDiscussionRaw, iDiscussionSchema } from "../types/discussion";
+import { IDiscussion, IDiscussionParsed, IDiscussionRaw, iDiscussionSchema } from "../types/discussion";
 import { IComment, ICommentParsed, ICommentRaw, iCommentSchema } from "../types/comment";
 import { IArgument, IArgumentParsed, IArgumentRaw, iArgumentSchema } from "../types/argument";
 import postgres from "postgres";
@@ -139,17 +139,52 @@ const searchDiscussion = sage.resource(
 
 const getUserDiscussionFeed = sage.resource(
   {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    return { data: {} };
+  {} as z.infer<typeof getUserDiscussionFeedSchema>,
+  async (arg, ctx): Promise<{ data?: IDiscussion[], error?: ErrorCode }> => {
+    const parsed = getUserDiscussionFeedSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    //const { anchorId, type } = parsed.data;
+
+    return { data: [] };
   }
 )
 
 const getGuestDiscussionFeed = sage.resource(
   {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    return { data: {} };
+  {} as z.infer<typeof getGuestDiscussionFeedSchema>,
+  async (arg, ctx): Promise<{ data?: IDiscussion[], error?: ErrorCode }> => {
+    const parsed = getGuestDiscussionFeedSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const { anchorId, type } = parsed.data;
+
+    const result = await pg`
+      SELECT 
+        id, user_id, date, title, readme, 
+        favourite_count, argument_count, comment_count,
+        last_update_date, last_argument_date, last_comment_date,
+        FALSE AS favourited
+      FROM discussions
+      ${anchorId === "-1" ? pg`` :
+        type === "newer" ? pg`WHERE id>${anchorId}` : pg`WHERE id<${anchorId}`}
+      ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      LIMIT 20
+    `;
+
+    const res: IDiscussionParsed[] = [];
+    result.forEach(user => {
+      const parsed = iDiscussionSchema.safeParse(user);
+      if (parsed.success) res.push(parsed.data);
+    })
+
+    if (ctx.userIds === undefined) ctx.userIds = new Set();
+    res.forEach((discussion) => { ctx.userIds?.add(discussion.userId) })
+
+    return { data: res };
   }
 )
 

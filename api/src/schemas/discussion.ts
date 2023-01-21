@@ -20,6 +20,16 @@ export const editDiscussionSchema = z.object({
   readme: sharedSchemas.readme,
 }).strict();
 
+export const getUserDiscussionFeedSchema = z.object({
+  anchorId: z.string(),
+  type: z.enum(["newer", "older"]),
+}).strict();
+
+export const getGuestDiscussionFeedSchema = z.object({
+  anchorId: z.string(),
+  type: z.enum(["newer", "older"]),
+}).strict();
+
 export const favouriteDiscussionSchema = z.object({
   discussionId: z.string(),
   favourited: z.boolean(),

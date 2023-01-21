@@ -33,6 +33,9 @@ interface State {
   comment: {
     entities: { [key: string]: IComment }
   }
+
+  userFeed: { [key: string]: boolean }
+  guestFeed: { [key: string]: boolean }
 }
 
 interface Action {
@@ -42,6 +45,13 @@ interface Action {
   getUserDiscussions: (userId: string | undefined, type: "newer" | "older") => IDiscussion[];
   setUserDiscussions: (userId: string, discussions: IDiscussion[]) => void;
   getUserDiscussionAnchor: (userId: string, type: "newer" | "older", refresh?: boolean) => string;
+
+  getUserFeedDiscussions: (type: "newer" | "older") => IDiscussion[];
+  setUserFeedDiscussions: (discussions: IDiscussion[]) => void;
+  getUserFeedAnchor: (type: "newer" | "older", refresh?: boolean) => string;
+  getGuestFeedDiscussions: (type: "newer" | "older") => IDiscussion[];
+  setGuestFeedDiscussions: (discussions: IDiscussion[]) => void;
+  getGuestFeedAnchor: (type: "newer" | "older", refresh?: boolean) => string;
 
   deleteArgument: (argument: IArgument | undefined) => void;
   getArgument: (argumentId: string | undefined) => IArgument | undefined;
@@ -84,6 +94,8 @@ const initialState: State = {
   discussion: { entities: {}, users: {}, arguments: {}, comments: {} },
   argument: { entities: {} },
   comment: { entities: {} },
+  userFeed: {},
+  guestFeed: {},
 }
 
 export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
@@ -100,6 +112,8 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
       delete state.discussion.arguments[discussion.id];
       delete state.discussion.comments[discussion.id];
       delete state.discussion.users[discussion.userId]?.[discussion.id];
+      delete state.userFeed[discussion.id];
+      delete state.guestFeed[discussion.id];
 
       // TODO: Delete arguments/comments from state.(argument/discussion) too.
     })
@@ -135,6 +149,61 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
   getUserDiscussionAnchor: (userId, type, refresh) => {
     return array.getAnchor(get().getUserDiscussions(userId, "newer"), "id", "-1", type, refresh);
+  },
+
+
+  getUserFeedDiscussions: (type) => {
+    const object = get().userFeed;
+    if (!object) return [];
+
+    const out: IDiscussion[] = [];
+    const keys = Object.keys(object);
+    keys.forEach(key => {
+      const discussion = get().discussion.entities[key];
+      if (discussion) out.push(discussion);
+    })
+
+    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+  },
+
+  setUserFeedDiscussions: (discussions) => {
+    set(state => {
+      discussions.forEach(discussion => {
+        state.discussion.entities[discussion.id] = discussion;
+        state.userFeed[discussion.id] = true;
+      })
+    })
+  },
+
+  getUserFeedAnchor: (type, refresh) => {
+    return array.getAnchor(get().getUserFeedDiscussions("newer"), "id", "-1", type, refresh);
+  },
+
+  getGuestFeedDiscussions: (type) => {
+    const object = get().guestFeed;
+    if (!object) return [];
+
+    const out: IDiscussion[] = [];
+    const keys = Object.keys(object);
+    keys.forEach(key => {
+      const discussion = get().discussion.entities[key];
+      if (discussion) out.push(discussion);
+    })
+
+    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+  },
+
+  setGuestFeedDiscussions: (discussions) => {
+    set(state => {
+      discussions.forEach(discussion => {
+        state.discussion.entities[discussion.id] = discussion;
+        state.guestFeed[discussion.id] = true;
+      })
+    })
+  },
+
+  getGuestFeedAnchor: (type, refresh) => {
+    return array.getAnchor(get().getGuestFeedDiscussions("newer"), "id", "-1", type, refresh);
   },
 
 
