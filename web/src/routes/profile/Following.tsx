@@ -67,7 +67,7 @@ function Following() {
     })()
   }, [])
 
-  if (!user || !following) {
+  if (!user) {
     return (
       <>
         {state.loading && <>loading...</>}

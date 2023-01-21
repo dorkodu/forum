@@ -68,7 +68,7 @@ function ProfileRoute() {
     })()
   }, [])
 
-  if (!user || !discussions) {
+  if (!user) {
     return (
       <>
         {state.loading && <>loading...</>}
