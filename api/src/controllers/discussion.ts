@@ -165,7 +165,6 @@ const favouriteDiscussion = sage.resource(
 
     const { discussionId, favourited } = parsed.data;
 
-    let results: [postgres.RowList<postgres.Row[]>, postgres.RowList<postgres.Row[]>];
     if (favourited) {
       const row = {
         id: snowflake.id("discussion_favourites"),
@@ -173,20 +172,29 @@ const favouriteDiscussion = sage.resource(
         discussionId: discussionId,
       }
 
-      results = await pg.begin(pg => [
-        pg`UPDATE discussions SET favourite_count=favourite_count+1 WHERE id=${discussionId}`,
-        pg`INSERT INTO discussion_favourites ${pg(row)}`,
-      ]);
-      if (results[0].count === 0) return { error: ErrorCode.Default };
-      if (results[1].count === 0) return { error: ErrorCode.Default };
+      const result0 = await pg`INSERT INTO discussion_favourites ${pg(row)}`;
+      if (result0.count === 0) return { error: ErrorCode.Default };
+
+      const result1 = await pg`
+        UPDATE discussions
+        SET favourite_count=favourite_count+1
+        WHERE id=${discussionId}
+      `;
+      if (result1.count === 0) return { error: ErrorCode.Default };
     }
     else {
-      results = await pg.begin(pg => [
-        pg`UPDATE discussions SET favourite_count=favourite_count-1 WHERE id=${discussionId}`,
-        pg`DELETE FROM discussion_favourites WHERE user_id=${info.userId} AND discussion_id=${discussionId}`,
-      ]);
-      if (results[0].count === 0) return { error: ErrorCode.Default };
-      if (results[1].count === 0) return { error: ErrorCode.Default };
+      const result0 = await pg`
+        DELETE FROM discussion_favourites 
+        WHERE user_id=${info.userId} AND discussion_id=${discussionId}
+      `;
+      if (result0.count === 0) return { error: ErrorCode.Default };
+
+      const result1 = await pg`
+        UPDATE discussions 
+        SET favourite_count=favourite_count-1 
+        WHERE id=${discussionId}
+      `;
+      if (result1.count === 0) return { error: ErrorCode.Default };
     }
 
     return { data: {} };
