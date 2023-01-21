@@ -9,10 +9,10 @@ interface State {
   user: {
     entities: { [key: string]: IUser }
 
-    // user.followers[userId][followerId] -> IUser
+    // user.followers[userId][followerId] -> boolean
     followers: { [key: string]: { [key: string]: boolean } }
 
-    // user.following[userId][followingId] -> IUser
+    // user.following[userId][followingId] -> boolean
     following: { [key: string]: { [key: string]: boolean } }
   }
 }

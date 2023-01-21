@@ -11,20 +11,19 @@ interface State {
   discussion: {
     entities: { [key: string]: IDiscussion }
 
-    // users[userId][discussionId] -> IDiscussion
-    users: { [key: string]: { [key: string]: IDiscussion } }
+    // users[userId][discussionId] -> boolean
+    users: { [key: string]: { [key: string]: boolean } }
 
-    // arguments[discussionId].normal[argumentId] -> IArgument
     arguments: {
       [key: string]: {
-        normal: { [key: string]: IArgument },
+        normal: { [key: string]: boolean },
         top: IArgument[],     // arguments with highest vote count
         bottom: IArgument[],  // arguments with lowest vote count
       }
     }
 
     // comments[discussionId][commentId] -> IComment
-    comments: { [key: string]: { [key: string]: IComment } }
+    comments: { [key: string]: { [key: string]: boolean } }
   }
 
   argument: {
@@ -109,13 +108,17 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
   getUserDiscussions: (userId, type) => {
     if (!userId) return [];
+    const followers = get().discussion.users[userId];
+    if (!followers) return [];
 
-    const object = get().discussion.users[userId];
-    if (!object) return [];
+    const out: IDiscussion[] = [];
+    const keys = Object.keys(followers);
+    keys.forEach(key => {
+      const user = get().discussion.entities[key];
+      if (user) out.push(user);
+    })
 
-    const arr: IDiscussion[] = Object.values(object)
-    const sorted = array.sort(arr, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b))
-    return sorted;
+    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
   },
 
   setUserDiscussions: (userId, discussions) => {
@@ -125,16 +128,13 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
       discussions.forEach((discussion) => {
         state.discussion.entities[discussion.id] = discussion;
-        state.discussion.users[userId]![discussion.id] = discussion;
+        state.discussion.users[userId]![discussion.id] = true;
       })
     })
   },
 
   getUserDiscussionAnchor: (userId, type, refresh) => {
-    const discussions = get().discussion.users[userId];
-    let anchorId = "-1";
-    if (discussions) anchorId = array.getAnchor(Object.values(discussions), "id", "-1", type, refresh);
-    return anchorId;
+    return array.getAnchor(get().getUserDiscussions(userId, "newer"), "id", "-1", type, refresh);
   },
 
 
@@ -178,9 +178,14 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     const object = get().discussion.arguments[discussionId]?.normal;
     if (!object) return [];
 
-    const arr: IArgument[] = Object.values(object)
-    const sorted = array.sort(arr, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b))
-    return sorted;
+    const out: IArgument[] = [];
+    const keys = Object.keys(object);
+    keys.forEach(key => {
+      const user = get().argument.entities[key];
+      if (user) out.push(user);
+    })
+
+    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
   },
 
   setArguments: (discussionId, argumentsArray, type) => {
@@ -192,7 +197,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
       else if (type === "bottom") state.discussion.arguments[discussionId]!.bottom = argumentsArray;
       else {
         argumentsArray.forEach((argument) => {
-          state.discussion.arguments[discussionId]!.normal[argument.id] = argument;
+          state.discussion.arguments[discussionId]!.normal[argument.id] = true;
           state.argument.entities[argument.id] = argument;
         })
       }
@@ -200,10 +205,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
   },
 
   getArgumentAnchor: (discussionId, type, refresh) => {
-    const argumentsArray = get().discussion.arguments[discussionId]?.normal;
-    let anchorId = "-1";
-    if (argumentsArray) anchorId = array.getAnchor(Object.values(argumentsArray), "id", "-1", type, refresh);
-    return anchorId;
+    return array.getAnchor(get().getArguments(discussionId, "newer"), "id", "-1", type, refresh);
   },
 
 
@@ -228,9 +230,15 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     const object = get().discussion.comments[discussionId];
     if (!object) return [];
 
-    const arr: IComment[] = Object.values(object)
-    const sorted = array.sort(arr, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b))
-    return sorted;
+    const out: IComment[] = [];
+    const keys = Object.keys(object);
+    keys.forEach(key => {
+      const user = get().comment.entities[key];
+      if (user) out.push(user);
+    })
+
+    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+
   },
 
   setComments: (discussionId, comments) => {
@@ -239,17 +247,14 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
         state.discussion.comments[discussionId] = {};
 
       comments.forEach((comment) => {
-        state.discussion.comments[discussionId]![comment.id] = comment;
+        state.discussion.comments[discussionId]![comment.id] = true;
         state.comment.entities[comment.id] = comment;
       })
     })
   },
 
   getCommentAnchor: (discussionId, type, refresh) => {
-    const comments = get().discussion.comments[discussionId];
-    let anchorId = "-1";
-    if (comments) anchorId = array.getAnchor(Object.values(comments), "id", "-1", type, refresh);
-    return anchorId;
+    return array.getAnchor(get().getComments(discussionId, "newer"), "id", "-1", type, refresh);
   },
 
 
@@ -383,7 +388,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
     if (argument) {
       set(state => {
-        const discussion = state.discussion.entities[argument.id];
+        const discussion = state.discussion.entities[discussionId];
         if (discussion) discussion.argumentCount += +1;
       })
 
@@ -403,7 +408,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
     if (status) {
       set(state => {
-        const discussion = state.discussion.entities[argument.id];
+        const discussion = state.discussion.entities[argument.discussionId];
         if (discussion) discussion.argumentCount += -1;
       })
 
@@ -475,7 +480,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
     if (comment) {
       set(state => {
-        const discussion = state.discussion.entities[comment.id];
+        const discussion = state.discussion.entities[discussionId];
         if (discussion) discussion.commentCount += +1;
       })
 
@@ -494,7 +499,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     const status = !(!res?.a.data || res.a.error);
     if (status) {
       set(state => {
-        const discussion = state.discussion.entities[comment.id];
+        const discussion = state.discussion.entities[comment.discussionId];
         if (discussion) discussion.commentCount += -1;
       })
 
