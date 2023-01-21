@@ -41,7 +41,7 @@ function Home() {
     const discussions = res?.a.data;
     const users = res?.b.data;
 
-    if (discussions) useDiscussionStore.getState().setUserFeedDiscussions(discussions);
+    if (discussions) useDiscussionStore.getState().addUserFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
     setState({ ...state, loading: false, status: status });
@@ -64,7 +64,7 @@ function Home() {
     const discussions = res?.a.data;
     const users = res?.b.data;
 
-    if (discussions) useDiscussionStore.getState().setGuestFeedDiscussions(discussions);
+    if (discussions) useDiscussionStore.getState().addGuestFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
     setState({ ...state, loading: false, status: status });

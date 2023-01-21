@@ -47,10 +47,11 @@ interface Action {
   getUserDiscussionAnchor: (userId: string, type: "newer" | "older", refresh?: boolean) => string;
 
   getUserFeedDiscussions: (type: "newer" | "older") => IDiscussion[];
-  setUserFeedDiscussions: (discussions: IDiscussion[]) => void;
+  addUserFeedDiscussions: (discussions: IDiscussion[]) => void;
+  removeUserFeedDiscussions: (discussions: IDiscussion[]) => void;
   getUserFeedAnchor: (type: "newer" | "older", refresh?: boolean) => string;
   getGuestFeedDiscussions: (type: "newer" | "older") => IDiscussion[];
-  setGuestFeedDiscussions: (discussions: IDiscussion[]) => void;
+  addGuestFeedDiscussions: (discussions: IDiscussion[]) => void;
   getGuestFeedAnchor: (type: "newer" | "older", refresh?: boolean) => string;
 
   deleteArgument: (argument: IArgument | undefined) => void;
@@ -166,12 +167,15 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
   },
 
-  setUserFeedDiscussions: (discussions) => {
+  addUserFeedDiscussions: (discussions) => {
     set(state => {
-      discussions.forEach(discussion => {
-        state.discussion.entities[discussion.id] = discussion;
-        state.userFeed[discussion.id] = true;
-      })
+      discussions.forEach(discussion => { state.userFeed[discussion.id] = true })
+    })
+  },
+
+  removeUserFeedDiscussions: (discussions) => {
+    set(state => {
+      discussions.forEach(discussion => { delete state.userFeed[discussion.id] })
     })
   },
 
@@ -193,7 +197,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
   },
 
-  setGuestFeedDiscussions: (discussions) => {
+  addGuestFeedDiscussions: (discussions) => {
     set(state => {
       discussions.forEach(discussion => {
         state.discussion.entities[discussion.id] = discussion;
@@ -434,6 +438,10 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
         d.favouriteCount += d.favourited ? +1 : -1;
       }
     })
+
+    const d = get().discussion.entities[discussion.id];
+    if (d && d.favourited) get().addUserFeedDiscussions([d]);
+    else if (d) get().removeUserFeedDiscussions([d]);
 
     return status;
   },
