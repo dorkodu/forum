@@ -381,7 +381,14 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     const status = !(!res?.a.data || res.a.error);
     const argument = res?.a.data;
 
-    if (argument) get().setArguments(discussionId, [argument], "newer");
+    if (argument) {
+      set(state => {
+        const discussion = state.discussion.entities[argument.id];
+        if (discussion) discussion.argumentCount += +1;
+      })
+
+      get().setArguments(discussionId, [argument], "newer")
+    };
 
     return status;
   },
@@ -393,7 +400,15 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     )
 
     const status = !(!res?.a.data || res.a.error);
-    if (status) get().deleteArgument(argument);
+
+    if (status) {
+      set(state => {
+        const discussion = state.discussion.entities[argument.id];
+        if (discussion) discussion.argumentCount += -1;
+      })
+
+      get().deleteArgument(argument);
+    }
 
     return status;
   },
@@ -458,7 +473,14 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     const status = !(!res?.a.data || res.a.error);
     const comment = res?.a.data;
 
-    if (comment) get().setComments(discussionId, [comment]);
+    if (comment) {
+      set(state => {
+        const discussion = state.discussion.entities[comment.id];
+        if (discussion) discussion.commentCount += +1;
+      })
+
+      get().setComments(discussionId, [comment]);
+    }
 
     return status;
   },
@@ -470,7 +492,14 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     )
 
     const status = !(!res?.a.data || res.a.error);
-    if (status) get().deleteComment(comment);
+    if (status) {
+      set(state => {
+        const discussion = state.discussion.entities[comment.id];
+        if (discussion) discussion.commentCount += -1;
+      })
+
+      get().deleteComment(comment);
+    }
 
     return status;
   },

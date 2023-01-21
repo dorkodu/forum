@@ -217,7 +217,11 @@ const createArgument = sage.resource(
 
     const [result0, result1] = await pg.begin(pg => [
       pg`INSERT INTO discussion_arguments ${pg(row)}`,
-      pg`UPDATE discussions SET last_argument_date=${date.utc()} WHERE id=${discussionId}`,
+      pg`
+        UPDATE discussions
+        SET last_argument_date=${date.utc()}, argument_count=argument_count+1
+        WHERE id=${discussionId}
+        `,
     ]);
     if (result0.count === 0) return { error: ErrorCode.Default };
     if (result1.count === 0) return { error: ErrorCode.Default };
@@ -238,11 +242,18 @@ const deleteArgument = sage.resource(
 
     const { argumentId } = parsed.data;
 
-    const [result0, _result1] = await pg.begin(pg => [
+    const [result0]: [{ discussionId: string }?] = await pg`
+      SELECT discussion_id FROM discussion_arguments WHERE id=${argumentId}
+    `;
+    if (!result0) return { error: ErrorCode.Default };
+
+    const [result1, result2, _result3] = await pg.begin(pg => [
+      pg`UPDATE discussions SET argument_count=argument_count-1 WHERE id=${result0.discussionId}`,
       pg`DELETE FROM discussion_arguments WHERE id=${argumentId} AND user_id=${info.userId}`,
       pg`DELETE FROM argument_votes WHERE argument_id=${argumentId}`,
     ]);
-    if (result0.count === 0) return { error: ErrorCode.Default };
+    if (result1.count === 0) return { error: ErrorCode.Default };
+    if (result2.count === 0) return { error: ErrorCode.Default };
 
     return { data: {} };
   }
@@ -409,7 +420,11 @@ const createComment = sage.resource(
 
     const [result0, result1] = await pg.begin(pg => [
       pg`INSERT INTO discussion_comments ${pg(row)}`,
-      pg`UPDATE discussions SET last_comment_date=${date.utc()} WHERE id=${discussionId}`,
+      pg`
+        UPDATE discussions 
+        SET last_comment_date=${date.utc()}, comment_count=comment_count+1
+        WHERE id=${discussionId}
+        `,
     ]);
     if (result0.count === 0) return { error: ErrorCode.Default };
     if (result1.count === 0) return { error: ErrorCode.Default };
@@ -430,11 +445,17 @@ const deleteComment = sage.resource(
 
     const { commentId } = parsed.data;
 
-    const result = await pg`
-      DELETE FROM discussion_comments
-      WHERE id=${commentId} AND user_id=${info.userId}
+    const [result0]: [{ discussionId: string }?] = await pg`
+      SELECT discussion_id FROM discussion_comments WHERE id=${commentId}
     `;
-    if (result.count === 0) return { error: ErrorCode.Default };
+    if (!result0) return { error: ErrorCode.Default };
+
+    const [result1, result2] = await pg.begin(pg => [
+      pg`UPDATE discussions SET comment_count=comment_count-1 WHERE id=${result0.discussionId}`,
+      pg`DELETE FROM discussion_comments WHERE id=${commentId} AND user_id=${info.userId}`,
+    ])
+    if (result1.count === 0) return { error: ErrorCode.Default };
+    if (result2.count === 0) return { error: ErrorCode.Default };
 
     return { data: {} };
   }
