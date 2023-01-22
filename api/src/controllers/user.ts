@@ -17,7 +17,6 @@ const getUser = sage.resource(
     if (!parsed.success) return { error: ErrorCode.Default };
 
     const info = await auth.getAuthInfo(ctx);
-    if (!info) return { error: ErrorCode.Default };
 
     const username = parsed.data.username;
 
@@ -26,8 +25,12 @@ const getUser = sage.resource(
         SELECT 
           u.id, u.name, u.username, u.bio, u.join_date, 
           u.follower_count, u.following_count,
+        ${info ?
+          pg`
           (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
-          (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower
+          (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower` :
+          pg`FALSE AS following, FALSE AS follower`
+        }
         FROM users u
         WHERE username = ${username}
       `;
@@ -53,8 +56,12 @@ const getUser = sage.resource(
         SELECT 
           u.id, u.name, u.username, u.bio, u.join_date, 
           u.follower_count, u.following_count,
+        ${info ?
+          pg`
           (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
-          (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower
+          (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower` :
+          pg`FALSE AS following, FALSE AS follower`
+        }
         FROM users u
         WHERE u.id IN ${pg(ids)}
       `;
@@ -109,7 +116,6 @@ const getUserDiscussions = sage.resource(
     if (!parsed.success) return { error: ErrorCode.Default };
 
     const info = await auth.getAuthInfo(ctx);
-    if (!info) return { error: ErrorCode.Default };
 
     const { anchorId, type } = parsed.data;
     const userId = parsed.data.userId ?? ctx.userId;
@@ -120,10 +126,14 @@ const getUserDiscussions = sage.resource(
         d.id, d.user_id, d.date, d.title, d.readme, 
         d.favourite_count, d.argument_count, d.comment_count,
         d.last_update_date, d.last_argument_date, d.last_comment_date,
-        (df.user_id IS NOT NULL) AS favourited
+      ${info ? pg`(df.user_id IS NOT NULL) AS favourited` : pg`FALSE AS favourited`}
       FROM discussions d
-      LEFT JOIN discussion_favourites df
-      ON d.id=df.discussion_id AND df.user_id=${info.userId}
+      ${info ?
+        pg`
+        LEFT JOIN discussion_favourites df
+        ON d.id=df.discussion_id AND df.user_id=${info.userId}` :
+        pg``
+      }
       WHERE d.user_id=${userId}
       ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND d.id>${anchorId}` : pg`AND d.id<${anchorId}`}
       ORDER BY d.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
@@ -203,7 +213,6 @@ const getUserFollowers = sage.resource(
     if (!parsed.success) return { error: ErrorCode.Default };
 
     const info = await auth.getAuthInfo(ctx);
-    if (!info) return { error: ErrorCode.Default };
 
     const { anchorId, type } = parsed.data;
     const userId = parsed.data.userId ?? ctx.userId;
@@ -213,8 +222,12 @@ const getUserFollowers = sage.resource(
       SELECT 
         u.id, u.name, u.username, u.bio, u.join_date, 
         u.follower_count, u.following_count,
+      ${info ?
+        pg`
         (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
-        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower
+        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower` :
+        pg`FALSE AS following, FALSE AS follower`
+      }
       FROM users u
       WHERE u.id IN (SELECT follower_id FROM user_follows WHERE following_id=${userId})
       ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id>${anchorId}` : pg`AND u.id<${anchorId}`}
@@ -240,7 +253,6 @@ const getUserFollowing = sage.resource(
     if (!parsed.success) return { error: ErrorCode.Default };
 
     const info = await auth.getAuthInfo(ctx);
-    if (!info) return { error: ErrorCode.Default };
 
     const { anchorId, type } = parsed.data;
     const userId = parsed.data.userId ?? ctx.userId;
@@ -250,8 +262,12 @@ const getUserFollowing = sage.resource(
       SELECT
         u.id, u.name, u.username, u.bio, u.join_date,
         u.follower_count, u.following_count,
+      ${info ?
+        pg`
         (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
-        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower
+        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower` :
+        pg`FALSE AS following, FALSE AS follower`
+      }
       WHERE u.id IN (SELECT following_id FROM user_follows WHERE follower_id=${userId})
       ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id>${anchorId}` : pg`AND u.id<${anchorId}`}
       ORDER BY u.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
