@@ -113,6 +113,8 @@ function Profile({ user }: Props) {
           </>
         }
 
+        {user.following && <>&nbsp;follows you</>}
+
         {user.id === currentUserId && !state.editing &&
           <>
             &nbsp;

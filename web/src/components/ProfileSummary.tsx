@@ -49,6 +49,7 @@ function ProfileSummary({ user }: Props) {
             <button onClick={followUser}>{user.follower ? "unfollow" : "follow"}</button>
           </>
         }
+        {user.following && <>&nbsp;follows you</>}
       </div>
     </>
   )
