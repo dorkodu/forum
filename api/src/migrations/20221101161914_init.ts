@@ -32,7 +32,6 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("last_argument_date")
       table.bigint("last_comment_date")
       table.index("user_id", undefined, "btree")
-      table.index("title", undefined, "btree")
     })
     .createTable("discussion_favourites", (table) => {
       table.bigint("id").primary()
