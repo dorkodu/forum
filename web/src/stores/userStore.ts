@@ -200,9 +200,9 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
       const current = currentUser && state.user.entities[currentUser.id];
       const target = state.user.entities[targetUser.id];
 
-      if (current && target) {
+      if (current) {
         current.followingCount += type ? +1 : -1;
-        target.following = type;
+        current.following = type;
       }
       if (target) {
         target.followerCount += type ? +1 : -1;
