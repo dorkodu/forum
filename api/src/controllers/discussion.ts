@@ -88,14 +88,12 @@ const getDiscussion = sage.resource(
 
     const [result]: [IDiscussionRaw?] = await pg`
       SELECT 
-        d.id, d.user_id, d.date, d.title, d.readme, 
-        d.favourite_count, d.argument_count, d.comment_count,
-        d.last_update_date, d.last_argument_date, d.last_comment_date,
-        (df.user_id IS NOT NULL) AS favourited
-      FROM discussions d
-      LEFT JOIN discussion_favourites df
-      ON d.id=df.discussion_id AND df.user_id=${info.userId}
-      WHERE d.id=${discussionId}
+        id, user_id, date, title, readme, 
+        favourite_count, argument_count, comment_count,
+        last_update_date, last_argument_date, last_comment_date,
+        (EXISTS (SELECT * FROM discussion_favourites WHERE discussion_id=${discussionId} AND user_id=${info.userId})) AS favourited
+      FROM discussions
+      WHERE id=${discussionId}
     `;
     const res = iDiscussionSchema.safeParse(result);
     if (!res.success) return { error: ErrorCode.Default };
@@ -156,11 +154,10 @@ const getUserDiscussionFeed = sage.resource(
         d.last_update_date, d.last_argument_date, d.last_comment_date,
         (df.user_id IS NOT NULL) AS favourited
       FROM discussions d
-      LEFT JOIN discussion_favourites df
+      INNER JOIN discussion_favourites df
       ON d.id=df.discussion_id AND df.user_id=${info.userId}
-      WHERE df.user_id IS NOT NULL
       ${anchorId === "-1" ? pg`` :
-        type === "newer" ? pg`AND d.id>${anchorId}` : pg`AND d.id<${anchorId}`}
+        type === "newer" ? pg`WHERE d.id>${anchorId}` : pg`WHERE d.id<${anchorId}`}
       ORDER BY d.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
       LIMIT 20
     `;
@@ -197,10 +194,8 @@ const getGuestDiscussionFeed = sage.resource(
           d.id, d.user_id, d.date, d.title, d.readme, 
           d.favourite_count, d.argument_count, d.comment_count,
           d.last_update_date, d.last_argument_date, d.last_comment_date,
-          (df.user_id IS NOT NULL) AS favourited
+          (EXISTS (SELECT * FROM discussion_favourites df WHERE df.discussion_id=d.id AND df.user_id=${info.userId})) AS favourited
         FROM discussions d
-        LEFT JOIN discussion_favourites df
-        ON d.id=df.discussion_id AND df.user_id=${info.userId}
         ${anchorId === "-1" ? pg`` :
           type === "newer" ? pg`WHERE d.id>${anchorId}` : pg`WHERE d.id<${anchorId}`}
         ORDER BY d.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
