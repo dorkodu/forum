@@ -54,6 +54,7 @@ function Follower() {
     const followers = res?.b.data;
 
     if (user) useUserStore.getState().setUsers([user]);
+    if (followers) useUserStore.getState().setUsers(followers);
     if (user && followers) useUserStore.getState().addUserFollowers(user, followers);
 
     return status;

@@ -268,6 +268,7 @@ const getUserFollowing = sage.resource(
         (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower` :
         pg`FALSE AS following, FALSE AS follower`
       }
+      FROM users u
       WHERE u.id IN (SELECT following_id FROM user_follows WHERE follower_id=${userId})
       ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id>${anchorId}` : pg`AND u.id<${anchorId}`}
       ORDER BY u.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}

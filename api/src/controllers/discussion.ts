@@ -540,9 +540,6 @@ const getComments = sage.resource(
     const parsed = getCommentsSchema.safeParse(arg);
     if (!parsed.success) return { error: ErrorCode.Default };
 
-    const info = await auth.getAuthInfo(ctx);
-    if (!info) return { error: ErrorCode.Default };
-
     const { discussionId, anchorId, type } = parsed.data;
 
     const result = await pg<ICommentRaw[]>`

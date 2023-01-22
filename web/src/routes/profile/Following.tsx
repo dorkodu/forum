@@ -54,6 +54,7 @@ function Following() {
     const following = res?.b.data;
 
     if (user) useUserStore.getState().setUsers([user]);
+    if (following) useUserStore.getState().setUsers(following);
     if (user && following) useUserStore.getState().addUserFollowing(user, following);
 
     return status;
