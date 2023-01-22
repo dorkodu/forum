@@ -34,6 +34,7 @@ interface State {
     entities: { [key: string]: IComment }
   }
 
+  userFeed: { [key: string]: boolean }
   favouriteFeed: { [key: string]: boolean }
   guestFeed: { [key: string]: boolean }
 }
@@ -46,10 +47,16 @@ interface Action {
   setUserDiscussions: (userId: string, discussions: IDiscussion[]) => void;
   getUserDiscussionAnchor: (userId: string, type: "newer" | "older", refresh?: boolean) => string;
 
+  getUserFeedDiscussions: (type: "newer" | "older") => IDiscussion[];
+  addUserFeedDiscussions: (discussions: IDiscussion[]) => void;
+  removeUserFeedDiscussions: (discussions: IDiscussion[]) => void;
+  getUserFeedAnchor: (type: "newer" | "older", refresh?: boolean) => string;
+
   getFavouriteFeedDiscussions: (type: "newer" | "older") => IDiscussion[];
   addFavouriteFeedDiscussions: (discussions: IDiscussion[]) => void;
   removeFavouriteFeedDiscussions: (discussions: IDiscussion[]) => void;
   getFavouriteFeedAnchor: (type: "newer" | "older", refresh?: boolean) => string;
+
   getGuestFeedDiscussions: (type: "newer" | "older") => IDiscussion[];
   addGuestFeedDiscussions: (discussions: IDiscussion[]) => void;
   getGuestFeedAnchor: (type: "newer" | "older", refresh?: boolean) => string;
@@ -75,6 +82,7 @@ interface Action {
   queryFavouriteDiscussion: (discussion: IDiscussion) => Promise<boolean>;
 
   queryGetUserDiscussionFeed: () => Promise<boolean>;
+  queryGetFavouriteDiscussionFeed: () => Promise<boolean>;
   queryGetGuestDiscussionFeed: () => Promise<boolean>;
 
   queryCreateArgument: (discussionId: string, content: string, type: boolean) => Promise<boolean>;
@@ -95,6 +103,7 @@ const initialState: State = {
   discussion: { entities: {}, users: {}, arguments: {}, comments: {} },
   argument: { entities: {} },
   comment: { entities: {} },
+  userFeed: {},
   favouriteFeed: {},
   guestFeed: {},
 }
@@ -153,6 +162,37 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
   },
 
 
+  getUserFeedDiscussions: (type) => {
+    const object = get().userFeed;
+    if (!object) return [];
+
+    const out: IDiscussion[] = [];
+    const keys = Object.keys(object);
+    keys.forEach(key => {
+      const discussion = get().discussion.entities[key];
+      if (discussion) out.push(discussion);
+    })
+
+    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+  },
+
+  addUserFeedDiscussions: (discussions) => {
+    set(state => {
+      discussions.forEach(discussion => { state.userFeed[discussion.id] = true })
+    })
+  },
+
+  removeUserFeedDiscussions: (discussions) => {
+    set(state => {
+      discussions.forEach(discussion => { delete state.userFeed[discussion.id] })
+    })
+  },
+
+  getUserFeedAnchor: (type, refresh) => {
+    return array.getAnchor(get().getUserFeedDiscussions("newer"), "id", "-1", type, refresh);
+  },
+
+
   getFavouriteFeedDiscussions: (type) => {
     const object = get().favouriteFeed;
     if (!object) return [];
@@ -182,6 +222,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
   getFavouriteFeedAnchor: (type, refresh) => {
     return array.getAnchor(get().getFavouriteFeedDiscussions("newer"), "id", "-1", type, refresh);
   },
+
 
   getGuestFeedDiscussions: (type) => {
     const object = get().guestFeed;
@@ -447,6 +488,10 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
   },
 
   queryGetUserDiscussionFeed: async () => {
+    return false;
+  },
+
+  queryGetFavouriteDiscussionFeed: async () => {
     return false;
   },
 

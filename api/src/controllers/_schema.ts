@@ -50,6 +50,7 @@ export const schema = sage.schema(
 
     favouriteDiscussion: discussion.favouriteDiscussion,
 
+    getUserDiscussionFeed: discussion.getUserDiscussionFeed,
     getFavouriteDiscussionFeed: discussion.getFavouriteDiscussionFeed,
     getGuestDiscussionFeed: discussion.getGuestDiscussionFeed,
 

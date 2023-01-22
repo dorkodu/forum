@@ -25,6 +25,11 @@ export const getUserDiscussionFeedSchema = z.object({
   type: z.enum(["newer", "older"]),
 }).strict();
 
+export const getFavouriteDiscussionFeedSchema = z.object({
+  anchorId: z.string(),
+  type: z.enum(["newer", "older"]),
+}).strict();
+
 export const getGuestDiscussionFeedSchema = z.object({
   anchorId: z.string(),
   type: z.enum(["newer", "older"]),

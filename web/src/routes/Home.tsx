@@ -21,11 +21,31 @@ function Home() {
   )
 
   const navigate = useNavigate();
+  const userFeed = useDiscussionStore(_state => _state.getUserFeedDiscussions(state.order));
   const favouriteFeed = useDiscussionStore(_state => _state.getFavouriteFeedDiscussions(state.order));
   const guestFeed = useDiscussionStore(_state => _state.getGuestFeedDiscussions(state.order));
 
   const fetchUserFeed = async (type: "newer" | "older", refresh?: boolean) => {
+    if (state.loading) return;
 
+    setState({ ...state, loading: true, status: undefined });
+
+    const anchorId = useDiscussionStore.getState().getUserFeedAnchor(type, refresh);
+    const res = await sage.get(
+      {
+        a: sage.query("getUserDiscussionFeed", { anchorId, type }, { ctx: "a" }),
+        b: sage.query("getUser", {}, { ctx: "a", wait: "a" }),
+      },
+      (query) => request(query)
+    )
+    const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
+    const discussions = res?.a.data;
+    const users = res?.b.data;
+
+    if (discussions) useDiscussionStore.getState().addUserFeedDiscussions(discussions);
+    if (users) useUserStore.getState().setUsers(users);
+
+    setState({ ...state, loading: false, status: status });
   }
 
   const fetchFavouriteFeed = async (type: "newer" | "older", refresh?: boolean) => {
@@ -123,6 +143,10 @@ function Home() {
       }
 
       {state.feed === "user" &&
+        userFeed.map((discussion) => <div key={discussion.id}><hr /><DiscussionSummary discussionId={discussion.id} /></div>)
+      }
+
+      {state.feed === "favourite" &&
         favouriteFeed.map((discussion) => <div key={discussion.id}><hr /><DiscussionSummary discussionId={discussion.id} /></div>)
       }
 

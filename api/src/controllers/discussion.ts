@@ -2,7 +2,7 @@ import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
 import auth from "./auth";
-import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, favouriteDiscussionSchema, getArgumentsSchema, getCommentsSchema, getDiscussionSchema, getGuestDiscussionFeedSchema, getUserDiscussionFeedSchema, voteArgumentSchema } from "../schemas/discussion";
+import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, favouriteDiscussionSchema, getArgumentsSchema, getCommentsSchema, getDiscussionSchema, getFavouriteDiscussionFeedSchema, getGuestDiscussionFeedSchema, getUserDiscussionFeedSchema, voteArgumentSchema } from "../schemas/discussion";
 import pg from "../pg";
 import { snowflake } from "../lib/snowflake";
 import { date } from "../lib/date";
@@ -137,11 +137,51 @@ const searchDiscussion = sage.resource(
   }
 )
 
-const getFavouriteDiscussionFeed = sage.resource(
+const getUserDiscussionFeed = sage.resource(
   {} as SchemaContext,
   {} as z.infer<typeof getUserDiscussionFeedSchema>,
   async (arg, ctx): Promise<{ data?: IDiscussion[], error?: ErrorCode }> => {
     const parsed = getUserDiscussionFeedSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { anchorId, type } = parsed.data;
+
+    const result = await pg`
+      SELECT 
+        d.id, d.user_id, d.date, d.title, d.readme, 
+        d.favourite_count, d.argument_count, d.comment_count,
+        d.last_update_date, d.last_argument_date, d.last_comment_date,
+        (EXISTS (SELECT * FROM discussion_favourites df WHERE df.discussion_id=d.id AND df.user_id=${info.userId})) AS favourited
+      FROM discussions d
+      INNER JOIN user_follows uf
+      ON d.user_id=uf.following_id AND uf.follower_id=${info.userId}
+      ${anchorId === "-1" ? pg`` :
+        type === "newer" ? pg`WHERE d.id>${anchorId}` : pg`WHERE d.id<${anchorId}`}
+      ORDER BY d.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      LIMIT 20
+    `;
+
+    const res: IDiscussionParsed[] = [];
+    result.forEach(user => {
+      const parsed = iDiscussionSchema.safeParse(user);
+      if (parsed.success) res.push(parsed.data);
+    });
+
+    if (ctx.userIds === undefined) ctx.userIds = new Set();
+    res.forEach((discussion) => { ctx.userIds?.add(discussion.userId) });
+
+    return { data: res };
+  }
+)
+
+const getFavouriteDiscussionFeed = sage.resource(
+  {} as SchemaContext,
+  {} as z.infer<typeof getFavouriteDiscussionFeedSchema>,
+  async (arg, ctx): Promise<{ data?: IDiscussion[], error?: ErrorCode }> => {
+    const parsed = getFavouriteDiscussionFeedSchema.safeParse(arg);
     if (!parsed.success) return { error: ErrorCode.Default };
 
     const info = await auth.getAuthInfo(ctx);
@@ -572,6 +612,7 @@ export default {
 
   favouriteDiscussion,
 
+  getUserDiscussionFeed,
   getFavouriteDiscussionFeed,
   getGuestDiscussionFeed,
 
