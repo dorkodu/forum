@@ -137,7 +137,7 @@ const searchDiscussion = sage.resource(
   }
 )
 
-const getUserDiscussionFeed = sage.resource(
+const getFavouriteDiscussionFeed = sage.resource(
   {} as SchemaContext,
   {} as z.infer<typeof getUserDiscussionFeedSchema>,
   async (arg, ctx): Promise<{ data?: IDiscussion[], error?: ErrorCode }> => {
@@ -572,7 +572,7 @@ export default {
 
   favouriteDiscussion,
 
-  getUserDiscussionFeed,
+  getFavouriteDiscussionFeed,
   getGuestDiscussionFeed,
 
   createArgument,

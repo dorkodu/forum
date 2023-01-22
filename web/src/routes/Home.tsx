@@ -10,7 +10,7 @@ interface State {
   status: boolean | undefined;
 
   order: "newer" | "older";
-  feed: "user" | "guest";
+  feed: "user" | "favourite" | "guest";
 }
 
 
@@ -21,18 +21,22 @@ function Home() {
   )
 
   const navigate = useNavigate();
-  const userFeed = useDiscussionStore(_state => _state.getUserFeedDiscussions(state.order));
+  const favouriteFeed = useDiscussionStore(_state => _state.getFavouriteFeedDiscussions(state.order));
   const guestFeed = useDiscussionStore(_state => _state.getGuestFeedDiscussions(state.order));
 
   const fetchUserFeed = async (type: "newer" | "older", refresh?: boolean) => {
+
+  }
+
+  const fetchFavouriteFeed = async (type: "newer" | "older", refresh?: boolean) => {
     if (state.loading) return;
 
     setState({ ...state, loading: true, status: undefined });
 
-    const anchorId = useDiscussionStore.getState().getUserFeedAnchor(type, refresh);
+    const anchorId = useDiscussionStore.getState().getFavouriteFeedAnchor(type, refresh);
     const res = await sage.get(
       {
-        a: sage.query("getUserDiscussionFeed", { anchorId, type }, { ctx: "a" }),
+        a: sage.query("getFavouriteDiscussionFeed", { anchorId, type }, { ctx: "a" }),
         b: sage.query("getUser", {}, { ctx: "a", wait: "a" }),
       },
       (query) => request(query)
@@ -41,7 +45,7 @@ function Home() {
     const discussions = res?.a.data;
     const users = res?.b.data;
 
-    if (discussions) useDiscussionStore.getState().addUserFeedDiscussions(discussions);
+    if (discussions) useDiscussionStore.getState().addFavouriteFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
     setState({ ...state, loading: false, status: status });
@@ -80,6 +84,7 @@ function Home() {
       <br />
 
       <button onClick={() => setState({ ...state, feed: "user" })}>user feed</button>
+      <button onClick={() => setState({ ...state, feed: "favourite" })}>favourite feed</button>
       <button onClick={() => setState({ ...state, feed: "guest" })}>guest feed</button>
       &nbsp;
       <span>{state.feed}</span>
@@ -101,6 +106,14 @@ function Home() {
         </>
       }
 
+      {state.feed === "favourite" &&
+        <>
+          <button onClick={() => { fetchFavouriteFeed("older") }}>load older</button>
+          <button onClick={() => { fetchFavouriteFeed("newer") }}>load newer</button>
+          <button onClick={() => { fetchFavouriteFeed("newer", true) }}>refresh</button>
+        </>
+      }
+
       {state.feed === "guest" &&
         <>
           <button onClick={() => { fetchGuestFeed("older") }}>load older</button>
@@ -110,7 +123,7 @@ function Home() {
       }
 
       {state.feed === "user" &&
-        userFeed.map((discussion) => <div key={discussion.id}><hr /><DiscussionSummary discussionId={discussion.id} /></div>)
+        favouriteFeed.map((discussion) => <div key={discussion.id}><hr /><DiscussionSummary discussionId={discussion.id} /></div>)
       }
 
       {state.feed === "guest" &&
