@@ -10,6 +10,7 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("join_date")
       table.bigint("follower_count")
       table.bigint("following_count")
+      table.index("name", undefined, "btree")
     })
     .createTable("user_follows", (table) => {
       table.bigint("id").primary()
@@ -30,6 +31,8 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("last_update_date")
       table.bigint("last_argument_date")
       table.bigint("last_comment_date")
+      table.index("user_id", undefined, "btree")
+      table.index("title", undefined, "btree")
     })
     .createTable("discussion_favourites", (table) => {
       table.bigint("id").primary()
@@ -43,6 +46,8 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("discussion_id")
       table.bigint("date")
       table.string("content", 500)
+      table.index("user_id", undefined, "btree")
+      table.index("discussion_id", undefined, "btree")
     })
     .createTable("discussion_arguments", (table) => {
       table.bigint("id").primary()
@@ -52,6 +57,8 @@ export async function up(knex: Knex): Promise<void> {
       table.string("content", 500)
       table.boolean("type")
       table.bigint("vote_count")
+      table.index("user_id", undefined, "btree")
+      table.index("discussion_id", undefined, "btree")
     })
     .createTable("argument_votes", (table) => {
       table.bigint("id").primary()
