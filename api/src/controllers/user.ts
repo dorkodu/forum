@@ -1,7 +1,7 @@
 import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
-import { editUserSchema, followUserSchema, getUserDiscussionsSchema, getUserFollowersSchema, getUserFollowingSchema, getUserSchema } from "../schemas/user";
+import { editUserSchema, followUserSchema, getUserDiscussionsSchema, getUserFollowersSchema, getUserFollowingSchema, getUserSchema, searchUserSchema } from "../schemas/user";
 import { z } from "zod";
 import auth from "./auth";
 import pg from "../pg";
@@ -102,9 +102,43 @@ const editUser = sage.resource(
 
 const searchUser = sage.resource(
   {} as SchemaContext,
-  undefined,
-  async (_arg, _ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    return { data: {} };
+  {} as z.infer<typeof searchUserSchema>,
+  async (arg, ctx): Promise<{ data?: IUser[], error?: ErrorCode }> => {
+    const parsed = searchUserSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+
+    const { name, username, anchorId, type } = parsed.data;
+    if (!name && !username) return { error: ErrorCode.Default };
+    if (name && username) return { error: ErrorCode.Default };
+
+    const result = await pg`
+      SELECT 
+        u.id, u.name, u.username, u.bio, u.join_date, 
+        u.follower_count, u.following_count,
+      ${info ?
+        pg`
+        (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
+        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower` :
+        pg`FALSE AS following, FALSE AS follower`
+      }
+      FROM users u
+      WHERE 
+        ${name ? pg`u.name ILIKE ${`${name}%`}` : pg``} 
+        ${username ? pg`u.username ILIKE ${`${username}%`}` : pg``}
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id>${anchorId}` : pg`AND u.id<${anchorId}`}
+      ORDER BY u.id ${anchorId === "-1" ? pg`ASC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      LIMIT 20
+    `;
+
+    const res: IUserParsed[] = [];
+    result.forEach(argument => {
+      const parsed = iUserSchema.safeParse(argument);
+      if (parsed.success) res.push(parsed.data);
+    });
+
+    return { data: res };
   }
 )
 

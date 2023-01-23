@@ -3,12 +3,19 @@ import { sharedSchemas } from "./_shared";
 
 export const getUserSchema = z.object({
   ids: z.string().array().optional(),
-  username: z.string().optional(),
+  username: sharedSchemas.username.optional(),
 }).strict();
 
 export const editUserSchema = z.object({
   name: sharedSchemas.name,
   bio: sharedSchemas.bio,
+}).strict();
+
+export const searchUserSchema = z.object({
+  name: sharedSchemas.name.optional(),
+  username: sharedSchemas.username.optional(),
+  anchorId: z.string(),
+  type: z.enum(["newer", "older"]),
 }).strict();
 
 export const getUserDiscussionsSchema = z.object({

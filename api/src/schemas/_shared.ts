@@ -1,15 +1,15 @@
 import { z } from "zod";
 
-const name = z.string().min(1).max(64).trim();
-const username = z.string().regex(/^([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,14}(?:[A-Za-z0-9_]))?)$/);
-const email = z.string().email().max(320).trim();
+const name = z.string().trim().min(1).max(64);
+const username = z.string().trim().regex(/^([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,14}(?:[A-Za-z0-9_]))?)$/);
+const email = z.string().trim().email().max(320);
 const password = z.string().min(8);
-const bio = z.string().max(500).trim();
+const bio = z.string().trim().max(500);
 
-const title = z.string().min(1).max(100).trim();
-const readme = z.string().min(1).max(100000).trim();
-const commentContent = z.string().min(1).max(500).trim();
-const argumentContent = z.string().min(1).max(500).trim();
+const title = z.string().trim().min(1).max(100);
+const readme = z.string().trim().min(1).max(100000);
+const commentContent = z.string().trim().min(1).max(500);
+const argumentContent = z.string().trim().min(1).max(500);
 
 const token = z.string();
 const code = z.string();
