@@ -1,4 +1,7 @@
+import { ActionIcon, Card, Flex, Menu, Text } from "@mantine/core";
+import { IconDots, IconTrash, IconArrowBigTop, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons";
 import { useReducer } from "react"
+import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
@@ -46,32 +49,55 @@ function Argument({ argumentId }: Props) {
   if (!argument || !user) return (<></>)
 
   return (
-    <>
-      <div>
-        <span>{user.name}</span>
-        &nbsp;
-        <span>@{user.username}</span>
-        &nbsp;
-        <span>{argument.date}</span>
-        {user.id === currentUserId &&
-          <>
-            &nbsp;
-            <button onClick={deleteArgument}>delete</button>
-          </>
-        }
-      </div>
-      <div>{argument.content}</div>
-      <div>
-        <span>type: {argument.type ? "+" : "-"}</span>
-        &nbsp;
-        <span>votes: {argument.voteCount}</span>
-        &nbsp;
-        <button onClick={() => voteArgument(true)}>upvote</button>
-        <button onClick={() => voteArgument(false)}>downvote</button>
-        &nbsp;
-        <span>{!argument.voted ? "none" : argument.votedType ? "up" : "down"}</span>
-      </div>
-    </>
+    <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+      <Flex align="center" justify="space-between">
+        <Flex miw={0}>
+          <Flex miw={0}>
+            <Text truncate pr={4}>{user.name}</Text>
+            <Text>@</Text>
+            <Text truncate>{user.username}</Text>
+          </Flex>
+          <Text ml={4} title={date(argument.date).format('lll')}>
+            {date(argument.date).fromNow()}
+          </Text>
+        </Flex>
+        <Menu shadow="md" radius="md">
+          <Menu.Target>
+            <ActionIcon color="dark"><IconDots /></ActionIcon>
+          </Menu.Target>
+
+          <Menu.Dropdown>
+            {user.id === currentUserId &&
+              <>
+                <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={deleteArgument}>
+                  delete argument
+                </Menu.Item>
+              </>
+            }
+          </Menu.Dropdown>
+        </Menu>
+      </Flex>
+
+      <Text>{argument.content}</Text>
+
+      <Flex align="center">
+        {argument.type ? <IconPlus /> : <IconMinus />}
+
+        <ActionIcon color="dark" onClick={() => voteArgument(true)}>
+          <IconArrowBigTop
+            fill={argument.voted && (argument.votedType ? "currentColor" : "none") || "none"}
+          />
+        </ActionIcon>
+
+        <span>{argument.voteCount}</span>
+
+        <ActionIcon color="dark" onClick={() => voteArgument(false)}>
+          <IconArrowBigDown
+            fill={argument.voted && (!argument.votedType ? "currentColor" : "none") || "none"}
+          />
+        </ActionIcon>
+      </Flex>
+    </Card>
   )
 }
 

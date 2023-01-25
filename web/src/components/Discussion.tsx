@@ -214,8 +214,8 @@ function Discussion({ discussionId }: Props) {
         }
       </Card>
 
-      {state.show === "arguments" && _arguments.map((argument) => <div key={argument.id}><hr /><Argument argumentId={argument.id} /></div>)}
-      {state.show === "comments" && comments.map((comment) => <div key={comment.id}><hr /><Comment commentId={comment.id} /></div>)}
+      {state.show === "arguments" && _arguments.map((argument) => <Argument key={argument.id} argumentId={argument.id} />)}
+      {state.show === "comments" && comments.map((comment) => <Comment key={comment.id} commentId={comment.id} />)}
     </>
   )
 }
