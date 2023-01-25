@@ -75,7 +75,7 @@ function DiscussionSummary({ discussionId }: Props) {
 
   return (
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoDiscussion}>
-      <Flex justify="space-between">
+      <Flex align="center" justify="space-between">
         <Flex miw={0}>
           <Flex miw={0}>
             <Text truncate pr={4}>{user.name}</Text>
