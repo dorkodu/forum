@@ -14,7 +14,7 @@ function App() {
 
   return (
     <>
-      <MantineProvider theme={theme}>
+      <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
         <Suspense>
           {loading ? <Loader variant="dots" color="green" /> : <Outlet />}
         </Suspense>

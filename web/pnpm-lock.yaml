@@ -1,12 +1,14 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@babel/core': ^7.20.12
   '@dorkodu/prism': ^0.1.1
   '@dorkodu/sage-client': ^0.1.4
   '@emotion/babel-plugin': ^11.10.5
   '@emotion/react': ^11.10.5
   '@emotion/styled': ^11.10.5
-  '@mantine/core': ^5.9.6
+  '@mantine/core': ^5.10.0
+  '@mantine/hooks': ^5.10.2
   '@tabler/icons': ^1.119.0
   '@types/react': ^18.0.22
   '@types/react-dom': ^18.0.7
@@ -33,7 +35,8 @@ dependencies:
   '@dorkodu/sage-client': 0.1.4
   '@emotion/react': 11.10.5_jp5qgyg6plq757v5hojp7ls2oe
   '@emotion/styled': 11.10.5_jp5djshq6aqfasno3mth3hguci
-  '@mantine/core': 5.10.0_lbfixegkxal6rwioqxubxet6s4
+  '@mantine/core': 5.10.0_rnuruvd67a2c553vivo3kw42my
+  '@mantine/hooks': 5.10.2_react@18.2.0
   '@tabler/icons': 1.119.0_biqbaboplfbrettd7655fr4n2y
   dayjs: 1.11.7
   emotion-modern-normalize: 1.0.0_qvatmowesywn4ye42qoh247szu
@@ -48,6 +51,7 @@ dependencies:
   zustand: 4.3.1_immer@9.0.17+react@18.2.0
 
 devDependencies:
+  '@babel/core': 7.20.12
   '@emotion/babel-plugin': 11.10.5_@babel+core@7.20.12
   '@types/react': 18.0.26
   '@types/react-dom': 18.0.10
@@ -1473,7 +1477,7 @@ packages:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
 
-  /@mantine/core/5.10.0_lbfixegkxal6rwioqxubxet6s4:
+  /@mantine/core/5.10.0_rnuruvd67a2c553vivo3kw42my:
     resolution: {integrity: sha512-if272RiYPK0nQQdGNwcCSY7bCPJW9455qXlRhnYOr021xh89T8WFVPeDw4uwcxoXsXdKRV5GAi9irSnsUqsjJQ==}
     peerDependencies:
       '@mantine/hooks': 5.10.0
@@ -1481,7 +1485,7 @@ packages:
       react-dom: '>=16.8.0'
     dependencies:
       '@floating-ui/react-dom-interactions': 0.10.3_ib3m5ricvtkl2cll7qpr2f6lvq
-      '@mantine/hooks': 5.10.0_react@18.2.0
+      '@mantine/hooks': 5.10.2_react@18.2.0
       '@mantine/styles': 5.10.0_sogmqz4enknxtkxk3k5s6bqwnq
       '@mantine/utils': 5.10.0_react@18.2.0
       '@radix-ui/react-scroll-area': 1.0.2_biqbaboplfbrettd7655fr4n2y
@@ -1493,8 +1497,8 @@ packages:
       - '@types/react'
     dev: false
 
-  /@mantine/hooks/5.10.0_react@18.2.0:
-    resolution: {integrity: sha512-dAefxpvqjFtXNeKse+awkIa4U1XGnMMOqWg1+07Y2Ino2G6EiT8AEnYqQyTXgcPoNaWwG9533Q/DDadmyweqaQ==}
+  /@mantine/hooks/5.10.2_react@18.2.0:
+    resolution: {integrity: sha512-H26lZ+P2HasLXt3coXYUiN5hVRNXPYNwF93oP9TfmOOA+EEzbGtGQR/dBv51BF53UJ+rzgJ0W5lLi1CbZPdMnA==}
     peerDependencies:
       react: '>=16.8.0'
     dependencies:

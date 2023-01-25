@@ -151,7 +151,7 @@ function Home() {
       }
 
       {state.feed === "guest" &&
-        guestFeed.map((discussion) => <div key={discussion.id}><hr /><DiscussionSummary discussionId={discussion.id} /></div>)
+        guestFeed.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)
       }
     </>
   )
