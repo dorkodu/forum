@@ -44,7 +44,7 @@ const auth = sage.resource(
 const getAccessToken = sage.resource(
   {} as SchemaContext,
   {} as { code: string },
-  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+  async (arg, ctx): Promise<{ data?: IUser, error?: ErrorCode }> => {
     const parsed = getAccessTokenSchema.safeParse(arg);
     if (!parsed.success) return { error: ErrorCode.Default };
 
@@ -65,19 +65,39 @@ const getAccessToken = sage.resource(
         name: userData.username,
         username: userData.username,
         bio: "",
-        join_date: date.utc(),
-        follower_count: 0,
-        following_count: 0,
+        joinDate: date.utc(),
+        followerCount: 0,
+        followingCount: 0,
       }
 
       const result = await pg`INSERT INTO users ${pg(row)}`;
       if (result.count === 0) return { error: ErrorCode.Default };
+
+      // Attach the access token for 30 days to the user
+      token.attach(ctx.res, { value: accessToken.token, expiresAt: date.day(30) });
+
+      return { data: { ...row, follower: false, following: false } };
     }
+    // If not the first time logging in via Dorkodu ID, query the user
+    else {
+      const auth = await queryAuth(accessToken.token);
+      if (!auth) return { error: ErrorCode.Default };
 
-    // Attach the access token for 30 days to the user
-    token.attach(ctx.res, { value: accessToken.token, expiresAt: date.day(30) });
+      const [result]: [IUserRaw?] = await pg`
+        SELECT id, name, username, bio, join_date, follower_count, following_count,
+        FALSE AS follower, FALSE AS following
+        FROM users WHERE id=${auth.userId}
+      `;
+      if (!result) return { error: ErrorCode.Default };
 
-    return { data: {} };
+      const res = iUserSchema.safeParse(result);
+      if (!res.success) return { error: ErrorCode.Default };
+
+      // Attach the access token for 30 days to the user
+      token.attach(ctx.res, { value: accessToken.token, expiresAt: date.day(30) });
+
+      return { data: res.data };
+    }
   }
 )
 

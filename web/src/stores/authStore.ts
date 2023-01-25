@@ -5,7 +5,6 @@ import { useAppStore } from "./appStore";
 import { useUserStore } from "./userStore";
 
 interface State {
-  authorized: boolean;
   userId: string | undefined;
 }
 
@@ -15,7 +14,6 @@ interface Action {
 }
 
 const initialState: State = {
-  authorized: false,
   userId: undefined,
 }
 
@@ -28,18 +26,15 @@ export const useAuthStore = create(immer<State & Action>((set, _get) => ({
       (query) => request(query)
     )
 
-    const authorized = !(!res?.a.data || res.a.error);
+    const status = !(!res?.a.data || res.a.error);
     const user = res?.a.data;
 
-    set(state => {
-      state.authorized = authorized;
-      state.userId = user?.id;
-    })
+    set(state => { state.userId = user?.id });
 
     useUserStore.getState().setUsers(user ? [user] : []);
     useAppStore.getState().setAuthLoading(false);
 
-    return authorized;
+    return status;
   },
 
   queryGetAccessToken: async (code) => {
@@ -49,7 +44,13 @@ export const useAuthStore = create(immer<State & Action>((set, _get) => ({
     )
 
     const status = !(!res?.a.data || res.a.error);
-    set(state => { state.authorized = status })
+    const user = res?.a.data;
+
+    set(state => { state.userId = user?.id });
+
+    useUserStore.getState().setUsers(user ? [user] : []);
+    // TODO: setAuthLoading is already called in queryAuth, fix it somehow
+
     return status;
   },
 })))
