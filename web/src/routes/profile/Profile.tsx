@@ -1,3 +1,4 @@
+import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
 import { useEffect, useReducer } from "react";
 import { useParams } from "react-router-dom";
 import DiscussionSummary from "../../components/DiscussionSummary";
@@ -81,21 +82,26 @@ function ProfileRoute() {
     <>
       <Profile user={user} />
 
-      <hr />
+      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+        <Flex direction="column" gap="md">
+          <SegmentedControl radius="md" fullWidth
+            value={state.order}
+            onChange={(order: typeof state.order) => setState({ ...state, order })}
+            data={[
+              { label: "newer", value: "newer" },
+              { label: "older", value: "older" },
+            ]}
+          />
 
-      <div>
-        <button onClick={() => setState({ ...state, order: "newer" })}>newer</button>
-        <button onClick={() => setState({ ...state, order: "older" })}>older</button>
-        &nbsp;
-        <span>{state.order}</span>
-      </div>
-      <div>
-        <button onClick={() => fetchDiscussions("older")}>load older</button>
-        <button onClick={() => fetchDiscussions("newer")}>load newer</button>
-        <button onClick={() => fetchDiscussions("newer", true)}>refresh</button>
-      </div>
+          <Button.Group>
+            <Button radius="md" fullWidth variant="default" onClick={() => fetchDiscussions("newer", true)}>refresh</Button>
+            <Button radius="md" fullWidth variant="default" onClick={() => fetchDiscussions("newer")}>load newer</Button>
+            <Button radius="md" fullWidth variant="default" onClick={() => fetchDiscussions("older")}>load older</Button>
+          </Button.Group>
+        </Flex>
+      </Card>
 
-      {discussions.map((discussion) => <div key={discussion.id}><hr /><DiscussionSummary discussionId={discussion.id} /></div>)}
+      {discussions.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
     </>
   )
 }
