@@ -1,3 +1,4 @@
+import { css } from "@emotion/react";
 import { ActionIcon, Card, Flex, Menu, Text } from "@mantine/core";
 import { IconDots, IconTrash, IconArrowBigTop, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons";
 import { useReducer } from "react"
@@ -49,7 +50,7 @@ function Argument({ argumentId }: Props) {
   if (!argument || !user) return (<></>)
 
   return (
-    <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+    <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
           <Flex miw={0}>

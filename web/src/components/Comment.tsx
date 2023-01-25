@@ -1,4 +1,8 @@
+import { css } from "@emotion/react";
+import { ActionIcon, Card, Flex, Menu, Text } from "@mantine/core";
+import { IconDots, IconTrash } from "@tabler/icons";
 import { useReducer } from "react";
+import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
@@ -36,22 +40,37 @@ function Comment({ commentId }: Props) {
   if (!comment || !user) return (<></>)
 
   return (
-    <>
-      <div>
-        <span>{user.name}</span>
-        &nbsp;
-        <span>@{user.username}</span>
-        &nbsp;
-        <span>{comment.date}</span>
-        {user.id === currentUserId &&
-          <>
-            &nbsp;
-            <button onClick={deleteComment}>delete</button>
-          </>
-        }
-      </div>
-      <div>{comment.content}</div>
-    </>
+    <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
+      <Flex align="center" justify="space-between">
+        <Flex miw={0}>
+          <Flex miw={0}>
+            <Text truncate pr={4}>{user.name}</Text>
+            <Text>@</Text>
+            <Text truncate>{user.username}</Text>
+          </Flex>
+          <Text ml={4} title={date(comment.date).format('lll')}>
+            {date(comment.date).fromNow()}
+          </Text>
+        </Flex>
+        <Menu shadow="md" radius="md">
+          <Menu.Target>
+            <ActionIcon color="dark"><IconDots /></ActionIcon>
+          </Menu.Target>
+
+          <Menu.Dropdown>
+            {user.id === currentUserId &&
+              <>
+                <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={deleteComment}>
+                  delete argument
+                </Menu.Item>
+              </>
+            }
+          </Menu.Dropdown>
+        </Menu>
+      </Flex>
+
+      <Text>{comment.content}</Text>
+    </Card>
   )
 }
 
