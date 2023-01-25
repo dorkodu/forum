@@ -1,3 +1,4 @@
+import { Button, Card, Flex, SegmentedControl, Textarea } from "@mantine/core";
 import { useEffect, useReducer } from "react"
 import { useDiscussionStore } from "../stores/discussionStore";
 import Argument from "./Argument";
@@ -118,84 +119,100 @@ function Discussion({ discussionId }: Props) {
     <>
       <DiscussionSummary discussionId={discussionId} />
 
-      <hr />
+      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>{discussion.readme}</Card>
 
-      <div>
-        {discussion.readme}
-      </div>
+      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+        <Flex direction="column" gap="md">
+          <SegmentedControl radius="md" fullWidth
+            value={state.show}
+            onChange={(show: typeof state.show) => setState({ ...state, show })}
+            data={[
+              { label: "show arguments", value: "arguments" },
+              { label: "show comments", value: "comments" },
+            ]}
+          />
 
-      <hr />
+          {state.show === "arguments" &&
+            <>
+              <SegmentedControl radius="md" fullWidth
+                value={state.argumentType}
+                onChange={(argumentType: typeof state.argumentType) => setState({ ...state, argumentType })}
+                data={[
+                  { label: "newer", value: "newer" },
+                  { label: "older", value: "older" },
+                  { label: "most voted", value: "top" },
+                  { label: "least voted", value: "bottom" },
+                ]}
+              />
 
-      <div>
-        <button onClick={() => setState({ ...state, show: "comments" })}>show comments</button>
-        <button onClick={() => setState({ ...state, show: "arguments" })}>show arguments</button>
-        <br />
-        {state.show === "comments" &&
-          <>
-            <button onClick={() => setState({ ...state, commentType: "newer" })}>newer</button>
-            <button onClick={() => setState({ ...state, commentType: "older" })}>older</button>
-            &nbsp;
-            <span>{state.commentType}</span>
-            <br />
-            <button onClick={() => getComments("older")}>load older</button>
-            <button onClick={() => getComments("newer")}>load newer</button>
-            <button onClick={() => getComments("newer", true)}>refresh</button>
-          </>
-        }
+              <Button.Group>
+                <Button radius="md" fullWidth variant="default" onClick={() => getArguments("newer", true)}>refresh</Button>
+                <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("newer")}>load newer</Button>
+                <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("older")}>load older</Button>
+              </Button.Group>
+            </>
+          }
+
+          {state.show === "comments" &&
+            <>
+              <SegmentedControl radius="md" fullWidth
+                value={state.commentType}
+                onChange={(commentType: typeof state.commentType) => setState({ ...state, commentType })}
+                data={[
+                  { label: "newer", value: "newer" },
+                  { label: "older", value: "older" },
+                ]}
+              />
+
+              <Button.Group >
+                <Button radius="md" fullWidth variant="default" onClick={() => getComments("newer", true)}>refresh</Button>
+                <Button radius="md" fullWidth variant="default" onClick={() => getComments("newer")}>load newer</Button>
+                <Button radius="md" fullWidth variant="default" onClick={() => getComments("older")}>load older</Button>
+              </Button.Group>
+            </>
+          }
+        </Flex>
+      </Card>
+
+      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
         {state.show === "arguments" &&
           <>
-            <button onClick={() => setState({ ...state, argumentType: "newer" })}>newer</button>
-            <button onClick={() => setState({ ...state, argumentType: "older" })}>older</button>
-            <button onClick={() => setState({ ...state, argumentType: "top" })}>top</button>
-            <button onClick={() => setState({ ...state, argumentType: "bottom" })}>bottom</button>
-            &nbsp;
-            <span>{state.argumentType}</span>
-            <br />
-            {(state.argumentType === "newer" || state.argumentType === "older") &&
-              <>
-                <button onClick={() => getArguments("older")}>load older</button>
-                <button onClick={() => getArguments("newer")}>load newer</button>
-              </>
-            }
-            <button onClick={() => getArguments(state.argumentType, true)}>refresh</button>
+            <Textarea
+              radius="md"
+              placeholder="Write your argument..."
+              defaultValue={state.argument.text}
+              onChange={(ev) => setState({ ...state, argument: { ...state.argument, text: ev.target.value } })}
+              autosize
+              pb="md"
+            />
+
+            <Button onClick={createArgument} color="dark" radius="md" mr="md">send</Button>
+
+            <SegmentedControl radius="md"
+              value={state.argument.type ? "+" : "-"}
+              onChange={(type: "+" | "-") => setState({ ...state, argument: { ...state.argument, type: type === "+" } })}
+              data={[
+                { label: "+", value: "+" },
+                { label: "-", value: "-" },
+              ]}
+            />
           </>
         }
-      </div>
+        {state.show === "comments" &&
+          <>
+            <Textarea
+              radius="md"
+              placeholder="Write your comment..."
+              defaultValue={state.comment.text}
+              onChange={(ev) => setState({ ...state, comment: { ...state.comment, text: ev.target.value } })}
+              autosize
+              pb="md"
+            />
 
-      <hr />
-
-      <div>showing {state.show}</div>
-
-      <hr />
-
-      {state.show === "arguments" &&
-        <>
-          <input
-            type="text"
-            placeholder="write argument..."
-            defaultValue={state.argument.text}
-            onChange={(ev) => setState({ ...state, argument: { ...state.argument, text: ev.target.value } })}
-          />
-          <button onClick={() => setState({ ...state, argument: { ...state.argument, type: true } })}>+</button>
-          <button onClick={() => setState({ ...state, argument: { ...state.argument, type: false } })}>-</button>
-          &nbsp;
-          <span>type: {state.argument.type ? "positive" : "negative"}</span>
-          <br />
-          <button onClick={createArgument}>send</button>
-        </>
-      }
-      {state.show === "comments" &&
-        <>
-          <input
-            type="text"
-            placeholder="write comment..."
-            defaultValue={state.comment.text}
-            onChange={(ev) => setState({ ...state, comment: { ...state.comment, text: ev.target.value } })}
-          />
-          <br />
-          <button onClick={createComment}>send</button>
-        </>
-      }
+            <Button onClick={createComment} color="dark" radius="md" mr="md" >send</Button>
+          </>
+        }
+      </Card>
 
       {state.show === "arguments" && _arguments.map((argument) => <div key={argument.id}><hr /><Argument argumentId={argument.id} /></div>)}
       {state.show === "comments" && comments.map((comment) => <div key={comment.id}><hr /><Comment commentId={comment.id} /></div>)}
