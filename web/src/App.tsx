@@ -9,6 +9,13 @@ import { useUserStore } from "./stores/userStore";
 import theme from "./styles/theme";
 import ForumIcon from "./assets/forum_icon.svg";
 
+const center = css`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+`;
+
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,8 +74,8 @@ function App() {
     <>
       <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
         <AppShell padding={0} header={<AppHeader />} footer={<AppFooter />}>
-          <Suspense>
-            {loading ? <Loader variant="dots" color="green" /> : <Outlet />}
+          <Suspense fallback={<Loader css={center} variant="dots" color="green" />}>
+            {loading ? <Loader css={center} variant="dots" color="green" /> : <Outlet />}
           </Suspense>
         </AppShell>
       </MantineProvider>

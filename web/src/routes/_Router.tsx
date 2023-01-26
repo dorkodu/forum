@@ -4,7 +4,6 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import App from "../App";
 import RequireAuth from "../components/RequireAuth";
 
-const Welcome = React.lazy(() => import("./Welcome"));
 const Home = React.lazy(() => import("./Home"));
 const Profile = React.lazy(() => import("./profile/Profile"));
 const Follower = React.lazy(() => import("./profile/Follower"));
@@ -25,7 +24,6 @@ function Router() {
           <Route index element={<Navigate to="/home" />} />
 
           {/* Routes that don't require authentication */}
-          <Route path="/welcome" element={<Welcome />} />
           <Route path="/home" element={<Home />} />
           <Route path="/profile/:username" element={<Profile />} />
           <Route path="/profile/:username/followers" element={<Follower />} />
