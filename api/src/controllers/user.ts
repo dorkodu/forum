@@ -203,9 +203,11 @@ const followUser = sage.resource(
     if (!result0) return { error: ErrorCode.Default };
 
     // Return error if trying to:
+    // - self follow
     // - unfollow an user that is not being followed
     // - follow and user that is already being followed
-    if (result0.count === "0" && type === false) return { error: ErrorCode.Default };
+    if (info.userId === userId) return { error: ErrorCode.Default };
+    else if (result0.count === "0" && type === false) return { error: ErrorCode.Default };
     else if (result0.count !== "0" && type === true) return { error: ErrorCode.Default };
 
     if (type) {
