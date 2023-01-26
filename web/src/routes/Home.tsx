@@ -1,3 +1,4 @@
+import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
 import { useEffect, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
 import DiscussionSummary from "../components/DiscussionSummary";
@@ -94,6 +95,38 @@ function Home() {
     setState({ ...state, loading: false, status: status });
   }
 
+  const refresh = () => {
+    switch (state.feed) {
+      case "user": fetchUserFeed("newer", true); break;
+      case "favourite": fetchFavouriteFeed("newer", true); break;
+      case "guest": fetchGuestFeed("newer", true); break;
+    }
+  }
+
+  const loadNewer = () => {
+    switch (state.feed) {
+      case "user": fetchUserFeed("newer"); break;
+      case "favourite": fetchFavouriteFeed("newer"); break;
+      case "guest": fetchGuestFeed("newer"); break;
+    }
+  }
+
+  const loadOlder = () => {
+    switch (state.feed) {
+      case "user": fetchUserFeed("older"); break;
+      case "favourite": fetchFavouriteFeed("older"); break;
+      case "guest": fetchGuestFeed("older"); break;
+    }
+  }
+
+  const feed = () => {
+    switch (state.feed) {
+      case "user": return userFeed;
+      case "favourite": return favouriteFeed;
+      case "guest": return guestFeed;
+    }
+  }
+
   useEffect(() => { fetchGuestFeed("newer", true) }, [])
 
   return (
@@ -101,58 +134,37 @@ function Home() {
       <div>home</div>
       <button onClick={() => { navigate("/discussion-editor") }}>create discussion</button>
 
-      <br />
+      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+        <Flex direction="column" gap="md">
+          <SegmentedControl radius="md" fullWidth
+            value={state.feed}
+            onChange={(feed: typeof state.feed) => setState({ ...state, feed })}
+            data={[
+              { label: "user feed", value: "user" },
+              { label: "favourite feed", value: "favourite" },
+              { label: "guest feed", value: "guest" },
+            ]}
+          />
 
-      <button onClick={() => setState({ ...state, feed: "user" })}>user feed</button>
-      <button onClick={() => setState({ ...state, feed: "favourite" })}>favourite feed</button>
-      <button onClick={() => setState({ ...state, feed: "guest" })}>guest feed</button>
-      &nbsp;
-      <span>{state.feed}</span>
+          <SegmentedControl radius="md" fullWidth
+            value={state.order}
+            onChange={(order: typeof state.order) => setState({ ...state, order })}
+            data={[
+              { label: "newer", value: "newer" },
+              { label: "older", value: "older" },
+            ]}
+          />
 
-      <br />
+          <Button.Group>
+            <Button radius="md" fullWidth variant="default" onClick={refresh}>refresh</Button>
+            <Button radius="md" fullWidth variant="default" onClick={loadNewer}>load newer</Button>
+            <Button radius="md" fullWidth variant="default" onClick={loadOlder}>load older</Button>
+          </Button.Group>
 
-      <button onClick={() => setState({ ...state, order: "newer" })}>newer</button>
-      <button onClick={() => setState({ ...state, order: "older" })}>older</button>
-      &nbsp;
-      <span>{state.order}</span>
+        </Flex>
+      </Card>
 
-      <br />
-
-      {state.feed === "user" &&
-        <>
-          <button onClick={() => { fetchUserFeed("older") }}>load older</button>
-          <button onClick={() => { fetchUserFeed("newer") }}>load newer</button>
-          <button onClick={() => { fetchUserFeed("newer", true) }}>refresh</button>
-        </>
-      }
-
-      {state.feed === "favourite" &&
-        <>
-          <button onClick={() => { fetchFavouriteFeed("older") }}>load older</button>
-          <button onClick={() => { fetchFavouriteFeed("newer") }}>load newer</button>
-          <button onClick={() => { fetchFavouriteFeed("newer", true) }}>refresh</button>
-        </>
-      }
-
-      {state.feed === "guest" &&
-        <>
-          <button onClick={() => { fetchGuestFeed("older") }}>load older</button>
-          <button onClick={() => { fetchGuestFeed("newer") }}>load newer</button>
-          <button onClick={() => { fetchGuestFeed("newer", true) }}>refresh</button>
-        </>
-      }
-
-      {state.feed === "user" &&
-        userFeed.map((discussion) => <div key={discussion.id}><hr /><DiscussionSummary discussionId={discussion.id} /></div>)
-      }
-
-      {state.feed === "favourite" &&
-        favouriteFeed.map((discussion) => <div key={discussion.id}><hr /><DiscussionSummary discussionId={discussion.id} /></div>)
-      }
-
-      {state.feed === "guest" &&
-        guestFeed.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)
-      }
+      {feed().map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
     </>
   )
 }
