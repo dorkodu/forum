@@ -2,7 +2,7 @@ import { css, Global } from "@emotion/react";
 import { ActionIcon, AppShell, Card, Flex, Footer, Header, Loader, MantineProvider } from "@mantine/core";
 import { IconArrowLeft, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons";
 import { Suspense, useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAppStore } from "./stores/appStore";
 import { useAuthStore } from "./stores/authStore";
 import { useUserStore } from "./stores/userStore";
@@ -11,6 +11,7 @@ import ForumIcon from "./assets/forum_icon.svg";
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const queryAuth = useAuthStore((state) => state.queryAuth);
   const loading = useAppStore((state) => state.getLoading());
 
@@ -30,9 +31,20 @@ function App() {
     <Header px="md" pt="md" height={64} withBorder={false}>
       <Card css={css`height:100%;`} shadow="sm" radius="md" withBorder>
         <Flex css={css`height:100%;`} align="center" justify="space-between">
-          <ActionIcon color="dark" onClick={goBack}><IconArrowLeft /></ActionIcon>
+          <ActionIcon
+            color="dark"
+            onClick={goBack}
+            css={location.pathname !== "/home" ? css`` : css`visibility: hidden;`}>
+            <IconArrowLeft />
+          </ActionIcon>
+
           <img src={ForumIcon} width={28} height={28} />
-          <ActionIcon color="dark" onClick={routeMenu}><IconMenu2 /></ActionIcon>
+
+          <ActionIcon
+            color="dark"
+            onClick={routeMenu}>
+            <IconMenu2 />
+          </ActionIcon>
         </Flex>
       </Card>
     </Header>
