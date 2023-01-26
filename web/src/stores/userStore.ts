@@ -14,6 +14,9 @@ interface State {
 
     // user.following[userId][followingId] -> boolean
     following: { [key: string]: { [key: string]: boolean } }
+
+    // Search results
+    search: string[]
   }
 }
 
@@ -22,6 +25,9 @@ interface Action {
   getUserByUsername: (username: string | undefined) => IUser | undefined;
 
   setUsers: (users: IUser[]) => void;
+
+  getSearchUsers: () => IUser[];
+  setSearchUsers: (users: IUser[], refresh?: boolean) => void;
 
   getUserFollowers: (user: IUser | undefined) => IUser[];
   getUserFollowing: (user: IUser | undefined) => IUser[];
@@ -44,7 +50,7 @@ interface Action {
 }
 
 const initialState: State = {
-  user: { entities: {}, followers: {}, following: {} },
+  user: { entities: {}, followers: {}, following: {}, search: [] },
 }
 
 export const useUserStore = create(immer<State & Action>((set, get) => ({
@@ -71,6 +77,29 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
   setUsers: (users) => {
     set(state => {
       users.forEach((user) => {
+        if (!state.user.entities[user.id]) state.user.entities[user.id] = user;
+      })
+    })
+  },
+
+
+  getSearchUsers: () => {
+    const out: IUser[] = [];
+    const keys = get().user.search;
+    keys.forEach(key => {
+      const user = get().user.entities[key];
+      if (user) out.push(user);
+    })
+
+    return out;
+  },
+
+  setSearchUsers: (users, refresh) => {
+    set(state => {
+      if (refresh) state.user.search = [];
+
+      users.forEach((user) => {
+        state.user.search.push(user.id);
         if (!state.user.entities[user.id]) state.user.entities[user.id] = user;
       })
     })

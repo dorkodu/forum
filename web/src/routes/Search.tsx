@@ -1,21 +1,22 @@
-import { IUser } from "@api/types/user";
 import { Button, Card, TextInput } from "@mantine/core";
-import { useEffect, useMemo, useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import ProfileSummary from "../components/ProfileSummary";
 import { array } from "../lib/array";
 import { request, sage } from "../stores/api";
+import { useUserStore } from "../stores/userStore";
 
 interface State {
   loading: boolean;
   status: boolean | undefined;
 
   search: string;
-  users: IUser[];
 }
 
 function Search() {
+  const users = useUserStore(state => state.getSearchUsers());
+
   const getSorted = () => {
-    return array.sort(state.users, "joinDate", ((a, b) => a - b));
+    return array.sort(users, "joinDate", ((a, b) => a - b));
   }
 
   const getAnchor = (type: "newer" | "older", refresh?: boolean) => {
@@ -23,19 +24,12 @@ function Search() {
   }
 
   const [state, setState] = useReducer(
-    (prev: State, next: State) => {
-      const newState = { ...prev, ...next };
-      if (newState.search === "" || newState.search === "@") newState.users = [];
-      return newState;
-    },
-    { loading: false, status: undefined, search: "", users: [] }
+    (prev: State, next: State) => ({ ...prev, ...next }),
+    { loading: false, status: undefined, search: "" }
   );
-
-  const users = useMemo(() => getSorted(), [state.users]);
 
   const fetchUsers = async (type: "newer" | "older", refresh?: boolean) => {
     if (state.loading) return;
-    if (refresh) setState({ ...state, users: [] });
 
     setState({ ...state, loading: true, status: undefined });
 
@@ -50,16 +44,17 @@ function Search() {
     const status = !(!res?.a.data || res.a.error);
     const users = res?.a.data;
 
-    setState({
-      ...state,
-      loading: false,
-      status: status,
-      users: refresh && users ? users : users ? [...state.users, ...users] : state.users
-    });
+    if (users) useUserStore.getState().setSearchUsers(users, refresh);
+
+    setState({ ...state, loading: false, status: status });
   }
 
   useEffect(() => {
-    if (state.search === "" || state.search === "@") return;
+    if (state.search === "" || state.search === "@") {
+      useUserStore.getState().setSearchUsers([], true);
+      return;
+    }
+
     const timeout = setTimeout(() => { fetchUsers("newer", true) }, 1000);
     return () => { clearTimeout(timeout) };
   }, [state.search])
