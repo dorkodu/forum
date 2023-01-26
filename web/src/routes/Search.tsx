@@ -1,4 +1,5 @@
 import { IUser } from "@api/types/user";
+import { Button, Card, TextInput } from "@mantine/core";
 import { useEffect, useMemo, useReducer } from "react";
 import ProfileSummary from "../components/ProfileSummary";
 import { array } from "../lib/array";
@@ -65,20 +66,23 @@ function Search() {
 
   return (
     <>
-      <input
-        type="text"
-        placeholder="search @username or user"
-        disabled={state.loading}
-        onChange={(ev) => { setState({ ...state, search: ev.target.value }) }}
-      />
+      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+        <TextInput
+          radius="md"
+          placeholder="search @username or user..."
+          defaultValue={state.search}
+          onChange={(ev) => { setState({ ...state, search: ev.target.value }) }}
+          pb="md"
+        />
 
-      <div>
-        <button onClick={() => fetchUsers("older")}>load older</button>
-        <button onClick={() => fetchUsers("newer")}>load newer</button>
-        <button onClick={() => fetchUsers("newer", true)}>refresh</button>
-      </div>
+        <Button.Group >
+          <Button radius="md" fullWidth variant="default" onClick={() => fetchUsers("newer", true)}>refresh</Button>
+          <Button radius="md" fullWidth variant="default" onClick={() => fetchUsers("newer")}>load newer</Button>
+          <Button radius="md" fullWidth variant="default" onClick={() => fetchUsers("older")}>load older</Button>
+        </Button.Group>
+      </Card>
 
-      {users.map((user) => <div key={user.id}><hr /><ProfileSummary user={user} /></div>)}
+      {users.map((user) => <ProfileSummary key={user.id} user={user} />)}
     </>
   )
 }
