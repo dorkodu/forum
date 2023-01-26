@@ -1,3 +1,4 @@
+import { css, Global } from "@emotion/react";
 import { Loader, MantineProvider } from "@mantine/core";
 import { Suspense, useEffect } from "react";
 import { Outlet } from "react-router-dom";
@@ -19,6 +20,7 @@ function App() {
           {loading ? <Loader variant="dots" color="green" /> : <Outlet />}
         </Suspense>
       </MantineProvider>
+      <Global styles={css`body { overflow-y: scroll; }`} />
     </>
   );
 }
