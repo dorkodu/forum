@@ -1,6 +1,10 @@
 import { IUser } from "@api/types/user";
+import { css } from "@emotion/react";
+import { ActionIcon, Button, Card, Flex, Menu, Text, Textarea, TextInput } from "@mantine/core";
+import { IconCalendar, IconDots, IconEdit, IconUsers } from "@tabler/icons";
 import { useReducer } from "react";
 import { useNavigate } from "react-router-dom"
+import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 
@@ -65,73 +69,78 @@ function Profile({ user }: Props) {
   }
 
   return (
-    <>
-      <div>
-        {state.editing &&
-          <input
-            type="text"
-            placeholder="name"
-            disabled={state.loading}
-            defaultValue={state.name}
-            onChange={(ev) => { setState({ ...state, name: ev.target.value }) }}
-          />
-        }
-        {!state.editing && <>{user.name}</>}
-      </div>
+    <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
+      {state.editing &&
+        <TextInput
+          radius="md"
+          placeholder="name..."
+          disabled={state.loading}
+          defaultValue={state.name}
+          onChange={(ev) => { setState({ ...state, name: ev.target.value }) }}
+        />
+      }
+      {!state.editing &&
+        <Flex align="center" justify="space-between">
+          <Text>{user.name}</Text>
 
-      <div>@{user.username}</div>
+          <Menu shadow="md" radius="md">
+            <Menu.Target>
+              <ActionIcon color="dark" onClick={(ev) => { ev.stopPropagation() }}>
+                <IconDots />
+              </ActionIcon>
+            </Menu.Target>
 
-      <div>
-        {state.editing &&
-          <input
-            type="text"
-            placeholder="bio"
-            disabled={state.loading}
-            defaultValue={state.bio}
-            onChange={(ev) => { setState({ ...state, bio: ev.target.value }) }}
-          />
-        }
-        {!state.editing && <>{user.bio}</>}
-      </div>
+            <Menu.Dropdown>
+              {user.id === currentUserId &&
+                <>
+                  <Menu.Item icon={<IconEdit size={14} />} onClick={startEdit}>
+                    edit profile
+                  </Menu.Item>
+                </>
+              }
+            </Menu.Dropdown>
+          </Menu>
+        </Flex>
+      }
 
-      <div>{user.joinDate}</div>
+      <Text>@{user.username}</Text>
 
-      <div>
+      {state.editing &&
+        <Textarea
+          radius="md"
+          placeholder="bio..."
+          defaultValue={state.bio}
+          onChange={(ev) => { setState({ ...state, bio: ev.target.value }) }}
+          autosize
+          pb="md"
+        />
+      }
+      {!state.editing && <Text css={css`word-wrap: break-word;`}>{user.bio}</Text>}
 
-        <span onClick={() => navigate(`/profile/${user.username}/followers`)}>
-          {user.followerCount} followers
-        </span>
-        &nbsp;
-        <span onClick={() => navigate(`/profile/${user.username}/following`)}>
-          {user.followingCount} following
-        </span>
+      <Flex align="center">
+        <IconCalendar />
+        {date(user.joinDate).format('ll')}
+      </Flex>
 
+      <Flex align="center" justify="space-between">
+        <Flex align="center" gap="xs">
+          <Text onClick={() => navigate(`/profile/${user.username}/followers`)}>{user.followerCount} followers</Text>
+          <Text onClick={() => navigate(`/profile/${user.username}/following`)}>{user.followingCount} following</Text>
+        </Flex>
         {user.id !== currentUserId &&
-          <>
-            &nbsp;
-            <button onClick={followUser}>{user.follower ? "unfollow" : "follow"}</button>
-          </>
+          <Button onClick={followUser} color="dark" radius="md">{user.follower ? "unfollow" : "follow"}</Button>
         }
+      </Flex>
 
-        {user.following && <>&nbsp;follows you</>}
+      {user.id === currentUserId && state.editing &&
+        <Flex align="center" gap="xs">
+          <Button onClick={() => stopEdit(true)} color="dark" radius="md">confirm</Button>
+          <Button onClick={() => stopEdit(false)} color="dark" radius="md">cancel</Button>
+        </Flex>
+      }
 
-        {user.id === currentUserId && !state.editing &&
-          <>
-            &nbsp;
-            <button onClick={startEdit}>edit</button>
-          </>
-        }
-        {user.id === currentUserId && state.editing &&
-          <>
-            &nbsp;
-            <button onClick={() => stopEdit(false)}>cancel</button>
-            &nbsp;
-            <button onClick={() => stopEdit(true)}>confirm</button>
-          </>
-        }
-
-      </div>
-    </>
+      {user.following && <Flex><IconUsers />follows you</Flex>}
+    </Card>
   )
 }
 

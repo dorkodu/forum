@@ -1,5 +1,7 @@
 import { IUser } from "@api/types/user";
-import { useReducer } from "react";
+import { Button, Card, Flex, Text } from "@mantine/core";
+import { IconUsers } from "@tabler/icons";
+import { MouseEvent, useReducer } from "react";
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
@@ -23,7 +25,9 @@ function ProfileSummary({ user }: Props) {
   const queryFollowUser = useUserStore(state => state.queryFollowUser);
   const currentUserId = useAuthStore(state => state.userId);
 
-  const followUser = async () => {
+  const followUser = async (ev: MouseEvent) => {
+    ev.stopPropagation();
+
     if (state.loading) return;
 
     setState({ ...state, loading: true, status: undefined });
@@ -32,26 +36,27 @@ function ProfileSummary({ user }: Props) {
   }
 
   return (
-    <>
-      <div onClick={() => navigate(`/profile/${user.username}`)}>
-        <span>{user.name}</span>
-        &nbsp;
-        <span>@{user.username}</span>
-      </div>
-      <div>{user.bio}</div>
-      <div>
-        <span>{user.followerCount} followers</span>
-        &nbsp;
-        <span>{user.followingCount} following</span>
+    <Card shadow="sm" p="lg" m="md" radius="md" withBorder onClick={() => navigate(`/profile/${user.username}`)}>
+      <Flex miw={0}>
+        <Text truncate pr={4}>{user.name}</Text>
+        <Text>@</Text>
+        <Text truncate>{user.username}</Text>
+      </Flex>
+
+      <Text>{user.bio}</Text>
+
+      <Flex align="center" justify="space-between">
+        <Flex align="center" gap="xs">
+          <Text onClick={() => navigate(`/profile/${user.username}/followers`)}>{user.followerCount} followers</Text>
+          <Text onClick={() => navigate(`/profile/${user.username}/following`)}>{user.followingCount} following</Text>
+        </Flex>
         {user.id !== currentUserId &&
-          <>
-            &nbsp;
-            <button onClick={followUser}>{user.follower ? "unfollow" : "follow"}</button>
-          </>
+          <Button onClick={followUser} color="dark" radius="md">{user.follower ? "unfollow" : "follow"}</Button>
         }
-        {user.following && <>&nbsp;follows you</>}
-      </div>
-    </>
+      </Flex>
+
+      {user.following && <Flex><IconUsers />follows you</Flex>}
+    </Card>
   )
 }
 
