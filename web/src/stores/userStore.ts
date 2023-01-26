@@ -123,15 +123,17 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
 
   removeUserFollowers: (user, followers) => {
     set(state => {
-      delete state.user.followers[user.id];
-      followers.forEach(follower => { delete state.user.followers[follower.id]?.[user.id] })
+      followers.forEach(follower => {
+        delete state.user.followers[user.id]?.[follower.id];
+      })
     })
   },
 
   removeUserFollowing: (user, following) => {
     set(state => {
-      delete state.user.following[user.id];
-      following.forEach(_following => { delete state.user.following[_following.id]?.[user.id] })
+      following.forEach(_following => {
+        delete state.user.following[user.id]?.[_following.id];
+      })
     })
   },
 
@@ -202,7 +204,6 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
 
       if (current) {
         current.followingCount += type ? +1 : -1;
-        current.following = type;
       }
       if (target) {
         target.followerCount += type ? +1 : -1;
