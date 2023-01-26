@@ -2,6 +2,7 @@ import { css } from "@emotion/react";
 import { ActionIcon, Card, Flex, Menu, Text } from "@mantine/core";
 import { IconDots, IconTrash } from "@tabler/icons";
 import { useReducer } from "react";
+import { useTranslation } from "react-i18next";
 import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
@@ -22,6 +23,7 @@ function Comment({ commentId }: Props) {
     { loading: false, status: undefined }
   )
 
+  const { t } = useTranslation();
   const queryDeleteComment = useDiscussionStore(state => state.queryDeleteComment);
 
   const comment = useDiscussionStore(state => state.getComment(commentId));
@@ -61,7 +63,7 @@ function Comment({ commentId }: Props) {
             {user.id === currentUserId &&
               <>
                 <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={deleteComment}>
-                  delete argument
+                  {t("deleteComment")}
                 </Menu.Item>
               </>
             }

@@ -1,5 +1,6 @@
 import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
 import { useEffect, useReducer } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import DiscussionSummary from "../../components/DiscussionSummary";
 import Profile from "../../components/Profile"
@@ -20,6 +21,7 @@ function ProfileRoute() {
     { loading: false, status: undefined, order: "newer" }
   )
 
+  const { t } = useTranslation();
   const username = useParams<{ username: string }>().username;
   const user = useUserStore(state => state.getUserByUsername(username));
   const discussions = useDiscussionStore(_state => _state.getUserDiscussions(user?.id, state.order));
@@ -88,15 +90,15 @@ function ProfileRoute() {
             value={state.order}
             onChange={(order: typeof state.order) => setState({ ...state, order })}
             data={[
-              { label: "newer", value: "newer" },
-              { label: "older", value: "older" },
+              { label: t("newer"), value: "newer" },
+              { label: t("older"), value: "older" },
             ]}
           />
 
           <Button.Group>
-            <Button radius="md" fullWidth variant="default" onClick={() => fetchDiscussions("newer", true)}>refresh</Button>
-            <Button radius="md" fullWidth variant="default" onClick={() => fetchDiscussions("newer")}>load newer</Button>
-            <Button radius="md" fullWidth variant="default" onClick={() => fetchDiscussions("older")}>load older</Button>
+            <Button radius="md" fullWidth variant="default" onClick={() => fetchDiscussions("newer", true)}>{t("refresh")}</Button>
+            <Button radius="md" fullWidth variant="default" onClick={() => fetchDiscussions("newer")}>{t("loadNewer")}</Button>
+            <Button radius="md" fullWidth variant="default" onClick={() => fetchDiscussions("older")}>{t("loadOlder")}</Button>
           </Button.Group>
         </Flex>
       </Card>

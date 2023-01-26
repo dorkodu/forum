@@ -1,3 +1,58 @@
 {
-  "welcome": "welcome"
+  "newer": "newer",
+  "older": "older",
+
+  "refresh": "refresh",
+  "loadNewer": "load newer",
+  "loadOlder": "load older",
+
+  "mostVoted": "most voted",
+  "leastVoted": "least voted",
+
+  "confirm": "confirm",
+  "cancel": "cancel",
+
+
+  "userFeed": "user feed",
+  "favouriteFeed": "favourite feed",
+  "guestFeed": "guest feed",
+
+
+  "login": "log in",
+  "logout": "log out",
+  "notFound": "not found :(",
+
+
+  "followUser": "follow",
+  "unfollowUser": "unfollow",
+  "userFollowsYou": "follows you",
+  "searchUser": "search @username or name...",
+  "userFollowers_one": "{{count}} follower",
+  "userFollowers_other": "{{count}} followers",
+  "userFollowing": "{{count}} following",
+
+
+  "editProfile": "edit profile",
+  "profileName": "name...",
+  "profileBio": "bio...",
+
+
+  "createDiscussion": "create",
+  "editDiscussion": "edit discussion",
+  "deleteDiscussion": "delete discussion",
+  "discussionTitle": "title...",
+  "discussionReadme":"readme...",
+  "discussionUpdateNever":"never",
+
+
+  "createArgument": "send",
+  "writeArgument": "write your argument...",
+  "deleteArgument": "delete argument",
+  "showArguments": "show arguments",
+
+  
+  "createComment": "send",
+  "writeComment": "write your comment...",
+  "deleteComment": "delete comement",
+  "showComments": "show comments"
 }

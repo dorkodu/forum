@@ -2,6 +2,7 @@ import { IUser } from "@api/types/user";
 import { Button, Card, Flex, Text } from "@mantine/core";
 import { IconUsers } from "@tabler/icons";
 import { MouseEvent, useReducer } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
@@ -21,6 +22,7 @@ function ProfileSummary({ user }: Props) {
     { loading: false, status: undefined }
   )
 
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryFollowUser = useUserStore(state => state.queryFollowUser);
   const currentUserId = useAuthStore(state => state.userId);
@@ -47,15 +49,21 @@ function ProfileSummary({ user }: Props) {
 
       <Flex align="center" justify="space-between">
         <Flex align="center" gap="xs">
-          <Text onClick={() => navigate(`/profile/${user.username}/followers`)}>{user.followerCount} followers</Text>
-          <Text onClick={() => navigate(`/profile/${user.username}/following`)}>{user.followingCount} following</Text>
+          <Text onClick={() => navigate(`/profile/${user.username}/followers`)}>
+            {t("userFollowers", { count: user.followerCount })}
+          </Text>
+          <Text onClick={() => navigate(`/profile/${user.username}/following`)}>
+            {t("userFollowing", { count: user.followingCount })}
+          </Text>
         </Flex>
         {user.id !== currentUserId &&
-          <Button onClick={followUser} color="dark" radius="md">{user.follower ? "unfollow" : "follow"}</Button>
+          <Button onClick={followUser} color="dark" radius="md">
+            {user.follower ? t("unfollowUser") : t("followUser")}
+          </Button>
         }
       </Flex>
 
-      {user.following && <Flex><IconUsers />follows you</Flex>}
+      {user.following && <Flex><IconUsers />{t("userFollowsYou")}</Flex>}
     </Card>
   )
 }

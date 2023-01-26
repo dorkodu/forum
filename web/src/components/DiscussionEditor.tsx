@@ -1,5 +1,6 @@
 import { Button, Card, Textarea, TextInput } from "@mantine/core";
 import { useEffect, useReducer } from "react"
+import { useTranslation } from "react-i18next";
 import { request, sage } from "../stores/api";
 import { useDiscussionStore } from "../stores/discussionStore";
 
@@ -28,6 +29,7 @@ function DiscussionEditor({ id }: Props) {
     return newState;
   }, { title: "", readme: "", loading: false, status: undefined });
 
+  const { t } = useTranslation();
   const queryCreateDiscussion = useDiscussionStore(state => state.queryCreateDiscussion);
   const queryEditDiscussion = useDiscussionStore(state => state.queryEditDiscussion);
 
@@ -83,7 +85,7 @@ function DiscussionEditor({ id }: Props) {
     <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
       <TextInput
         radius="md"
-        placeholder="title..."
+        placeholder={t("discussionTitle")}
         defaultValue={state.title}
         onChange={(ev) => { setState({ ...state, title: ev.target.value }) }}
         pb="md"
@@ -91,7 +93,7 @@ function DiscussionEditor({ id }: Props) {
 
       <Textarea
         radius="md"
-        placeholder="readme..."
+        placeholder={t("discussionReadme")}
         defaultValue={state.readme}
         onChange={(ev) => setState({ ...state, readme: ev.target.value })}
         autosize
@@ -99,7 +101,7 @@ function DiscussionEditor({ id }: Props) {
       />
 
       <Button onClick={id ? editDiscussion : createDiscussion} color="dark" radius="md">
-        {id ? "edit" : "create"}
+        {id ? t("editDiscussion") : t("createDiscussion")}
       </Button>
     </Card>
   )

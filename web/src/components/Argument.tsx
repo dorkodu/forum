@@ -2,6 +2,7 @@ import { css } from "@emotion/react";
 import { ActionIcon, Card, Flex, Menu, Text } from "@mantine/core";
 import { IconDots, IconTrash, IconArrowBigTop, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons";
 import { useReducer } from "react"
+import { useTranslation } from "react-i18next";
 import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
@@ -22,6 +23,7 @@ function Argument({ argumentId }: Props) {
     { loading: false, status: undefined }
   )
 
+  const { t } = useTranslation();
   const queryVoteArgument = useDiscussionStore(state => state.queryVoteArgument);
   const queryDeleteArgument = useDiscussionStore(state => state.queryDeleteArgument);
 
@@ -71,7 +73,7 @@ function Argument({ argumentId }: Props) {
             {user.id === currentUserId &&
               <>
                 <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={deleteArgument}>
-                  delete argument
+                  {t("deleteArgument")}
                 </Menu.Item>
               </>
             }

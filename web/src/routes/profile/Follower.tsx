@@ -1,5 +1,6 @@
 import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
 import { useEffect, useReducer } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import Profile from "../../components/Profile"
 import ProfileSummary from "../../components/ProfileSummary"
@@ -19,6 +20,7 @@ function Follower() {
     { loading: false, status: undefined, order: "newer" }
   )
 
+  const { t } = useTranslation();
   const username = useParams<{ username: string }>().username;
   const user = useUserStore(state => state.getUserByUsername(username));
   const followers = useUserStore(state => state.getUserFollowers(user));
@@ -88,15 +90,15 @@ function Follower() {
             value={state.order}
             onChange={(order: typeof state.order) => setState({ ...state, order })}
             data={[
-              { label: "newer", value: "newer" },
-              { label: "older", value: "older" },
+              { label: t("newer"), value: "newer" },
+              { label: t("older"), value: "older" },
             ]}
           />
 
           <Button.Group>
-            <Button radius="md" fullWidth variant="default" onClick={() => fetchFollowers("newer", true)}>refresh</Button>
-            <Button radius="md" fullWidth variant="default" onClick={() => fetchFollowers("newer")}>load newer</Button>
-            <Button radius="md" fullWidth variant="default" onClick={() => fetchFollowers("older")}>load older</Button>
+            <Button radius="md" fullWidth variant="default" onClick={() => fetchFollowers("newer", true)}>{t("refresh")}</Button>
+            <Button radius="md" fullWidth variant="default" onClick={() => fetchFollowers("newer")}>{t("loadNewer")}</Button>
+            <Button radius="md" fullWidth variant="default" onClick={() => fetchFollowers("older")}>{t("loadOlder")}</Button>
           </Button.Group>
         </Flex>
       </Card>

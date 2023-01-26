@@ -6,7 +6,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import { useAppStore } from '../stores/appStore';
 
 i18n
-  .use(new Backend(null, { loadPath: "./locales/{{lng}}/{{ns}}.json" }))
+  .use(new Backend(null, { loadPath: "/locales/{{lng}}/{{ns}}.json" }))
   .use(new LanguageDetector(null, { caches: ["cookie"], lookupCookie: "locale" }))
   .use(initReactI18next)
   .init({

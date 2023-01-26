@@ -3,6 +3,7 @@ import { css } from "@emotion/react";
 import { ActionIcon, Button, Card, Flex, Menu, Text, Textarea, TextInput } from "@mantine/core";
 import { IconCalendar, IconDots, IconEdit, IconUsers } from "@tabler/icons";
 import { useReducer } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
 import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
@@ -38,6 +39,7 @@ function Profile({ user }: Props) {
     { name: "", bio: "", editing: false, loading: false, status: undefined }
   )
 
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryFollowUser = useUserStore(state => state.queryFollowUser);
   const queryEditUser = useUserStore(state => state.queryEditUser);
@@ -73,7 +75,7 @@ function Profile({ user }: Props) {
       {state.editing &&
         <TextInput
           radius="md"
-          placeholder="name..."
+          placeholder={t("profileName")}
           disabled={state.loading}
           defaultValue={state.name}
           onChange={(ev) => { setState({ ...state, name: ev.target.value }) }}
@@ -94,7 +96,7 @@ function Profile({ user }: Props) {
               {user.id === currentUserId &&
                 <>
                   <Menu.Item icon={<IconEdit size={14} />} onClick={startEdit}>
-                    edit profile
+                    {t("editProfile")}
                   </Menu.Item>
                 </>
               }
@@ -108,7 +110,7 @@ function Profile({ user }: Props) {
       {state.editing &&
         <Textarea
           radius="md"
-          placeholder="bio..."
+          placeholder={t("profileBio")}
           defaultValue={state.bio}
           onChange={(ev) => { setState({ ...state, bio: ev.target.value }) }}
           autosize
@@ -124,22 +126,28 @@ function Profile({ user }: Props) {
 
       <Flex align="center" justify="space-between">
         <Flex align="center" gap="xs">
-          <Text onClick={() => navigate(`/profile/${user.username}/followers`)}>{user.followerCount} followers</Text>
-          <Text onClick={() => navigate(`/profile/${user.username}/following`)}>{user.followingCount} following</Text>
+          <Text onClick={() => navigate(`/profile/${user.username}/followers`)}>
+            {t("userFollowers", { count: user.followerCount })}
+          </Text>
+          <Text onClick={() => navigate(`/profile/${user.username}/following`)}>
+            {t("userFollowing", { count: user.followingCount })}
+          </Text>
         </Flex>
         {user.id !== currentUserId &&
-          <Button onClick={followUser} color="dark" radius="md">{user.follower ? "unfollow" : "follow"}</Button>
+          <Button onClick={followUser} color="dark" radius="md">
+            {user.follower ? t("unfollowUser") : t("followUser")}
+          </Button>
         }
       </Flex>
 
       {user.id === currentUserId && state.editing &&
         <Flex align="center" gap="xs">
-          <Button onClick={() => stopEdit(true)} color="dark" radius="md">confirm</Button>
-          <Button onClick={() => stopEdit(false)} color="dark" radius="md">cancel</Button>
+          <Button onClick={() => stopEdit(true)} color="dark" radius="md">{t("confirm")}</Button>
+          <Button onClick={() => stopEdit(false)} color="dark" radius="md">{t("cancel")}</Button>
         </Flex>
       }
 
-      {user.following && <Flex><IconUsers />follows you</Flex>}
+      {user.following && <Flex><IconUsers />{t("userFollowsYou")}</Flex>}
     </Card>
   )
 }

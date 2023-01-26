@@ -1,5 +1,6 @@
 import { Button, Card, Flex, SegmentedControl, Textarea } from "@mantine/core";
 import { useEffect, useReducer } from "react"
+import { useTranslation } from "react-i18next";
 import { useDiscussionStore } from "../stores/discussionStore";
 import Argument from "./Argument";
 import Comment from "./Comment"
@@ -47,6 +48,7 @@ function Discussion({ discussionId }: Props) {
     comment: { text: "" },
   });
 
+  const { t } = useTranslation();
   const queryGetDiscussion = useDiscussionStore(state => state.queryGetDiscussion);
   const queryGetArguments = useDiscussionStore(state => state.queryGetArguments);
   const queryGetComments = useDiscussionStore(state => state.queryGetComments);
@@ -127,8 +129,8 @@ function Discussion({ discussionId }: Props) {
             value={state.show}
             onChange={(show: typeof state.show) => setState({ ...state, show })}
             data={[
-              { label: "show arguments", value: "arguments" },
-              { label: "show comments", value: "comments" },
+              { label: t("showArguments"), value: "arguments" },
+              { label: t("showComments"), value: "comments" },
             ]}
           />
 
@@ -138,17 +140,17 @@ function Discussion({ discussionId }: Props) {
                 value={state.argumentType}
                 onChange={(argumentType: typeof state.argumentType) => setState({ ...state, argumentType })}
                 data={[
-                  { label: "newer", value: "newer" },
-                  { label: "older", value: "older" },
-                  { label: "most voted", value: "top" },
-                  { label: "least voted", value: "bottom" },
+                  { label: t("newer"), value: "newer" },
+                  { label: t("older"), value: "older" },
+                  { label: t("mostVoted"), value: "top" },
+                  { label: t("leastVoted"), value: "bottom" },
                 ]}
               />
 
               <Button.Group>
-                <Button radius="md" fullWidth variant="default" onClick={() => getArguments("newer", true)}>refresh</Button>
-                <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("newer")}>load newer</Button>
-                <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("older")}>load older</Button>
+                <Button radius="md" fullWidth variant="default" onClick={() => getArguments("newer", true)}>{t("refresh")}</Button>
+                <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("newer")}>{t("loadNewer")}</Button>
+                <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("older")}>{t("loadOlder")}</Button>
               </Button.Group>
             </>
           }
@@ -159,15 +161,15 @@ function Discussion({ discussionId }: Props) {
                 value={state.commentType}
                 onChange={(commentType: typeof state.commentType) => setState({ ...state, commentType })}
                 data={[
-                  { label: "newer", value: "newer" },
-                  { label: "older", value: "older" },
+                  { label: t("newer"), value: "newer" },
+                  { label: t("older"), value: "older" },
                 ]}
               />
 
               <Button.Group >
-                <Button radius="md" fullWidth variant="default" onClick={() => getComments("newer", true)}>refresh</Button>
-                <Button radius="md" fullWidth variant="default" onClick={() => getComments("newer")}>load newer</Button>
-                <Button radius="md" fullWidth variant="default" onClick={() => getComments("older")}>load older</Button>
+                <Button radius="md" fullWidth variant="default" onClick={() => getComments("newer", true)}>{t("refresh")}</Button>
+                <Button radius="md" fullWidth variant="default" onClick={() => getComments("newer")}>{t("loadNewer")}</Button>
+                <Button radius="md" fullWidth variant="default" onClick={() => getComments("older")}>{t("loadOlder")}</Button>
               </Button.Group>
             </>
           }
@@ -179,14 +181,14 @@ function Discussion({ discussionId }: Props) {
           <>
             <Textarea
               radius="md"
-              placeholder="Write your argument..."
+              placeholder={t("writeArgument")}
               defaultValue={state.argument.text}
               onChange={(ev) => setState({ ...state, argument: { ...state.argument, text: ev.target.value } })}
               autosize
               pb="md"
             />
 
-            <Button onClick={createArgument} color="dark" radius="md" mr="md">send</Button>
+            <Button onClick={createArgument} color="dark" radius="md" mr="md">{t("createArgument")}</Button>
 
             <SegmentedControl radius="md"
               value={state.argument.type ? "+" : "-"}
@@ -202,14 +204,14 @@ function Discussion({ discussionId }: Props) {
           <>
             <Textarea
               radius="md"
-              placeholder="Write your comment..."
+              placeholder={t("writeComment")}
               defaultValue={state.comment.text}
               onChange={(ev) => setState({ ...state, comment: { ...state.comment, text: ev.target.value } })}
               autosize
               pb="md"
             />
 
-            <Button onClick={createComment} color="dark" radius="md" mr="md" >send</Button>
+            <Button onClick={createComment} color="dark" radius="md" mr="md">{t("createComment")}</Button>
           </>
         }
       </Card>

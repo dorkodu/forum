@@ -1,11 +1,15 @@
 import { Button, Card, Divider, Flex, NativeSelect } from "@mantine/core"
 import { IconLogin, IconLogout, IconWorld } from "@tabler/icons"
+import { useTranslation } from "react-i18next";
 import i18n from "../lib/i18n";
 import { useAppStore } from "../stores/appStore";
+import { useAuthStore } from "../stores/authStore";
 
 
 function Menu() {
+  const { t } = useTranslation();
   const changeLocale = useAppStore(state => state.changeLocale);
+  const currentUserId = useAuthStore(state => state.userId);
 
   const login = () => {
     document.location.href = "https://id.dorkodu.com/access?service=cherno.dorkodu.com";
@@ -33,25 +37,29 @@ function Menu() {
 
         <Divider my={0} />
 
-        <Button
-          radius="md"
-          fullWidth
-          variant="default"
-          leftIcon={<IconLogin />}
-          onClick={login}
-        >
-          log in
-        </Button>
+        {!currentUserId &&
+          <Button
+            radius="md"
+            fullWidth
+            variant="default"
+            leftIcon={<IconLogin />}
+            onClick={login}
+          >
+            {t("login")}
+          </Button>
+        }
 
-        <Button
-          radius="md"
-          fullWidth
-          variant="default"
-          leftIcon={<IconLogout />}
-          onClick={logout}
-        >
-          log out
-        </Button>
+        {currentUserId &&
+          <Button
+            radius="md"
+            fullWidth
+            variant="default"
+            leftIcon={<IconLogout />}
+            onClick={logout}
+          >
+            {t("logout")}
+          </Button>
+        }
       </Flex>
     </Card>
   )

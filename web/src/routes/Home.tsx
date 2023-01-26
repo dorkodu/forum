@@ -1,5 +1,6 @@
 import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
 import { useEffect, useReducer } from "react";
+import { useTranslation } from "react-i18next";
 import DiscussionSummary from "../components/DiscussionSummary";
 import { request, sage } from "../stores/api";
 import { useDiscussionStore } from "../stores/discussionStore";
@@ -20,6 +21,7 @@ function Home() {
     { loading: false, status: undefined, order: "newer", feed: "guest" }
   )
 
+  const { t } = useTranslation();
   const userFeed = useDiscussionStore(_state => _state.getUserFeedDiscussions(state.order));
   const favouriteFeed = useDiscussionStore(_state => _state.getFavouriteFeedDiscussions(state.order));
   const guestFeed = useDiscussionStore(_state => _state.getGuestFeedDiscussions(state.order));
@@ -125,7 +127,7 @@ function Home() {
     }
   }
 
-  useEffect(() => { fetchGuestFeed("newer", true) }, [])
+  useEffect(() => { fetchGuestFeed("newer", true) }, []);
 
   return (
     <>
@@ -135,9 +137,9 @@ function Home() {
             value={state.feed}
             onChange={(feed: typeof state.feed) => setState({ ...state, feed })}
             data={[
-              { label: "user feed", value: "user" },
-              { label: "favourite feed", value: "favourite" },
-              { label: "guest feed", value: "guest" },
+              { label: t("userFeed"), value: "user" },
+              { label: t("favouriteFeed"), value: "favourite" },
+              { label: t("guestFeed"), value: "guest" },
             ]}
           />
 
@@ -145,15 +147,15 @@ function Home() {
             value={state.order}
             onChange={(order: typeof state.order) => setState({ ...state, order })}
             data={[
-              { label: "newer", value: "newer" },
-              { label: "older", value: "older" },
+              { label: t("newer"), value: "newer" },
+              { label: t("older"), value: "older" },
             ]}
           />
 
           <Button.Group>
-            <Button radius="md" fullWidth variant="default" onClick={refresh}>refresh</Button>
-            <Button radius="md" fullWidth variant="default" onClick={loadNewer}>load newer</Button>
-            <Button radius="md" fullWidth variant="default" onClick={loadOlder}>load older</Button>
+            <Button radius="md" fullWidth variant="default" onClick={refresh}>{t("refresh")}</Button>
+            <Button radius="md" fullWidth variant="default" onClick={loadNewer}>{t("loadNewer")}</Button>
+            <Button radius="md" fullWidth variant="default" onClick={loadOlder}>{t("loadOlder")}</Button>
           </Button.Group>
         </Flex>
       </Card>

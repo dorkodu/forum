@@ -1,5 +1,6 @@
 import { Button, Card, TextInput } from "@mantine/core";
 import { useEffect, useReducer } from "react";
+import { useTranslation } from "react-i18next";
 import ProfileSummary from "../components/ProfileSummary";
 import { array } from "../lib/array";
 import { request, sage } from "../stores/api";
@@ -13,6 +14,7 @@ interface State {
 }
 
 function Search() {
+  const { t } = useTranslation();
   const users = useUserStore(state => state.getSearchUsers());
 
   const getSorted = () => {
@@ -59,21 +61,23 @@ function Search() {
     return () => { clearTimeout(timeout) };
   }, [state.search])
 
+  console.log(t("searchUser"))
+
   return (
     <>
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
         <TextInput
           radius="md"
-          placeholder="search @username or user..."
+          placeholder={t("searchUser")}
           defaultValue={state.search}
           onChange={(ev) => { setState({ ...state, search: ev.target.value }) }}
           pb="md"
         />
 
         <Button.Group >
-          <Button radius="md" fullWidth variant="default" onClick={() => fetchUsers("newer", true)}>refresh</Button>
-          <Button radius="md" fullWidth variant="default" onClick={() => fetchUsers("newer")}>load newer</Button>
-          <Button radius="md" fullWidth variant="default" onClick={() => fetchUsers("older")}>load older</Button>
+          <Button radius="md" fullWidth variant="default" onClick={() => fetchUsers("newer", true)}>{t("refresh")}</Button>
+          <Button radius="md" fullWidth variant="default" onClick={() => fetchUsers("newer")}>{t("loadNewer")}</Button>
+          <Button radius="md" fullWidth variant="default" onClick={() => fetchUsers("older")}>{t("loadOlder")}</Button>
         </Button.Group>
       </Card>
 

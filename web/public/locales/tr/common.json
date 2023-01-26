@@ -1,3 +1,57 @@
 {
-  "welcome": "hoş geldiniz"
+  "newer": "daha yeni",
+  "older": "daha eski",
+
+  "refresh": "yenile",
+  "loadNewer": "yenileri yükle",
+  "loadOlder": "eskileri yükle",
+
+  "mostVoted": "en çok oy alan",
+  "leastVoted": "en az oy alan",
+
+  "confirm": "onayla",
+  "cancel": "iptal et",
+
+  
+  "userFeed": "kullanıcı akışı",
+  "favouriteFeed": "favori akışı",
+  "guestFeed": "misafir akışı",
+
+
+  "login": "giriş yap",
+  "logout": "çıkış yap",
+  "notFound": "bulunamadı :(",
+
+  
+  "followUser": "takip et",
+  "unfollowUser": "takipten çık",
+  "userFollowsYou": "seni takip ediyor",
+  "searchUser": "@kullanıcı veya kullanıcı ara...",
+  "userFollowers": "{{count}} takipçi",
+  "userFollowing": "{{count}} takip edilen",
+
+
+  "editProfile": "profili düzenle",
+  "profileName": "isim...",
+  "profileBio": "biyografi...",
+
+
+  "createDiscussion": "oluştur",
+  "editDiscussion": "tartışmayı düzenle",
+  "deleteDiscussion": "tartışmayı sil",
+  "discussionTitle": "başlık...",
+  "discussionReadme": "beni oku...",
+  "discussionUpdateNever": "asla",
+
+
+  "createArgument": "yolla",
+  "writeArgument": "argümanını yaz...",
+  "deleteArgument": "argümanı sil",
+  "showArguments": "argümanları göster",
+
+
+  "createComment": "yolla",
+  "writeComment": "yorumunu yaz...",
+  "deleteComment": "yorumu sil",
+  "showComments": "yorumları göster"
 }
