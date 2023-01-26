@@ -1,6 +1,5 @@
 import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
 import { useEffect, useReducer } from "react";
-import { useNavigate } from "react-router-dom";
 import DiscussionSummary from "../components/DiscussionSummary";
 import { request, sage } from "../stores/api";
 import { useDiscussionStore } from "../stores/discussionStore";
@@ -21,7 +20,6 @@ function Home() {
     { loading: false, status: undefined, order: "newer", feed: "guest" }
   )
 
-  const navigate = useNavigate();
   const userFeed = useDiscussionStore(_state => _state.getUserFeedDiscussions(state.order));
   const favouriteFeed = useDiscussionStore(_state => _state.getFavouriteFeedDiscussions(state.order));
   const guestFeed = useDiscussionStore(_state => _state.getGuestFeedDiscussions(state.order));
@@ -131,9 +129,6 @@ function Home() {
 
   return (
     <>
-      <div>home</div>
-      <button onClick={() => { navigate("/discussion-editor") }}>create discussion</button>
-
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
         <Flex direction="column" gap="md">
           <SegmentedControl radius="md" fullWidth
@@ -160,7 +155,6 @@ function Home() {
             <Button radius="md" fullWidth variant="default" onClick={loadNewer}>load newer</Button>
             <Button radius="md" fullWidth variant="default" onClick={loadOlder}>load older</Button>
           </Button.Group>
-
         </Flex>
       </Card>
 

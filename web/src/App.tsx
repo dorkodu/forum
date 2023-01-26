@@ -1,5 +1,5 @@
 import { css, Global } from "@emotion/react";
-import { Loader, MantineProvider } from "@mantine/core";
+import { AppShell, Card, Flex, Footer, Header, Loader, MantineProvider } from "@mantine/core";
 import { Suspense, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { useAppStore } from "./stores/appStore";
@@ -13,12 +13,34 @@ function App() {
     queryAuth();
   }, []);
 
+  const AppHeader = () => (
+    <Header px="md" pt="md" height={64} withBorder={false}>
+      <Card css={css`height:100%;`} shadow="sm" p="lg" radius="md" withBorder>
+        <Flex css={css`height:100%;`} align="center">
+          hello, world
+        </Flex>
+      </Card>
+    </Header>
+  )
+
+  const AppFooter = () => (
+    <Footer px="md" pb="md" height={64} withBorder={false}>
+      <Card css={css`height:100%;`} shadow="sm" p="lg" radius="md" withBorder>
+        <Flex css={css`height:100%;`} align="center">
+          hello, worldawdwa
+        </Flex>
+      </Card>
+    </Footer>
+  )
+
   return (
     <>
       <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
-        <Suspense>
-          {loading ? <Loader variant="dots" color="green" /> : <Outlet />}
-        </Suspense>
+        <AppShell padding={0} header={<AppHeader />} footer={<AppFooter />}>
+          <Suspense>
+            {loading ? <Loader variant="dots" color="green" /> : <Outlet />}
+          </Suspense>
+        </AppShell>
       </MantineProvider>
       <Global styles={css`body { overflow-y: scroll; }`} />
     </>
