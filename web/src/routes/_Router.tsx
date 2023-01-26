@@ -12,6 +12,7 @@ const Following = React.lazy(() => import("./profile/Following"));
 const Discussion = React.lazy(() => import("./Discussion"));
 const DiscussionEditor = React.lazy(() => import("./DiscussionEditor"));
 const Search = React.lazy(() => import("./Search"));
+const Menu = React.lazy(() => import("./Menu"));
 const DorkoduID = React.lazy(() => import("./DorkoduID"));
 const NotFound = React.lazy(() => import("./NotFound"));
 
@@ -33,6 +34,7 @@ function Router() {
           <Route path="/discussion-editor" element={<DiscussionEditor />} />
           <Route path="/discussion-editor/:id" element={<DiscussionEditor />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/menu" element={<Menu />} />
           <Route path="/dorkodu-id" element={<DorkoduID />} />
 
           {/* Routes that require authentication */}
