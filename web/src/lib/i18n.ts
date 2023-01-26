@@ -20,5 +20,6 @@ i18n
 export default i18n;
 
 i18n.on("initialized", () => {
-  useAppStore.getState().changeLocale(i18n.language);
+  const lang = i18n.languages[0];
+  if (lang) useAppStore.getState().changeLocale(lang);
 })
