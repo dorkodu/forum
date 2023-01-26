@@ -9,6 +9,18 @@ import { useUserStore } from "./stores/userStore";
 import theme from "./styles/theme";
 import ForumIcon from "./assets/forum_icon.svg";
 
+const width = css`
+  max-width: 768px;
+  margin: 0 auto;
+`;
+
+const global = css`
+  body {
+    ${width}
+    overflow-y: scroll;
+  }
+`;
+
 const center = css`
   position: absolute;
   left: 50%;
@@ -35,7 +47,7 @@ function App() {
   useEffect(() => { queryAuth() }, []);
 
   const AppHeader = () => (
-    <Header px="md" pt="md" height={64} withBorder={false}>
+    <Header css={width} px="md" pt="md" height={64} withBorder={false}>
       <Card css={css`height:100%;`} shadow="sm" radius="md" withBorder>
         <Flex css={css`height:100%;`} align="center" justify="space-between">
           <ActionIcon
@@ -58,7 +70,7 @@ function App() {
   )
 
   const AppFooter = () => (
-    <Footer px="md" pb="md" height={64} withBorder={false}>
+    <Footer css={width} px="md" pb="md" height={64} withBorder={false}>
       <Card css={css`height:100%;`} shadow="sm" p="lg" radius="md" withBorder>
         <Flex css={css`height:100%;`} align="center" justify="space-evenly">
           <ActionIcon color="dark" onClick={routeHome}><IconHome /></ActionIcon>
@@ -79,7 +91,7 @@ function App() {
           </Suspense>
         </AppShell>
       </MantineProvider>
-      <Global styles={css`body { overflow-y: scroll; }`} />
+      <Global styles={global} />
     </>
   );
 }
