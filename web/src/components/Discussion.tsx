@@ -148,7 +148,7 @@ function Discussion({ discussionId }: Props) {
               />
 
               <Button.Group>
-                <Button radius="md" fullWidth variant="default" onClick={() => getArguments("newer", true)}>{t("refresh")}</Button>
+                <Button radius="md" fullWidth variant="default" onClick={() => getArguments(state.argumentType, true)}>{t("refresh")}</Button>
                 <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("newer")}>{t("loadNewer")}</Button>
                 <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("older")}>{t("loadOlder")}</Button>
               </Button.Group>
