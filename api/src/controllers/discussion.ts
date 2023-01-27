@@ -379,7 +379,6 @@ const getArguments = sage.resource(
     if (!parsed.success) return { error: ErrorCode.Default };
 
     const info = await auth.getAuthInfo(ctx);
-    if (!info) return { error: ErrorCode.Default };
 
     const { discussionId, anchorId, type } = parsed.data;
 
@@ -390,11 +389,19 @@ const getArguments = sage.resource(
         SELECT 
           da.id, da.user_id, da.discussion_id, 
           da.date, da.content, da.type, da.vote_count,
+        ${info ?
+          pg`
           (av.user_id IS NOT NULL) AS voted, 
-          av.type AS voted_type
+          av.type AS voted_type` :
+          pg`FALSE AS voted, null AS voted_type`
+        }
         FROM discussion_arguments da
-        LEFT JOIN argument_votes av
-        ON da.id=av.argument_id AND da.user_id=${info.userId}
+        ${info ?
+          pg`
+          LEFT JOIN argument_votes av
+          ON da.id=av.argument_id AND da.user_id=${info.userId}` :
+          pg``
+        }
         WHERE da.discussion_id=${discussionId}
         ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND da.id>${anchorId}` : pg`AND da.id<${anchorId}`}
         ORDER BY da.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
@@ -406,11 +413,19 @@ const getArguments = sage.resource(
         SELECT 
           da.id, da.user_id, da.discussion_id, 
           da.date, da.content, da.type, da.vote_count,
+        ${info ?
+          pg`
           (av.user_id IS NOT NULL) AS voted, 
-          av.type AS voted_type
+          av.type AS voted_type` :
+          pg`FALSE AS voted, null AS voted_type`
+        }
         FROM discussion_arguments da
-        LEFT JOIN argument_votes av
-        ON da.id=av.argument_id AND da.user_id=${info.userId}
+        ${info ?
+          pg`
+          LEFT JOIN argument_votes av
+          ON da.id=av.argument_id AND da.user_id=${info.userId}` :
+          pg``
+        }
         WHERE da.discussion_id=${discussionId}
         ORDER BY da.vote_count ${type === "top" ? pg`DESC` : pg`ASC`}
         LIMIT 20
