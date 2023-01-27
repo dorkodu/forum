@@ -47,6 +47,8 @@ interface Action {
   queryFollowUser: (user: IUser) => Promise<boolean>;
   queryGetUserFollowers: () => Promise<boolean>;
   queryGetUserFollowing: () => Promise<boolean>;
+
+  reset: () => void;
 }
 
 const initialState: State = {
@@ -258,4 +260,8 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
   queryGetUserFollowing: async () => {
     return false;
   },
+
+  reset: () => {
+    set(initialState);
+  }
 })))

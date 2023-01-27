@@ -2,6 +2,7 @@ import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
 import { request, sage } from "./api";
 import { useAppStore } from "./appStore";
+import { useDiscussionStore } from "./discussionStore";
 import { useUserStore } from "./userStore";
 
 interface State {
@@ -10,7 +11,10 @@ interface State {
 
 interface Action {
   queryAuth: () => Promise<boolean>;
+  queryLogout: () => Promise<boolean>;
   queryGetAccessToken: (code: string) => Promise<boolean>;
+
+  reset: () => void;
 }
 
 const initialState: State = {
@@ -37,6 +41,23 @@ export const useAuthStore = create(immer<State & Action>((set, _get) => ({
     return status;
   },
 
+  queryLogout: async () => {
+    const res = await sage.get(
+      { a: sage.query("logout", undefined) },
+      (query) => request(query)
+    )
+
+    const status = !(!res?.a.data || res.a.error);
+
+    if (status) {
+      useAuthStore.getState().reset();
+      useDiscussionStore.getState().reset();
+      useUserStore.getState().reset();
+    }
+
+    return status;
+  },
+
   queryGetAccessToken: async (code) => {
     const res = await sage.get(
       { a: sage.query("getAccessToken", { code }) },
@@ -53,4 +74,8 @@ export const useAuthStore = create(immer<State & Action>((set, _get) => ({
 
     return status;
   },
+
+  reset: () => {
+    set(initialState);
+  }
 })))

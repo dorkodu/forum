@@ -9,15 +9,14 @@ import { useAuthStore } from "../stores/authStore";
 function Menu() {
   const { t } = useTranslation();
   const changeLocale = useAppStore(state => state.changeLocale);
+  const queryLogout = useAuthStore(state => state.queryLogout);
   const currentUserId = useAuthStore(state => state.userId);
 
   const login = () => {
     document.location.href = "https://id.dorkodu.com/access?service=cherno.dorkodu.com";
   }
 
-  const logout = () => {
-
-  }
+  const logout = () => { queryLogout() }
 
   return (
     <Card shadow="sm" p="lg" m="md" radius="md" withBorder>

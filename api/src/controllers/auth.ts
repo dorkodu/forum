@@ -41,6 +41,16 @@ const auth = sage.resource(
   }
 )
 
+const logout = sage.resource(
+  {} as SchemaContext,
+  undefined,
+  async (_arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+    // TODO: Send a request to Dorkodu ID api to also revoke the access
+    token.detach(ctx.res);
+    return { data: {} };
+  }
+)
+
 const getAccessToken = sage.resource(
   {} as SchemaContext,
   {} as { code: string },
@@ -190,6 +200,7 @@ async function queryUserData(token: string): Promise<UserData | undefined> {
 
 export default {
   auth,
+  logout,
   getAccessToken,
 
   getAuthInfo,

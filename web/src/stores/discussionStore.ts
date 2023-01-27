@@ -97,6 +97,8 @@ interface Action {
   queryCreateComment: (discussionId: string, content: string) => Promise<boolean>;
   queryDeleteComment: (comment: IComment) => Promise<boolean>;
   queryGetComments: (discussionId: string, type: "newer" | "older", refresh?: boolean) => Promise<boolean>;
+
+  reset: () => void;
 }
 
 const initialState: State = {
@@ -653,4 +655,8 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
     return status;
   },
+
+  reset: () => {
+    set(initialState);
+  }
 })))

@@ -28,6 +28,7 @@ export const schema = sage.schema(
   {
     /* auth */
     auth: auth.auth,
+    logout: auth.logout,
     getAccessToken: auth.getAccessToken,
 
     /* user */
