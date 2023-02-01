@@ -6,11 +6,6 @@ export const getUserSchema = z.object({
   username: sharedSchemas.username.optional(),
 }).strict();
 
-export const editUserSchema = z.object({
-  name: sharedSchemas.name,
-  bio: sharedSchemas.bio,
-}).strict();
-
 export const searchUserSchema = z.object({
   name: sharedSchemas.name.optional(),
   username: sharedSchemas.username.optional(),

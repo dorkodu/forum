@@ -39,7 +39,6 @@ interface Action {
   getUserFollowingAnchor: (user: IUser, type: "newer" | "older", refresh?: boolean) => string;
 
   queryGetUser: () => Promise<boolean>;
-  queryEditUser: (name: string, bio: string) => Promise<boolean>;
   querySearchUser: () => Promise<boolean>;
 
   queryGetUserDiscussions: () => Promise<boolean>;
@@ -179,30 +178,6 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
 
   queryGetUser: async () => {
     return false;
-  },
-
-  queryEditUser: async (name, bio) => {
-    const res = await sage.get(
-      { a: sage.query("editUser", { name, bio }) },
-      (query) => request(query)
-    )
-
-    const status = !(!res?.a.data || res.a.error);
-
-    set(state => {
-      if (!status) return;
-
-      const currentUserId = useAuthStore.getState().userId;
-      if (!currentUserId) return;
-
-      const user = state.user.entities[currentUserId];
-      if (!user) return;
-
-      user.name = name.trim();
-      user.bio = bio.trim();
-    })
-
-    return status;
   },
 
   querySearchUser: async () => {

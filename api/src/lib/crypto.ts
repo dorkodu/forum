@@ -20,8 +20,11 @@ function bytes(length: number) {
   return cyptography.randomBytes(length);
 }
 
-function otp() {
-  return cyptography.randomInt(100_000, 1_000_000);
+function username() {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let out = "";
+  for (let i = 0; i < 16; ++i) out += chars[cyptography.randomInt(0, chars.length)];
+  return out;
 }
 
 export const crypto = {
@@ -29,5 +32,5 @@ export const crypto = {
   comparePassword,
   sha256,
   bytes,
-  otp,
+  username,
 }

@@ -4,15 +4,17 @@ export async function up(knex: Knex): Promise<void> {
   return knex.schema
     .createTable("users", (table) => {
       table.bigint("id").primary()
-      table.string("name", 64)
-      table.specificType("username", "varchar(16) COLLATE \"C\"")
-      table.string("bio", 500)
+      table.specificType("name", "varchar(64) COLLATE \"C\"").notNullable()
+      table.specificType("name_ci", "varchar(64) COLLATE \"C\"").notNullable()
+      table.specificType("username", "varchar(16) COLLATE \"C\"").notNullable()
+      table.specificType("username_ci", "varchar(16) COLLATE \"C\"").notNullable()
+      table.specificType("bio", "varchar(500) COLLATE \"C\"").notNullable()
       table.bigint("join_date")
       table.bigint("follower_count")
       table.bigint("following_count")
 
-      table.index("name", undefined, "btree")
-      table.unique(["username"], undefined)
+      table.index("name_ci", undefined, "btree")
+      table.unique(["username_ci"], undefined)
     })
     .createTable("user_follows", (table) => {
       table.bigint("id").primary()
@@ -26,8 +28,9 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("id").primary()
       table.bigint("user_id")
       table.bigint("date")
-      table.string("title", 100)
-      table.string("readme", 100000)
+      table.specificType("title", "varchar(100) COLLATE \"C\"").notNullable()
+      table.specificType("title_ci", "varchar(100) COLLATE \"C\"").notNullable()
+      table.specificType("readme", "varchar(100000) COLLATE \"C\"").notNullable()
       table.bigint("favourite_count")
       table.bigint("argument_count")
       table.bigint("comment_count")
@@ -36,6 +39,7 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("last_comment_date")
 
       table.index("user_id", undefined, "btree")
+      table.index("title_ci", undefined, "btree")
     })
     .createTable("discussion_favourites", (table) => {
       table.bigint("id").primary()
@@ -49,7 +53,7 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("user_id")
       table.bigint("discussion_id")
       table.bigint("date")
-      table.string("content", 500)
+      table.specificType("content", "varchar(500) COLLATE \"C\"").notNullable()
 
       table.index("user_id", undefined, "btree")
       table.index("discussion_id", undefined, "btree")
@@ -59,7 +63,7 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("user_id")
       table.bigint("discussion_id")
       table.bigint("date")
-      table.string("content", 500)
+      table.specificType("content", "varchar(500) COLLATE \"C\"").notNullable()
       table.boolean("type")
       table.bigint("vote_count")
 

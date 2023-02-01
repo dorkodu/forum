@@ -8,8 +8,8 @@ import { getAccessTokenSchema } from "../schemas/auth"
 import { config } from "../config";
 import { date } from "../lib/date";
 import pg from "../pg";
-import { util } from "../lib/util";
-import { IUser, IUserRaw, iUserSchema } from "../types/user";
+import { IUser, iUserSchema } from "../types/user";
+import { crypto } from "../lib/crypto";
 
 async function middleware(ctx: SchemaContext) {
   const rawToken = token.get(ctx.req);
@@ -28,7 +28,7 @@ const auth = sage.resource(
     const info = await getAuthInfo(ctx);
     if (!info) return { error: ErrorCode.Default };
 
-    const [result]: [IUserRaw?] = await pg`
+    const [result] = await pg`
       SELECT id, name, username, bio, join_date, follower_count, following_count,
       FALSE AS follower, FALSE AS following
       FROM users WHERE id=${info.userId}
@@ -65,16 +65,38 @@ const getAccessToken = sage.resource(
     if (!userData) return { error: ErrorCode.Default };
 
     // Check if account with the given user id already exists
-    const [result0]: [{ count: string }?] = await pg`SELECT COUNT(*) FROM users WHERE id=${userData.id}`
+    const [result0]: [{ exists: boolean }?] = await pg`
+      SELECT EXISTS (
+        SELECT * FROM users WHERE id=${userData.id}
+      )
+    `;
     if (!result0) return { error: ErrorCode.Default };
 
+    // Check if the username is already being used by the user or someone else
+    const [result1]: [{ id: string }?] = await pg`
+      SELECT id FROM users WHERE username_ci=${userData.username}
+    `;
+
+    // If someone else is using the user's username, try to give them a random username
+    if (result1 && userData.id !== result1.id) {
+      const username = crypto.username();
+      const result2 = await pg`
+        UPDATE users
+        SET username=${username}, username_ci=${username}
+        WHERE id=${result1.id}
+      `;
+      if (result2.count === 0) return { error: ErrorCode.Default };
+    }
+
     // If first time logging in via Dorkodu ID, create an account for the user
-    if (util.intParse(result0.count, 1) === 0) {
+    if (!result0.exists) {
       const row = {
         id: userData.id,
-        name: userData.username,
+        name: userData.name,
+        nameCi: userData.name.toLowerCase(),
         username: userData.username,
-        bio: "",
+        usernameCi: userData.username.toLowerCase(),
+        bio: userData.bio,
         joinDate: date.utc(),
         followerCount: 0,
         followingCount: 0,
@@ -93,7 +115,7 @@ const getAccessToken = sage.resource(
       const auth = await queryAuth(accessToken.token);
       if (!auth) return { error: ErrorCode.Default };
 
-      const [result]: [IUserRaw?] = await pg`
+      const [result] = await pg`
         SELECT id, name, username, bio, join_date, follower_count, following_count,
         FALSE AS follower, FALSE AS following
         FROM users WHERE id=${auth.userId}
@@ -169,7 +191,9 @@ async function queryGetAccessToken(code: string): Promise<{ token: string } | un
 
 interface UserData {
   id: string;
+  name: string;
   username: string;
+  bio: string;
   email: string;
   joinedAt: number;
 }

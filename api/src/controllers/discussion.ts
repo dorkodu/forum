@@ -29,6 +29,7 @@ const createDiscussion = sage.resource(
       userId: info.userId,
       date: date.utc(),
       title: title,
+      titleCi: title.toLowerCase(),
       readme: readme,
       favouriteCount: 0,
       argumentCount: 0,
@@ -120,7 +121,12 @@ const editDiscussion = sage.resource(
     const { discussionId, title, readme } = parsed.data;
 
     const result = await pg`
-      UPDATE discussions SET title=${title}, readme=${readme}, last_update_date=${date.utc()}
+      UPDATE discussions
+      SET
+        title=${title},
+        title_ci=${title.toLowerCase()},
+        readme=${readme},
+        last_update_date=${date.utc()}
       WHERE id=${discussionId} AND user_id=${info.userId}
     `;
     if (result.count === 0) return { error: ErrorCode.Default };

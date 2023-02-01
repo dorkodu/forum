@@ -1,58 +1,50 @@
 {
-  "newer": "newer",
-  "older": "older",
+  "newer": "Newer",
+  "older": "Older",
 
-  "refresh": "refresh",
-  "loadNewer": "load newer",
-  "loadOlder": "load older",
+  "refresh": "Refresh",
+  "loadNewer": "Load Newer",
+  "loadOlder": "Load Older",
 
-  "mostVoted": "most voted",
-  "leastVoted": "least voted",
-
-  "confirm": "confirm",
-  "cancel": "cancel",
+  "mostVoted": "Most Voted",
+  "leastVoted": "Least Voted",
 
 
-  "userFeed": "user feed",
-  "favouriteFeed": "favourite feed",
-  "guestFeed": "guest feed",
+  "userFeed": "User Feed",
+  "favouriteFeed": "Favourite Feed",
+  "guestFeed": "Guest Feed",
 
 
-  "login": "log in",
-  "logout": "log out",
-  "notFound": "not found :(",
+  "login": "Log In",
+  "logout": "Log Out",
+  "notFound": "Not Found :(",
 
 
-  "followUser": "follow",
-  "unfollowUser": "unfollow",
-  "userFollowsYou": "follows you",
-  "searchUser": "search @username or name...",
-  "userFollowers_one": "{{count}} follower",
-  "userFollowers_other": "{{count}} followers",
-  "userFollowing": "{{count}} following",
+  "followUser": "Follow",
+  "unfollowUser": "Unfollow",
+  "userFollowsYou": "Follows You",
+  "searchUser": "Search @Username or Name...",
+  "userFollowers_one": "{{count}} Follower",
+  "userFollowers_other": "{{count}} Followers",
+  "userFollowing": "{{count}} Following",
 
 
-  "editProfile": "edit profile",
-  "profileName": "name...",
-  "profileBio": "bio...",
+  "createDiscussion": "Create",
+  "editDiscussion": "Edit Discussion",
+  "deleteDiscussion": "Delete Discussion",
+  "discussionTitle": "Enter Title",
+  "discussionReadme": "Enter Readme",
+  "discussionUpdateNever": "Never",
 
 
-  "createDiscussion": "create",
-  "editDiscussion": "edit discussion",
-  "deleteDiscussion": "delete discussion",
-  "discussionTitle": "title...",
-  "discussionReadme":"readme...",
-  "discussionUpdateNever":"never",
-
-
-  "createArgument": "send",
-  "writeArgument": "write your argument...",
-  "deleteArgument": "delete argument",
-  "showArguments": "show arguments",
+  "createArgument": "Send",
+  "writeArgument": "Write Your Argument",
+  "deleteArgument": "Delete Argument",
+  "showArguments": "Show Arguments",
 
   
-  "createComment": "send",
-  "writeComment": "write your comment...",
-  "deleteComment": "delete comement",
-  "showComments": "show comments"
+  "createComment": "Send",
+  "writeComment": "Write Your Comment",
+  "deleteComment": "Delete Comement",
+  "showComments": "Show Comments"
 }

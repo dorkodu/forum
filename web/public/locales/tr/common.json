@@ -1,57 +1,49 @@
 {
-  "newer": "daha yeni",
-  "older": "daha eski",
+  "newer": "Daha Yeni",
+  "older": "Daha Eski",
 
-  "refresh": "yenile",
-  "loadNewer": "yenileri yükle",
-  "loadOlder": "eskileri yükle",
+  "refresh": "Yenile",
+  "loadNewer": "Yenileri Yükle",
+  "loadOlder": "Eskileri Yükle",
 
-  "mostVoted": "en çok oy alan",
-  "leastVoted": "en az oy alan",
-
-  "confirm": "onayla",
-  "cancel": "iptal et",
+  "mostVoted": "En Çok Oy",
+  "leastVoted": "En Az Oy",
 
   
-  "userFeed": "kullanıcı akışı",
-  "favouriteFeed": "favori akışı",
-  "guestFeed": "misafir akışı",
+  "userFeed": "Kullanıcı Akışı",
+  "favouriteFeed": "Favori Akışı",
+  "guestFeed": "Misafir Akışı",
 
 
-  "login": "giriş yap",
-  "logout": "çıkış yap",
-  "notFound": "bulunamadı :(",
+  "login": "Giriş Yap",
+  "logout": "Çıkış Yap",
+  "notFound": "Bulunamadı :(",
 
   
-  "followUser": "takip et",
-  "unfollowUser": "takipten çık",
-  "userFollowsYou": "seni takip ediyor",
-  "searchUser": "@kullanıcı veya kullanıcı ara...",
-  "userFollowers": "{{count}} takipçi",
-  "userFollowing": "{{count}} takip edilen",
+  "followUser": "Takip Et",
+  "unfollowUser": "Takipten Çık",
+  "userFollowsYou": "Seni Takip Ediyor",
+  "searchUser": "@Kullanıcıadı veya Ad Ara",
+  "userFollowers": "{{count}} Takipçi",
+  "userFollowing": "{{count}} Takip Edilen",
 
 
-  "editProfile": "profili düzenle",
-  "profileName": "isim...",
-  "profileBio": "biyografi...",
+  "createDiscussion": "Oluştur",
+  "editDiscussion": "Tartışmayı Düzenle",
+  "deleteDiscussion": "Tartışmayı Sil",
+  "discussionTitle": "Başlık Girin",
+  "discussionReadme": "Beni Oku Girin",
+  "discussionUpdateNever": "Hiç",
 
 
-  "createDiscussion": "oluştur",
-  "editDiscussion": "tartışmayı düzenle",
-  "deleteDiscussion": "tartışmayı sil",
-  "discussionTitle": "başlık...",
-  "discussionReadme": "beni oku...",
-  "discussionUpdateNever": "asla",
+  "createArgument": "Yolla",
+  "writeArgument": "Argümanını Yaz",
+  "deleteArgument": "Argümanı Sil",
+  "showArguments": "Argümanları Göster",
 
 
-  "createArgument": "yolla",
-  "writeArgument": "argümanını yaz...",
-  "deleteArgument": "argümanı sil",
-  "showArguments": "argümanları göster",
-
-
-  "createComment": "yolla",
-  "writeComment": "yorumunu yaz...",
-  "deleteComment": "yorumu sil",
-  "showComments": "yorumları göster"
+  "createComment": "Yolla",
+  "writeComment": "Yorumunu Yaz...",
+  "deleteComment": "Yorumu Sil",
+  "showComments": "Yorumları Göster"
 }

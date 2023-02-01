@@ -1,7 +1,7 @@
 import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
-import { editUserSchema, followUserSchema, getUserDiscussionsSchema, getUserFollowersSchema, getUserFollowingSchema, getUserSchema, searchUserSchema } from "../schemas/user";
+import { followUserSchema, getUserDiscussionsSchema, getUserFollowersSchema, getUserFollowingSchema, getUserSchema, searchUserSchema } from "../schemas/user";
 import { z } from "zod";
 import auth from "./auth";
 import pg from "../pg";
@@ -77,29 +77,6 @@ const getUser = sage.resource(
   }
 )
 
-const editUser = sage.resource(
-  {} as SchemaContext,
-  {} as z.infer<typeof editUserSchema>,
-  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    const parsed = editUserSchema.safeParse(arg);
-    if (!parsed.success) return { error: ErrorCode.Default };
-
-    const info = await auth.getAuthInfo(ctx);
-    if (!info) return { error: ErrorCode.Default };
-
-    const { name, bio } = parsed.data;
-
-    const result = await pg`
-      UPDATE users
-      SET name=${name}, bio=${bio}
-      WHERE id=${info.userId}
-    `;
-    if (result.count === 0) return { error: ErrorCode.Default };
-
-    return { data: {} };
-  }
-)
-
 const searchUser = sage.resource(
   {} as SchemaContext,
   {} as z.infer<typeof searchUserSchema>,
@@ -125,8 +102,8 @@ const searchUser = sage.resource(
       }
       FROM users u
       WHERE 
-        ${name ? pg`u.name ILIKE ${`${name}%`}` : pg``} 
-        ${username ? pg`u.username ILIKE ${`${username}%`}` : pg``}
+        ${name ? pg`u.name_ci LIKE ${`${name.toLowerCase()}%`}` : pg``} 
+        ${username ? pg`u.username_ci LIKE ${`${username.toLowerCase()}%`}` : pg``}
       ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id>${anchorId}` : pg`AND u.id<${anchorId}`}
       ORDER BY u.id ${anchorId === "-1" ? pg`ASC` : type === "newer" ? pg`ASC` : pg`DESC`}
       LIMIT 20
@@ -323,7 +300,6 @@ const getUserFollowing = sage.resource(
 
 export default {
   getUser,
-  editUser,
   searchUser,
 
   getUserDiscussions,

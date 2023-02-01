@@ -33,7 +33,6 @@ export const schema = sage.schema(
 
     /* user */
     getUser: user.getUser,
-    editUser: user.editUser,
     searchUser: user.searchUser,
 
     getUserDiscussions: user.getUserDiscussions,
