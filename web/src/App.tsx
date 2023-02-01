@@ -1,5 +1,5 @@
 import { css, Global } from "@emotion/react";
-import { ActionIcon, AppShell, Card, Flex, Footer, Header, Loader, MantineProvider } from "@mantine/core";
+import { ActionIcon, AppShell, Card, ColorSchemeProvider, Flex, Footer, Header, Loader, MantineProvider } from "@mantine/core";
 import { IconArrowLeft, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons";
 import { Suspense, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -7,7 +7,8 @@ import { useAppStore } from "./stores/appStore";
 import { useAuthStore } from "./stores/authStore";
 import { useUserStore } from "./stores/userStore";
 import theme from "./styles/theme";
-import ForumIcon from "./assets/forum_icon.svg";
+import ForumIcon from "./assets/forum.svg";
+import RubikRegular from "@assets/fonts/Rubik-Regular.woff2";
 
 const width = css`
   max-width: 768px;
@@ -18,6 +19,11 @@ const global = css`
   body {
     ${width}
     overflow-y: scroll;
+  }
+
+  @font-face {
+    font-family: Rubik;
+    src: url(${RubikRegular}) format("woff2");
   }
 `;
 
@@ -33,6 +39,8 @@ function App() {
   const location = useLocation();
   const queryAuth = useAuthStore((state) => state.queryAuth);
   const loading = useAppStore((state) => state.getLoading());
+  const colorScheme = useAppStore((state) => state.colorScheme);
+  const toggleColorScheme = useAppStore((state) => state.toggleColorScheme);
 
   const currentUserId = useAuthStore(state => state.userId);
   const currentUser = useUserStore(state => state.getUserById(currentUserId));
@@ -84,13 +92,15 @@ function App() {
 
   return (
     <>
-      <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
-        <AppShell padding={0} header={<AppHeader />} footer={<AppFooter />}>
-          <Suspense fallback={<Loader css={center} variant="dots" color="green" />}>
-            {loading ? <Loader css={center} variant="dots" color="green" /> : <Outlet />}
-          </Suspense>
-        </AppShell>
-      </MantineProvider>
+      <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+        <MantineProvider theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
+          <AppShell padding={0} header={<AppHeader />} footer={<AppFooter />}>
+            <Suspense fallback={<Loader css={center} variant="dots" color="green" />}>
+              {loading ? <Loader css={center} variant="dots" color="green" /> : <Outlet />}
+            </Suspense>
+          </AppShell>
+        </MantineProvider>
+      </ColorSchemeProvider>
       <Global styles={global} />
     </>
   );

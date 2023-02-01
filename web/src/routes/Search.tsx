@@ -61,8 +61,6 @@ function Search() {
     return () => { clearTimeout(timeout) };
   }, [state.search])
 
-  console.log(t("searchUser"))
-
   return (
     <>
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>

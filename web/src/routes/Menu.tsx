@@ -1,6 +1,7 @@
 import { Button, Card, Divider, Flex, NativeSelect } from "@mantine/core"
 import { IconLogin, IconLogout, IconWorld } from "@tabler/icons"
 import { useTranslation } from "react-i18next";
+import { ColorToggleSegmented } from "../components/ColorToggle";
 import i18n from "../lib/i18n";
 import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
@@ -33,6 +34,8 @@ function Menu() {
             { value: 'tr', label: 'Türkçe' },
           ]}
         />
+
+        <ColorToggleSegmented />
 
         <Divider my={0} />
 
