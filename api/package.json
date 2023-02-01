@@ -1,5 +1,5 @@
 {
-  "name": "cherno-api",
+  "name": "forum-api",
   "version": "0.0.1",
   "scripts": {
     "build": "rimraf ./dist && tsc",

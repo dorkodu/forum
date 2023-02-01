@@ -1,31 +1,31 @@
 FROM node:16.17.1-alpine as base
-WORKDIR /cherno
-RUN mkdir -p /cherno/api
+WORKDIR /forum
+RUN mkdir -p /forum/api
 
 RUN npm install -g pnpm && pnpm config set --global store-dir /root/.local/share/pnpm/store/v3
 
-COPY ./api/pnpm-lock.yaml /cherno/api
+COPY ./api/pnpm-lock.yaml /forum/api
 RUN cd api && pnpm fetch
-COPY ./api /cherno/api
+COPY ./api /forum/api
 RUN cd api && pnpm install --offline
 
 FROM base as test
 # TODO: Test
 
 FROM base as build
-WORKDIR /cherno/api
+WORKDIR /forum/api
 RUN pnpm build
 
 FROM node:16.17.1-alpine
-WORKDIR /cherno
-RUN mkdir -p /cherno/api
+WORKDIR /forum
+RUN mkdir -p /forum/api
 
 RUN npm install -g pnpm && pnpm config set --global store-dir /root/.local/share/pnpm/store/v3
 
-COPY ./api/pnpm-lock.yaml /cherno/api
+COPY ./api/pnpm-lock.yaml /forum/api
 RUN cd api && pnpm fetch --prod
-COPY --from=build /cherno/api/dist /cherno/api/dist
-COPY ./api/package.json /cherno/api
+COPY --from=build /forum/api/dist /forum/api/dist
+COPY ./api/package.json /forum/api
 RUN cd api && pnpm install --offline --prod
 
-CMD [ "node", "/cherno/api/dist/index.js" ]
+CMD [ "node", "/forum/api/dist/index.js" ]

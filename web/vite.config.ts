@@ -30,8 +30,8 @@ export default defineConfig({
       },
       base: "/",
       manifest: {
-        name: "Cherno",
-        short_name: "Cherno",
+        name: "Forum",
+        short_name: "Forum",
         description: "discourse.",
         categories: [],
         start_url: "/",
@@ -60,7 +60,7 @@ export default defineConfig({
     port: 8002,
     strictPort: true,
     proxy: {
-      "/api": "http://cherno_api:8003",
+      "/api": "http://forum_api:8003",
     },
   },
   resolve: {
@@ -73,5 +73,5 @@ export default defineConfig({
     reportCompressedSize: false,
   },
   base:
-    process.env.NODE_ENV === "production" ? "https://cdn.dorkodu.com/cherno/" : "",
+    process.env.NODE_ENV === "production" ? "https://cdn.dorkodu.com/forum/" : "",
 });

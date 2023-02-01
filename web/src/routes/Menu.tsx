@@ -14,7 +14,7 @@ function Menu() {
   const currentUserId = useAuthStore(state => state.userId);
 
   const login = () => {
-    document.location.href = "https://id.dorkodu.com/access?service=cherno.dorkodu.com";
+    document.location.href = "https://id.dorkodu.com/access?service=forum.dorkodu.com";
   }
 
   const logout = () => { queryLogout() }

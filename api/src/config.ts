@@ -3,13 +3,13 @@ function readNumber(variable: string | undefined) {
   return parseInt(variable);
 }
 
-const postgresHost = process.env.POSTGRES_HOST || "cherno_postgres";
+const postgresHost = process.env.POSTGRES_HOST || "forum_postgres";
 const postgresPort = readNumber(process.env.PGPORT) || 7001;
-const postgresName = process.env.POSTGRES_DB || "cherno";
+const postgresName = process.env.POSTGRES_DB || "forum";
 const postgresUser = process.env.POSTGRES_USER || "postgres";
 const postgresPassword = process.env.POSTGRES_PASSWORD || "postgres";
 
-const smtpHost = process.env.SMTP_HOST || "cherno_mailslurper";
+const smtpHost = process.env.SMTP_HOST || "forum_mailslurper";
 const smtpPort = readNumber(process.env.SMTP_PORT) || 2500;
 const smtpUser = process.env.SMTP_USER || "";;
 const smtpPassword = process.env.SMTP_PASSWORD || "";;

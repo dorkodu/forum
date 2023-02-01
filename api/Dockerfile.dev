@@ -1,14 +1,14 @@
 FROM node:16.17.1-alpine
-WORKDIR /cherno
+WORKDIR /forum
 
-RUN mkdir -p /cherno/api
+RUN mkdir -p /forum/api
 
 RUN npm install -g pnpm && pnpm config set --global store-dir /root/.local/share/pnpm/store/v3
 
-COPY ./api/pnpm-lock.yaml /cherno/api
+COPY ./api/pnpm-lock.yaml /forum/api
 RUN cd api && pnpm fetch
-COPY ./api /cherno/api
+COPY ./api /forum/api
 RUN cd api && pnpm install --offline
 
-WORKDIR /cherno/api
+WORKDIR /forum/api
 CMD [ "pnpm", "run", "dev" ]

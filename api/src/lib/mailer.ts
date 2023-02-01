@@ -2,7 +2,7 @@
 import nodemailer from "nodemailer";
 import { config } from "../config";
 
-const url = "https://cherno.dorkodu.com";
+const url = "https://forum.dorkodu.com";
 
 const transporter = nodemailer.createTransport({
   pool: true,

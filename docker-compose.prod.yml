@@ -1,8 +1,8 @@
 version: '3.8'
-name: cherno_prod
+name: forum_prod
 
 services:
-  cherno_api:
+  forum_api:
     build:
       context: .
       dockerfile: ./api/Dockerfile.prod
@@ -10,10 +10,10 @@ services:
       - ./.env
     environment:
       - NODE_ENV=production
-      - VIRTUAL_HOST=${VIRTUAL_HOST:-cherno.dorkodu.com}
+      - VIRTUAL_HOST=${VIRTUAL_HOST:-forum.dorkodu.com}
       - VIRTUAL_PORT=${API_PORT:-8003}
-      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST:-cherno.dorkodu.com}
-      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-cherno@dorkodu.com}
+      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST:-forum.dorkodu.com}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-hey@dorkodu.com}
       - VIRTUAL_PATH=/api
     expose:
       - ${API_PORT:-8003}
@@ -22,7 +22,7 @@ services:
       - app
       - nginx-proxy
 
-  cherno_web:
+  forum_web:
     build:
       context: .
       dockerfile: ./web/Dockerfile.prod
@@ -31,12 +31,12 @@ services:
     environment:
       - NODE_ENV=production
 
-  cherno_postgres:
+  forum_postgres:
     image: postgres:14-alpine
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - POSTGRES_DB=${POSTGRES_DB:-cherno}
+      - POSTGRES_DB=${POSTGRES_DB:-forum}
       - PGPORT=${PGPORT:-7001}
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -44,7 +44,7 @@ services:
     networks:
       - app
 
-  cherno_keydb:
+  forum_keydb:
     image: eqalpha/keydb:x86_64_v6.3.1
     volumes:
       - ./keydb/keydb.conf:/etc/keydb/keydb.conf
