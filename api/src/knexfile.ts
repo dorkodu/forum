@@ -4,9 +4,9 @@ const config: { [key: string]: Knex.Config } = {
   development: {
     client: "postgresql",
     connection: {
-      host: process.env.POSTGRES_HOST || "id_postgres",
+      host: process.env.POSTGRES_HOST || "forum_postgres",
       port: (process.env.PGPORT && parseInt(process.env.PGPORT)) || 7000,
-      database: process.env.POSTGRES_DB || "id",
+      database: process.env.POSTGRES_DB || "forum",
       user: process.env.POSTGRES_USER || "postgres",
       password: process.env.POSTGRES_PASSWORD || "postgres",
     },
@@ -22,7 +22,7 @@ const config: { [key: string]: Knex.Config } = {
   //test: {
   //  client: "postgresql",
   //  connection: {
-  //    host: "id_postgres",
+  //    host: "forum_postgres",
   //    port: 5432,
   //    database: "test",
   //    user: "postgres",
@@ -56,9 +56,9 @@ const config: { [key: string]: Knex.Config } = {
   production: {
     client: "postgresql",
     connection: {
-      host: process.env.POSTGRES_HOST || "id_postgres",
+      host: process.env.POSTGRES_HOST || "forum_postgres",
       port: (process.env.PGPORT && parseInt(process.env.PGPORT)) || 7000,
-      database: process.env.POSTGRES_DB || "id",
+      database: process.env.POSTGRES_DB || "forum",
       user: process.env.POSTGRES_USER || "postgres",
       password: process.env.POSTGRES_PASSWORD || "postgres",
     },
