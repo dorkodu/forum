@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const name = z.string().trim().min(1).max(64);
-const username = z.string().trim().regex(/^([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,14}(?:[A-Za-z0-9_]))?)$/);
+const username = z.string().trim().regex(/^(?![_.])(?!.*[_.]{2})[a-zA-Z0-9_.]{1,16}(?<![_.])$/);
 const email = z.string().trim().email().max(320);
 const password = z.string().min(8);
 const bio = z.string().trim().max(500);
