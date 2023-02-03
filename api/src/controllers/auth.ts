@@ -112,17 +112,28 @@ const getAccessToken = sage.resource(
     }
     // If not the first time logging in via Dorkodu ID, query the user
     else {
-      const auth = await queryAuth(accessToken.token);
-      if (!auth) return { error: ErrorCode.Default };
+      const { name, username, bio } = userData;
 
-      const [result] = await pg`
+      const result0 = await pg`
+        UPDATE users
+        SET
+          name=${name},
+          name_ci=${name.toLowerCase()},
+          username=${username},
+          username_ci=${username.toLowerCase()},
+          bio=${bio}
+        WHERE id=${userData.id}
+      `;
+      if (result0.count === 0) return { error: ErrorCode.Default };
+
+      const [result1] = await pg`
         SELECT id, name, username, bio, join_date, follower_count, following_count,
         FALSE AS follower, FALSE AS following
-        FROM users WHERE id=${auth.userId}
+        FROM users WHERE id=${userData.id}
       `;
-      if (!result) return { error: ErrorCode.Default };
+      if (!result1) return { error: ErrorCode.Default };
 
-      const res = iUserSchema.safeParse(result);
+      const res = iUserSchema.safeParse(result1);
       if (!res.success) return { error: ErrorCode.Default };
 
       // Attach the access token for 30 days to the user
