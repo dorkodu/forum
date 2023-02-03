@@ -11,6 +11,7 @@ import { ActionIcon, Card, Flex, Menu, Text } from "@mantine/core"
 import { date } from "../lib/date";
 import { css } from "@emotion/react";
 import { useTranslation } from "react-i18next";
+import { nowrap } from "../styles/css";
 
 
 interface Props {
@@ -42,6 +43,11 @@ function DiscussionSummary({ discussionId }: Props) {
     if (!discussion) return;
     const target = `/discussion/${discussion.id}`;
     if (location.pathname !== target) navigate(target);
+  }
+
+  const gotoUser = () => {
+    if (!user) return;
+    navigate(`/profile/${user.username}`);
   }
 
   const gotoDiscussionEditor = (ev: MouseEvent) => {
@@ -79,12 +85,13 @@ function DiscussionSummary({ discussionId }: Props) {
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoDiscussion}>
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
-          <Flex miw={0}>
+          <Flex miw={0} onClick={gotoUser}>
             <Text truncate pr={4}>{user.name}</Text>
             <Text>@</Text>
             <Text truncate>{user.username}</Text>
           </Flex>
-          <Text ml={4} title={date(discussion.date).format('lll')}>
+          <Text mx={4}>·</Text>
+          <Text css={nowrap} title={date(discussion.date).format('lll')}>
             {date(discussion.date).fromNow()}
           </Text>
         </Flex>
