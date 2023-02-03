@@ -4,15 +4,14 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
-
 export const date = dayjs;
 
-export const changeDateLanguage = async (locale: string) => {
-  switch (locale) {
-    case "en": await import("dayjs/locale/en"); break;
-    case "tr": await import("dayjs/locale/tr"); break;
-    default: return;
-  }
+const locales: Record<string, () => Promise<any>> = {
+  en: () => import("dayjs/locale/en"),
+  tr: () => import("dayjs/locale/tr"),
+}
 
-  date.locale(locale);
+export const changeDateLanguage = async (language: string) => {
+  await locales[language]?.();
+  date.locale(language);
 }

@@ -17,7 +17,7 @@ specifiers:
   emotion-modern-normalize: ^1.0.0
   i18next: ^22.0.5
   i18next-browser-languagedetector: ^7.0.1
-  i18next-http-backend: ^2.0.1
+  i18next-resources-to-backend: ^1.1.1
   immer: ^9.0.16
   react: ^18.2.0
   react-dom: ^18.2.0
@@ -42,7 +42,7 @@ dependencies:
   emotion-modern-normalize: 1.0.0_qvatmowesywn4ye42qoh247szu
   i18next: 22.4.9
   i18next-browser-languagedetector: 7.0.1
-  i18next-http-backend: 2.1.1
+  i18next-resources-to-backend: 1.1.1
   immer: 9.0.17
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
@@ -60,7 +60,7 @@ devDependencies:
   vite: 3.2.5
   vite-plugin-compression: 0.5.1_vite@3.2.5
   vite-plugin-html: 3.2.0_vite@3.2.5
-  vite-plugin-pwa: 0.13.3_x7bmrdf5vv7jofix4vzvx6ucm4
+  vite-plugin-pwa: 0.13.3_vite@3.2.5
 
 packages:
 
@@ -2085,14 +2085,6 @@ packages:
       path-type: 4.0.0
       yaml: 1.10.2
 
-  /cross-fetch/3.1.5:
-    resolution: {integrity: sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==}
-    dependencies:
-      node-fetch: 2.6.7
-    transitivePeerDependencies:
-      - encoding
-    dev: false
-
   /crypto-random-string/2.0.0:
     resolution: {integrity: sha512-v1plID3y9r/lPhviJ1wrXpLeyUIGAZ2SHNYTEapm7/8A9nLPoyvVp3RK/EPFqn5kEznyWgYZNsRtYYIWbuG8KA==}
     engines: {node: '>=8'}
@@ -2756,12 +2748,10 @@ packages:
       '@babel/runtime': 7.20.7
     dev: false
 
-  /i18next-http-backend/2.1.1:
-    resolution: {integrity: sha512-jByfUCDVgQ8+/Wens7queQhYYvMcGTW/lR4IJJNEDDXnmqjLrwi8ubXKpmp76/JIWEZHffNdWqnxFJcTVGeaOw==}
+  /i18next-resources-to-backend/1.1.1:
+    resolution: {integrity: sha512-8RSFzFGy1SKQDkG/Pv6dEWR1H07L6UflAysWXE4z3kdN7pntdncgBQh915/fkphkioRnU00+HYj+r9d92YDH5A==}
     dependencies:
-      cross-fetch: 3.1.5
-    transitivePeerDependencies:
-      - encoding
+      '@babel/runtime': 7.20.7
     dev: false
 
   /i18next/22.4.9:
@@ -3098,18 +3088,6 @@ packages:
       lower-case: 2.0.2
       tslib: 2.4.1
     dev: true
-
-  /node-fetch/2.6.7:
-    resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==}
-    engines: {node: 4.x || >=6.0.0}
-    peerDependencies:
-      encoding: ^0.1.0
-    peerDependenciesMeta:
-      encoding:
-        optional: true
-    dependencies:
-      whatwg-url: 5.0.0
-    dev: false
 
   /node-html-parser/5.4.2:
     resolution: {integrity: sha512-RaBPP3+51hPne/OolXxcz89iYvQvKOydaqoePpOgXcrOKZhjVIzmpKZz+Hd/RBO2/zN2q6CNJhQzucVz+u3Jyw==}
@@ -3597,10 +3575,6 @@ packages:
       is-number: 7.0.0
     dev: true
 
-  /tr46/0.0.3:
-    resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
-    dev: false
-
   /tr46/1.0.1:
     resolution: {integrity: sha512-dTpowEjclQ7Kgx5SdBkqRzVhERQXov8/l9Ft9dVM9fmg0W0KQSVaXX9T4i6twCPNtYiZM53lpSSUAwJbFPOHxA==}
     dependencies:
@@ -3770,12 +3744,10 @@ packages:
       vite: 3.2.5
     dev: true
 
-  /vite-plugin-pwa/0.13.3_x7bmrdf5vv7jofix4vzvx6ucm4:
+  /vite-plugin-pwa/0.13.3_vite@3.2.5:
     resolution: {integrity: sha512-cjWXpZ7slAY14OKz7M8XdgTIi9wjf6OD6NkhiMAc+ogxnbUrecUwLdRtfGPCPsN2ftut5gaN1jTghb11p6IQAA==}
     peerDependencies:
       vite: ^3.1.0
-      workbox-build: ^6.5.4
-      workbox-window: ^6.5.4
     dependencies:
       '@rollup/plugin-replace': 4.0.0_rollup@2.79.1
       debug: 4.3.4
@@ -3786,6 +3758,7 @@ packages:
       workbox-build: 6.5.4
       workbox-window: 6.5.4
     transitivePeerDependencies:
+      - '@types/babel__core'
       - supports-color
     dev: true
 
@@ -3827,20 +3800,9 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
-  /webidl-conversions/3.0.1:
-    resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
-    dev: false
-
   /webidl-conversions/4.0.2:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
     dev: true
-
-  /whatwg-url/5.0.0:
-    resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
-    dependencies:
-      tr46: 0.0.3
-      webidl-conversions: 3.0.1
-    dev: false
 
   /whatwg-url/7.1.0:
     resolution: {integrity: sha512-WUu7Rg1DroM7oQvGWfOiAK21n74Gg+T4elXEQYkOhtyLeWiJFoOGLXPKI/9gzIie9CtwVLm8wtw6YJdKyxSjeg==}
