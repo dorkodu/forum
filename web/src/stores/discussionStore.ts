@@ -419,6 +419,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
 
       discussion.title = title;
       discussion.readme = readme;
+      discussion.lastUpdateDate = Date.now();
     })
 
     return status;
@@ -513,7 +514,10 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     if (argument) {
       set(state => {
         const discussion = state.discussion.entities[discussionId];
-        if (discussion) discussion.argumentCount += +1;
+        if (discussion) {
+          discussion.argumentCount += +1;
+          discussion.lastArgumentDate = Date.now();
+        }
       })
 
       get().setArguments(discussionId, [argument], "newer")
@@ -605,7 +609,10 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     if (comment) {
       set(state => {
         const discussion = state.discussion.entities[discussionId];
-        if (discussion) discussion.commentCount += +1;
+        if (discussion) {
+          discussion.commentCount += +1;
+          discussion.lastCommentDate = Date.now();
+        }
       })
 
       get().setComments(discussionId, [comment]);
