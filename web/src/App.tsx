@@ -1,5 +1,5 @@
 import { css, Global } from "@emotion/react";
-import { ActionIcon, AppShell, Card, ColorSchemeProvider, Flex, Footer, Header, Loader, MantineProvider } from "@mantine/core";
+import { ActionIcon, AppShell, Card, ColorSchemeProvider, Flex, Footer, Header, LoadingOverlay, MantineProvider } from "@mantine/core";
 import { IconArrowLeft, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons";
 import { Suspense, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -25,13 +25,6 @@ const global = css`
     font-family: Rubik;
     src: url(${RubikRegular}) format("woff2");
   }
-`;
-
-const center = css`
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%,-50%);
 `;
 
 function App() {
@@ -95,8 +88,9 @@ function App() {
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
           <AppShell padding={0} header={<AppHeader />} footer={<AppFooter />}>
-            <Suspense fallback={<Loader css={center} variant="dots" color="green" />}>
-              {loading ? <Loader css={center} variant="dots" color="green" /> : <Outlet />}
+            <Suspense>
+              <LoadingOverlay visible={loading} overlayBlur={2} css={css`position: fixed;`} />
+              <Outlet />
             </Suspense>
           </AppShell>
         </MantineProvider>
