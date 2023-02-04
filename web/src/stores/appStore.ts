@@ -9,16 +9,12 @@ interface State {
     auth: boolean
     locale: boolean
   }
-
-  colorScheme: ColorScheme;
 }
 
 interface Action {
   setAuthLoading: (loading: boolean) => void;
   setLocaleLoading: (loading: boolean) => void;
   changeLocale: (lang: string) => void;
-
-  toggleColorScheme: (value: ColorScheme) => void;
 }
 
 const initialState: State = {
@@ -26,8 +22,6 @@ const initialState: State = {
     auth: true,
     locale: true,
   },
-
-  colorScheme: "light",
 }
 
 export const useAppStore = create(immer<State & Action>((set, _get) => ({
@@ -48,9 +42,5 @@ export const useAppStore = create(immer<State & Action>((set, _get) => ({
     document.documentElement.lang = lang;
 
     set(state => { state.loading.locale = false })
-  },
-
-  toggleColorScheme(value) {
-    set((state) => { state.colorScheme = value });
   },
 })))

@@ -1,5 +1,5 @@
 import { css, Global } from "@emotion/react";
-import { ActionIcon, AppShell, Card, ColorSchemeProvider, Flex, Footer, Header, LoadingOverlay, MantineProvider } from "@mantine/core";
+import { ActionIcon, AppShell, Card, ColorScheme, ColorSchemeProvider, Flex, Footer, Header, LoadingOverlay, MantineProvider } from "@mantine/core";
 import { IconArrowLeft, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons";
 import { Suspense, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ import { useAuthStore } from "./stores/authStore";
 import { useUserStore } from "./stores/userStore";
 import theme from "./styles/theme";
 import ForumIcon from "./assets/forum.svg";
+import { useLocalStorage } from "@mantine/hooks";
 
 const width = css`
   max-width: 768px;
@@ -29,8 +30,6 @@ function App() {
   // on locale, it's fine to keep current view since it doesn't effect functionality
   // on auth, it effects functionality so hide the view
   const loading = useAppStore((state) => state.loading);
-  const colorScheme = useAppStore((state) => state.colorScheme);
-  const toggleColorScheme = useAppStore((state) => state.toggleColorScheme);
 
   const queryAuth = useAuthStore((state) => state.queryAuth);
   const currentUserId = useAuthStore(state => state.userId);
@@ -42,6 +41,15 @@ function App() {
   const routeDiscussionEditor = () => navigate("/discussion-editor");
   const routeMenu = () => navigate("/menu");
   const goBack = () => navigate(-1);
+
+  const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
+    key: 'theme',
+    defaultValue: 'light',
+    getInitialValueInEffect: true,
+  });
+
+  const toggleColorScheme = (value?: ColorScheme) =>
+    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
 
   useEffect(() => { queryAuth() }, []);
 
