@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom"
 import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
+import { wrapContent } from "../styles/css";
 
 interface Props {
   user: IUser;
@@ -53,7 +54,7 @@ function Profile({ user }: Props) {
 
       <Text>@{user.username}</Text>
 
-      <Text css={css`word-wrap: break-word;`}>{user.bio}</Text>
+      <Text css={wrapContent}>{user.bio}</Text>
 
       <Flex align="center">
         <IconCalendar />

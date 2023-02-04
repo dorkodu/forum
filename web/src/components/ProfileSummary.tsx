@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
+import { wrapContent } from "../styles/css";
 
 interface Props {
   user: IUser;
@@ -45,7 +46,7 @@ function ProfileSummary({ user }: Props) {
         <Text truncate>{user.username}</Text>
       </Flex>
 
-      <Text>{user.bio}</Text>
+      <Text css={wrapContent}>{user.bio}</Text>
 
       <Flex align="center" justify="space-between">
         <Flex align="center" gap="xs">

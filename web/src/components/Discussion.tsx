@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
+import { wrapContent } from "../styles/css";
 import Argument from "./Argument";
 import Comment from "./Comment"
 import DiscussionSummary from "./DiscussionSummary";
@@ -133,7 +134,7 @@ function Discussion({ discussionId }: Props) {
     <>
       <DiscussionSummary discussionId={discussionId} />
 
-      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>{discussion.readme}</Card>
+      <Card shadow="sm" p="lg" m="md" radius="md" withBorder css={wrapContent}>{discussion.readme}</Card>
 
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
         <Flex direction="column" gap="md">

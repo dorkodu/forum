@@ -7,6 +7,7 @@ import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
+import { wrapContent } from "../styles/css";
 
 interface Props {
   commentId: string;
@@ -71,7 +72,7 @@ function Comment({ commentId }: Props) {
         </Menu>
       </Flex>
 
-      <Text>{comment.content}</Text>
+      <Text css={wrapContent}>{comment.content}</Text>
     </Card>
   )
 }

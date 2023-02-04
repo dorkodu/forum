@@ -8,6 +8,7 @@ import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
+import { wrapContent } from "../styles/css";
 
 interface Props {
   argumentId: string;
@@ -88,7 +89,7 @@ function Argument({ argumentId }: Props) {
         </Menu>
       </Flex>
 
-      <Text>{argument.content}</Text>
+      <Text css={wrapContent}>{argument.content}</Text>
 
       <Flex align="center">
         {argument.type ? <IconPlus /> : <IconMinus />}
