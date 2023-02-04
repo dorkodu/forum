@@ -30,9 +30,28 @@
   <link rel="mask-icon" href="https://forum.dorkodu.com/safari-pinned-tab.svg" color="#5bbad5">
   <meta name="msapplication-TileColor" content="#2d89ef">
   <meta name="theme-color" content="#ffffff">
+
+  <style>
+    @font-face {
+      font-family: "Rubik";
+      src: url("./src/assets/fonts/Rubik.woff2") format("woff2");
+    }
+
+    .hidden {
+      position: absolute;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      width: 1px;
+      margin: -1px;
+      padding: 0;
+      border: 0;
+    }
+  </style>
 </head>
 
 <body>
+  <div aria-visibility="hidden" class="hidden" style="font-family: Rubik;">&nbsp;</div>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>

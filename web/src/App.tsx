@@ -8,7 +8,6 @@ import { useAuthStore } from "./stores/authStore";
 import { useUserStore } from "./stores/userStore";
 import theme from "./styles/theme";
 import ForumIcon from "./assets/forum.svg";
-import RubikRegular from "@assets/fonts/Rubik-Regular.woff2";
 
 const width = css`
   max-width: 768px;
@@ -19,11 +18,6 @@ const global = css`
   body {
     ${width}
     overflow-y: scroll;
-  }
-
-  @font-face {
-    font-family: Rubik;
-    src: url(${RubikRegular}) format("woff2");
   }
 `;
 
