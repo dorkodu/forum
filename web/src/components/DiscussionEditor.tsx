@@ -1,4 +1,4 @@
-import { Button, Card, Textarea, TextInput } from "@mantine/core";
+import { Button, Card, LoadingOverlay, Textarea, TextInput } from "@mantine/core";
 import { useEffect, useReducer } from "react"
 import { useTranslation } from "react-i18next";
 import { request, sage } from "../stores/api";
@@ -83,6 +83,8 @@ function DiscussionEditor({ id }: Props) {
 
   return (
     <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+      <LoadingOverlay visible={state.loading} overlayBlur={2} />
+
       <TextInput
         radius="md"
         placeholder={t("discussionTitle")}

@@ -1,4 +1,4 @@
-import { Button, Card, Flex, SegmentedControl, Textarea } from "@mantine/core";
+import { Button, Card, Flex, LoadingOverlay, SegmentedControl, Textarea } from "@mantine/core";
 import { useEffect, useReducer } from "react"
 import { useTranslation } from "react-i18next";
 import { useDiscussionStore } from "../stores/discussionStore";
@@ -177,6 +177,8 @@ function Discussion({ discussionId }: Props) {
       </Card>
 
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+        <LoadingOverlay visible={state.action.loading} overlayBlur={2} />
+
         {state.show === "arguments" &&
           <>
             <Textarea
