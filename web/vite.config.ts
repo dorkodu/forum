@@ -26,13 +26,13 @@ export default defineConfig({
       registerType: "autoUpdate",
       injectRegister: "inline",
       workbox: {
-        globPatterns: ["**/*.{html,css,js,ico}"],
+        globPatterns: ["**/*.{html,css,js,ico,json,png,svg,webp,woff2}"],
       },
       base: "/",
       manifest: {
         name: "Forum",
         short_name: "Forum",
-        description: "discourse.",
+        description: "Discourse.",
         categories: [],
         start_url: "/",
         display: "standalone",
