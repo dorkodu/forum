@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 
 function DorkoduID() {
@@ -7,21 +8,18 @@ function DorkoduID() {
   const [searchParams] = useSearchParams();
   const code = searchParams.get("code");
 
+  const setAuthLoading = useAppStore(state => state.setAuthLoading);
   const queryGetAccessToken = useAuthStore(state => state.queryGetAccessToken);
 
   useEffect(() => {
     (async () => {
-      if (!code) return;
-      const status = await queryGetAccessToken(code);
-      if (status) navigate("/home");
+      setAuthLoading(true);
+      if (code) await queryGetAccessToken(code);
+      navigate("/home");
     })()
   }, [])
 
-  return (
-    <>
-      dorkodu id
-    </>
-  )
+  return (<></>)
 }
 
 export default DorkoduID

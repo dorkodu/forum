@@ -70,7 +70,7 @@ export const useAuthStore = create(immer<State & Action>((set, _get) => ({
     set(state => { state.userId = user?.id });
 
     useUserStore.getState().setUsers(user ? [user] : []);
-    // TODO: setAuthLoading is already called in queryAuth, fix it somehow
+    useAppStore.getState().setAuthLoading(false);
 
     return status;
   },
