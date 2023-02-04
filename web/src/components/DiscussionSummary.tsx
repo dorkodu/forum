@@ -12,6 +12,7 @@ import { date } from "../lib/date";
 import { css } from "@emotion/react";
 import { useTranslation } from "react-i18next";
 import { nowrap } from "../styles/css";
+import { useAppStore } from "../stores/appStore";
 
 
 interface Props {
@@ -32,6 +33,8 @@ function DiscussionSummary({ discussionId }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const requestLogin = useAppStore(state => state.requestLogin);
 
   const queryFavouriteDiscussion = useDiscussionStore(state => state.queryFavouriteDiscussion);
   const queryDeleteDiscussion = useDiscussionStore(state => state.queryDeleteDiscussion);
@@ -59,6 +62,9 @@ function DiscussionSummary({ discussionId }: Props) {
 
   const favouriteDiscussion = async (ev: MouseEvent) => {
     ev.stopPropagation();
+
+    // If user is trying to favourite while not being logged in
+    if (!currentUserId) return requestLogin(true);
 
     if (!discussion) return;
     if (state.loading) return;

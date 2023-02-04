@@ -4,6 +4,7 @@ import { IconDots, IconTrash, IconArrowBigTop, IconArrowBigDown, IconPlus, IconM
 import { useReducer } from "react"
 import { useTranslation } from "react-i18next";
 import { date } from "../lib/date";
+import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
@@ -24,6 +25,9 @@ function Argument({ argumentId }: Props) {
   )
 
   const { t } = useTranslation();
+
+  const requestLogin = useAppStore(state => state.requestLogin);
+
   const queryVoteArgument = useDiscussionStore(state => state.queryVoteArgument);
   const queryDeleteArgument = useDiscussionStore(state => state.queryDeleteArgument);
 
@@ -32,6 +36,9 @@ function Argument({ argumentId }: Props) {
   const currentUserId = useAuthStore(state => state.userId);
 
   const voteArgument = async (type: boolean) => {
+    // If user is trying to vote argument while not being logged in
+    if (!currentUserId) return requestLogin(true);
+    
     if (!argument) return;
     if (state.loading) return;
 

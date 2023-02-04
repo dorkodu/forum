@@ -1,7 +1,10 @@
 import { Button, Card, LoadingOverlay, Textarea, TextInput } from "@mantine/core";
 import { useEffect, useReducer } from "react"
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { request, sage } from "../stores/api";
+import { useAppStore } from "../stores/appStore";
+import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 
 interface Props {
@@ -30,6 +33,11 @@ function DiscussionEditor({ id }: Props) {
   }, { title: "", readme: "", loading: false, status: undefined });
 
   const { t } = useTranslation();
+
+  const requestLogin = useAppStore(state => state.requestLogin);
+  const currentUserId = useAuthStore(state => state.userId);
+
+  const navigate = useNavigate();
   const queryCreateDiscussion = useDiscussionStore(state => state.queryCreateDiscussion);
   const queryEditDiscussion = useDiscussionStore(state => state.queryEditDiscussion);
 
@@ -74,12 +82,21 @@ function DiscussionEditor({ id }: Props) {
 
   useEffect(() => {
     (async () => {
+      // If user is trying to create discussion while not being logged in
+      if (!currentUserId) {
+        requestLogin(true);
+        navigate("/home");
+        return;
+      }
+
       if (!id) return;
       setState({ ...state, loading: true, status: undefined });
       const out = await fetchDiscussion(id);
       setState({ ...state, ...out, loading: false });
     })();
   }, []);
+
+  if (!currentUserId) return (<></>)
 
   return (
     <Card shadow="sm" p="lg" m="md" radius="md" withBorder>

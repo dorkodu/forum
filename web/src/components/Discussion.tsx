@@ -1,6 +1,8 @@
 import { Button, Card, Flex, LoadingOverlay, SegmentedControl, Textarea } from "@mantine/core";
 import { useEffect, useReducer } from "react"
 import { useTranslation } from "react-i18next";
+import { useAppStore } from "../stores/appStore";
+import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import Argument from "./Argument";
 import Comment from "./Comment"
@@ -49,6 +51,10 @@ function Discussion({ discussionId }: Props) {
   });
 
   const { t } = useTranslation();
+
+  const requestLogin = useAppStore(state => state.requestLogin);
+  const currentUserId = useAuthStore(state => state.userId);
+
   const queryGetDiscussion = useDiscussionStore(state => state.queryGetDiscussion);
   const queryGetArguments = useDiscussionStore(state => state.queryGetArguments);
   const queryGetComments = useDiscussionStore(state => state.queryGetComments);
@@ -60,6 +66,9 @@ function Discussion({ discussionId }: Props) {
   const _arguments = useDiscussionStore(_state => _state.getArguments(discussionId, state.argumentType));
 
   const createArgument = async () => {
+    // If user is trying to create argument while not being logged in
+    if (!currentUserId) return requestLogin(true);
+
     if (state.argument.text.length === 0) return;
     if (state.argument.text.length > 500) return;
     if (!discussion) return;
@@ -71,6 +80,9 @@ function Discussion({ discussionId }: Props) {
   }
 
   const createComment = async () => {
+    // If user is trying to create comment while not being logged in
+    if (!currentUserId) return requestLogin(true);
+
     if (state.comment.text.length === 0) return;
     if (state.comment.text.length > 500) return;
     if (!discussion) return;

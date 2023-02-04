@@ -46,5 +46,9 @@
   "createComment": "Send",
   "writeComment": "Write Your Comment",
   "deleteComment": "Delete Comement",
-  "showComments": "Show Comments"
+  "showComments": "Show Comments",
+
+  
+  "heyThere": "Hey There!",
+  "pleaseLogin": "Want to enjoy the app to it's fullest? <br /> Please log in."
 }

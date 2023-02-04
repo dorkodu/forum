@@ -9,6 +9,7 @@ import { useUserStore } from "./stores/userStore";
 import theme from "./styles/theme";
 import ForumIcon from "./assets/forum.svg";
 import { useLocalStorage } from "@mantine/hooks";
+import RequestLogin from "./components/RequestLogin";
 
 const width = css`
   max-width: 768px;
@@ -30,6 +31,7 @@ function App() {
   // on locale, it's fine to keep current view since it doesn't effect functionality
   // on auth, it effects functionality so hide the view
   const loading = useAppStore((state) => state.loading);
+  const requestLogin = useAppStore(state => state.requestLogin);
 
   const queryAuth = useAuthStore((state) => state.queryAuth);
   const currentUserId = useAuthStore(state => state.userId);
@@ -37,8 +39,14 @@ function App() {
 
   const routeHome = () => navigate("/home");
   const routeSearch = () => navigate("/search");
-  const routeProfile = () => currentUser && navigate(`/profile/${currentUser.username}`);
-  const routeDiscussionEditor = () => navigate("/discussion-editor");
+  const routeProfile = () => {
+    if (!currentUser) requestLogin(true);
+    else navigate(`/profile/${currentUser.username}`)
+  }
+  const routeDiscussionEditor = () => {
+    if (!currentUser) requestLogin(true);
+    else navigate("/discussion-editor")
+  }
   const routeMenu = () => navigate("/menu");
   const goBack = () => navigate(-1);
 
@@ -101,6 +109,7 @@ function App() {
                 css={css`position: fixed;`}
               />
               {!loading.auth && <Outlet />}
+              <RequestLogin />
             </Suspense>
           </AppShell>
         </MantineProvider>

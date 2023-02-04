@@ -8,12 +8,16 @@ interface State {
     auth: boolean
     locale: boolean
   }
+
+  requestedLogin: boolean
 }
 
 interface Action {
   setAuthLoading: (loading: boolean) => void;
   setLocaleLoading: (loading: boolean) => void;
+
   changeLocale: (lang: string) => void;
+  requestLogin: (status: boolean) => void;
 }
 
 const initialState: State = {
@@ -21,6 +25,8 @@ const initialState: State = {
     auth: true,
     locale: true,
   },
+
+  requestedLogin: false,
 }
 
 export const useAppStore = create(immer<State & Action>((set, _get) => ({
@@ -42,4 +48,8 @@ export const useAppStore = create(immer<State & Action>((set, _get) => ({
 
     set(state => { state.loading.locale = false })
   },
+
+  requestLogin: (status) => {
+    set(state => { state.requestedLogin = status });
+  }
 })))
