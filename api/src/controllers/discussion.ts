@@ -87,10 +87,10 @@ const getDiscussion = sage.resource(
     const { discussionId } = parsed.data;
 
     const [result]: [IDiscussionRaw?] = await pg`
-      SELECT 
-        d.id, d.user_id, d.date, d.title, d.readme, 
+      SELECT
+        d.id, d.user_id, d.date, d.title, d.readme,
         d.favourite_count, d.argument_count, d.comment_count,
-        d.last_update_date, d.last_argument_date, d.last_comment_date,
+        d.last_update_date,
       ${info ?
         pg`(EXISTS (SELECT * FROM discussion_favourites df WHERE df.discussion_id=d.id AND df.user_id=${info.userId})) AS favourited` :
         pg`FALSE AS favourited`
@@ -159,7 +159,7 @@ const getUserDiscussionFeed = sage.resource(
       SELECT 
         d.id, d.user_id, d.date, d.title, d.readme, 
         d.favourite_count, d.argument_count, d.comment_count,
-        d.last_update_date, d.last_argument_date, d.last_comment_date,
+        d.last_update_date,
         (EXISTS (SELECT * FROM discussion_favourites df WHERE df.discussion_id=d.id AND df.user_id=${info.userId})) AS favourited
       FROM discussions d
       INNER JOIN user_follows uf
@@ -199,7 +199,7 @@ const getFavouriteDiscussionFeed = sage.resource(
       SELECT 
         d.id, d.user_id, d.date, d.title, d.readme, 
         d.favourite_count, d.argument_count, d.comment_count,
-        d.last_update_date, d.last_argument_date, d.last_comment_date,
+        d.last_update_date,
         (df.user_id IS NOT NULL) AS favourited
       FROM discussions d
       INNER JOIN discussion_favourites df
@@ -238,7 +238,7 @@ const getGuestDiscussionFeed = sage.resource(
       SELECT 
         d.id, d.user_id, d.date, d.title, d.readme, 
         d.favourite_count, d.argument_count, d.comment_count,
-        d.last_update_date, d.last_argument_date, d.last_comment_date,
+        d.last_update_date,
       ${info ?
         pg`(EXISTS (SELECT * FROM discussion_favourites df WHERE df.discussion_id=d.id AND df.user_id=${info.userId})) AS favourited` :
         pg`FALSE AS favourited`
@@ -337,7 +337,7 @@ const createArgument = sage.resource(
       pg`INSERT INTO discussion_arguments ${pg(row)}`,
       pg`
         UPDATE discussions
-        SET last_argument_date=${date.utc()}, argument_count=argument_count+1
+        SET last_update_date=${date.utc()}, argument_count=argument_count+1
         WHERE id=${discussionId}
         `,
     ]);
@@ -555,7 +555,7 @@ const createComment = sage.resource(
       pg`INSERT INTO discussion_comments ${pg(row)}`,
       pg`
         UPDATE discussions 
-        SET last_comment_date=${date.utc()}, comment_count=comment_count+1
+        SET last_update_date=${date.utc()}, comment_count=comment_count+1
         WHERE id=${discussionId}
         `,
     ]);

@@ -13,7 +13,5 @@ export const iDiscussionSchema = z.object({
   argumentCount: z.string().transform((arg) => parseInt(arg)),
   commentCount: z.string().transform((arg) => parseInt(arg)),
   lastUpdateDate: z.string().transform((arg) => parseInt(arg)),
-  lastArgumentDate: z.string().transform((arg) => parseInt(arg)),
-  lastCommentDate: z.string().transform((arg) => parseInt(arg)),
   favourited: z.boolean(),
 }).strict();

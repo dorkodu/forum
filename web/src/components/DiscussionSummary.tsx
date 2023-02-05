@@ -143,35 +143,12 @@ function DiscussionSummary({ discussionId }: Props) {
           <IconMessage />
           <span>{discussion.commentCount}</span>
         </Flex>
-      </Flex>
-
-      <Flex align="center" gap="md">
         <Flex align="center">
           <IconActivity />
           <span>
             {discussion.lastUpdateDate === -1 ?
               t("discussionUpdateNever") :
               date(discussion.lastUpdateDate).fromNow()
-            }
-          </span>
-        </Flex>
-        <Flex align="center">
-          <IconActivity />
-          <IconMessages />
-          <span>
-            {discussion.lastArgumentDate === -1 ?
-              t("discussionUpdateNever") :
-              date(discussion.lastArgumentDate).fromNow()
-            }
-          </span>
-        </Flex>
-        <Flex align="center">
-          <IconActivity />
-          <IconMessage />
-          <span>
-            {discussion.lastCommentDate === -1 ?
-              t("discussionUpdateNever") :
-              date(discussion.lastCommentDate).fromNow()
             }
           </span>
         </Flex>
