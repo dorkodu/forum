@@ -2,7 +2,7 @@ import { css, Global } from "@emotion/react";
 import { ActionIcon, AppShell, Card, ColorScheme, ColorSchemeProvider, Flex, Footer, Header, LoadingOverlay, MantineProvider } from "@mantine/core";
 import { IconArrowLeft, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons";
 import { Suspense, useEffect } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useAppStore } from "./stores/appStore";
 import { useAuthStore } from "./stores/authStore";
 import { useUserStore } from "./stores/userStore";
@@ -25,7 +25,6 @@ const global = css`
 
 function App() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   // Loading auth and locale are different,
   // on locale, it's fine to keep current view since it doesn't effect functionality
