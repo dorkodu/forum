@@ -49,5 +49,11 @@
 
 
   "heyThere": "Hey Merhaba!",
-  "pleaseLogin": "Uygulamanın keyfini sonuna kadar çıkarmak ister misin? <br /> Lütfen giriş yap."
+  "pleaseLogin": "Uygulamanın keyfini sonuna kadar çıkarmak ister misin? <br /> Lütfen giriş yap.",
+
+  
+  "error": {
+    "text": "Hata",
+    "default": "Bir hata oluştu."
+  }
 }

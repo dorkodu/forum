@@ -1,4 +1,5 @@
-import { Button, Card, Flex, LoadingOverlay, SegmentedControl, Textarea } from "@mantine/core";
+import { Alert, Button, Card, Flex, Loader, LoadingOverlay, SegmentedControl, Textarea } from "@mantine/core";
+import { IconAlertCircle } from "@tabler/icons";
 import { useEffect, useReducer, useRef } from "react"
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "../stores/appStore";
@@ -39,7 +40,7 @@ function Discussion({ discussionId }: Props) {
 
     return newState;
   }, {
-    discussion: { loading: false, status: undefined },
+    discussion: { loading: true, status: undefined },
     fetch: { loading: false, status: undefined },
     action: { loading: false, status: undefined },
 
@@ -135,15 +136,27 @@ function Discussion({ discussionId }: Props) {
     })()
   }, [])
 
-  if (!discussion) {
+  if (!discussion || state.discussion.loading) {
     return (
-      <>
-        {/*
-        { state.loading && <>loading...</> }
-        {state.status === false && <>fail...</>}
-        {!state.loading && state.status && <>deleted...</>}
-        */}
-      </>
+      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+        {state.discussion.loading &&
+          <Flex direction="column" align="center">
+            <Loader variant="dots" color="green" />
+          </Flex>
+        }
+        {!state.discussion.loading && state.discussion.status === false &&
+          <>
+            <Alert
+              icon={<IconAlertCircle size={24} />}
+              title={t("error.text")}
+              color="red"
+              variant="light"
+            >
+              {t("error.default")}
+            </Alert>
+          </>
+        }
+      </Card>
     )
   }
 

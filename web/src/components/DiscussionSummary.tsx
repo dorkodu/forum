@@ -14,7 +14,6 @@ import { useTranslation } from "react-i18next";
 import { nowrap, wrapContent } from "../styles/css";
 import { useAppStore } from "../stores/appStore";
 
-
 interface Props {
   discussionId: string | undefined;
 }
@@ -83,6 +82,9 @@ function DiscussionSummary({ discussionId }: Props) {
     setState({ ...state, loading: true, status: undefined });
     const status = await queryDeleteDiscussion(discussion);
     setState({ ...state, loading: false, status: status });
+    
+    // Redirect to home after successfully deleting the discussion
+    if (status) navigate("/home");
   }
 
   if (!discussion || !user) return (<></>)
