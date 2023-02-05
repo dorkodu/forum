@@ -3,6 +3,7 @@ import { ActionIcon, Card, Flex, Menu, Text } from "@mantine/core";
 import { IconDots, IconTrash } from "@tabler/icons";
 import { useReducer } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
@@ -25,11 +26,17 @@ function Comment({ commentId }: Props) {
   )
 
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const queryDeleteComment = useDiscussionStore(state => state.queryDeleteComment);
 
   const comment = useDiscussionStore(state => state.getComment(commentId));
   const user = useUserStore(state => state.getUserById(comment?.userId));
   const currentUserId = useAuthStore(state => state.userId);
+
+  const gotoUser = () => {
+    if (!user) return;
+    navigate(`/profile/${user.username}`);
+  }
 
   const deleteComment = async () => {
     if (!comment) return;
@@ -46,7 +53,7 @@ function Comment({ commentId }: Props) {
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
-          <Flex miw={0}>
+          <Flex miw={0} onClick={gotoUser}>
             <Text truncate pr={4}>{user.name}</Text>
             <Text>@</Text>
             <Text truncate>{user.username}</Text>

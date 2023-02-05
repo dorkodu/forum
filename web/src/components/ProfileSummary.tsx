@@ -28,6 +28,10 @@ function ProfileSummary({ user }: Props) {
   const queryFollowUser = useUserStore(state => state.queryFollowUser);
   const currentUserId = useAuthStore(state => state.userId);
 
+  const gotoUser = () => {
+    navigate(`/profile/${user.username}`)
+  }
+
   const followUser = async (ev: MouseEvent) => {
     ev.stopPropagation();
 
@@ -39,7 +43,7 @@ function ProfileSummary({ user }: Props) {
   }
 
   return (
-    <Card shadow="sm" p="lg" m="md" radius="md" withBorder onClick={() => navigate(`/profile/${user.username}`)}>
+    <Card shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoUser}>
       <Flex miw={0}>
         <Text truncate pr={4}>{user.name}</Text>
         <Text>@</Text>

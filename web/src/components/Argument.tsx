@@ -3,6 +3,7 @@ import { ActionIcon, Card, Flex, Menu, Text } from "@mantine/core";
 import { IconDots, IconTrash, IconArrowBigTop, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons";
 import { useReducer } from "react"
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { date } from "../lib/date";
 import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
@@ -26,6 +27,7 @@ function Argument({ argumentId }: Props) {
   )
 
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const requestLogin = useAppStore(state => state.requestLogin);
 
@@ -36,10 +38,15 @@ function Argument({ argumentId }: Props) {
   const user = useUserStore(state => state.getUserById(argument?.userId));
   const currentUserId = useAuthStore(state => state.userId);
 
+  const gotoUser = () => {
+    if (!user) return;
+    navigate(`/profile/${user.username}`);
+  }
+
   const voteArgument = async (type: boolean) => {
     // If user is trying to vote argument while not being logged in
     if (!currentUserId) return requestLogin(true);
-    
+
     if (!argument) return;
     if (state.loading) return;
 
@@ -63,7 +70,7 @@ function Argument({ argumentId }: Props) {
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
-          <Flex miw={0}>
+          <Flex miw={0} onClick={gotoUser}>
             <Text truncate pr={4}>{user.name}</Text>
             <Text>@</Text>
             <Text truncate>{user.username}</Text>
