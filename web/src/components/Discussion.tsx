@@ -1,5 +1,5 @@
 import { Button, Card, Flex, LoadingOverlay, SegmentedControl, Textarea } from "@mantine/core";
-import { useEffect, useReducer } from "react"
+import { useEffect, useReducer, useRef } from "react"
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
@@ -14,8 +14,8 @@ interface Props {
 }
 
 interface State {
-  loading: boolean;
-  status: boolean | undefined;
+  discussion: { loading: boolean, status: boolean | undefined };
+  fetch: { loading: boolean, status: boolean | undefined };
   action: { loading: boolean, status: boolean | undefined };
 
   show: "comments" | "arguments";
@@ -39,8 +39,8 @@ function Discussion({ discussionId }: Props) {
 
     return newState;
   }, {
-    loading: true,
-    status: false,
+    discussion: { loading: false, status: undefined },
+    fetch: { loading: false, status: undefined },
     action: { loading: false, status: undefined },
 
     show: "arguments",
@@ -66,6 +66,9 @@ function Discussion({ discussionId }: Props) {
   const comments = useDiscussionStore(_state => _state.getComments(discussionId, state.commentType));
   const _arguments = useDiscussionStore(_state => _state.getArguments(discussionId, state.argumentType));
 
+  const argumentInputRef = useRef<HTMLTextAreaElement>(null);
+  const commentInputRef = useRef<HTMLTextAreaElement>(null);
+
   const createArgument = async () => {
     // If user is trying to create argument while not being logged in
     if (!currentUserId) return requestLogin(true);
@@ -78,6 +81,12 @@ function Discussion({ discussionId }: Props) {
     setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
     const status = await queryCreateArgument(discussion.id, state.argument.text, state.argument.type);
     setState({ ...state, action: { ...state.action, loading: false, status: status } });
+
+    // Since it's a controlled component, it's value can't be changed
+    // directly with a setState call, instead it's html property must be changed
+    if (argumentInputRef.current) {
+      argumentInputRef.current.value = "";
+    }
   }
 
   const createComment = async () => {
@@ -92,40 +101,48 @@ function Discussion({ discussionId }: Props) {
     setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
     const status = await queryCreateComment(discussion.id, state.comment.text);
     setState({ ...state, action: { ...state.action, loading: false, status: status } });
+
+    // Since it's a controlled component, it's value can't be changed
+    // directly with a setState call, instead it's html property must be changed
+    if (commentInputRef.current) {
+      commentInputRef.current.value = "";
+    }
   }
 
   const getArguments = async (type: "newer" | "older" | "top" | "bottom", refresh?: boolean) => {
     if (!discussion) return;
-    if (state.action.loading) return;
+    if (state.fetch.loading) return;
 
-    setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
+    setState({ ...state, fetch: { ...state.fetch, loading: true, status: undefined } });
     const status = await queryGetArguments(discussion.id, type, refresh);
-    setState({ ...state, action: { ...state.action, loading: false, status: status } });
+    setState({ ...state, fetch: { ...state.fetch, loading: false, status: status } });
   }
 
   const getComments = async (type: "newer" | "older", refresh?: boolean) => {
     if (!discussion) return;
-    if (state.action.loading) return;
+    if (state.fetch.loading) return;
 
-    setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
+    setState({ ...state, fetch: { ...state.fetch, loading: true, status: undefined } });
     const status = await queryGetComments(discussion.id, type, refresh);
-    setState({ ...state, action: { ...state.action, loading: false, status: status } });
+    setState({ ...state, fetch: { ...state.fetch, loading: false, status: status } });
   }
 
   useEffect(() => {
     (async () => {
-      setState({ ...state, loading: true, status: undefined });
+      setState({ ...state, discussion: { ...state.discussion, loading: true, status: undefined } });
       const status = await queryGetDiscussion(discussionId);
-      setState({ ...state, loading: false, status: status });
+      setState({ ...state, discussion: { ...state.discussion, loading: false, status: status } });
     })()
   }, [])
 
   if (!discussion) {
     return (
       <>
-        {state.loading && <>loading...</>}
+        {/*
+        { state.loading && <>loading...</> }
         {state.status === false && <>fail...</>}
         {!state.loading && state.status && <>deleted...</>}
+        */}
       </>
     )
   }
@@ -197,6 +214,7 @@ function Discussion({ discussionId }: Props) {
             <Textarea
               radius="md"
               placeholder={t("writeArgument")}
+              ref={argumentInputRef}
               defaultValue={state.argument.text}
               onChange={(ev) => setState({ ...state, argument: { ...state.argument, text: ev.target.value } })}
               autosize
@@ -220,6 +238,7 @@ function Discussion({ discussionId }: Props) {
             <Textarea
               radius="md"
               placeholder={t("writeComment")}
+              ref={commentInputRef}
               defaultValue={state.comment.text}
               onChange={(ev) => setState({ ...state, comment: { ...state.comment, text: ev.target.value } })}
               autosize
