@@ -405,7 +405,7 @@ const getArguments = sage.resource(
         ${info ?
           pg`
           LEFT JOIN argument_votes av
-          ON da.id=av.argument_id AND da.user_id=${info.userId}` :
+          ON da.id=av.argument_id AND av.user_id=${info.userId}` :
           pg``
         }
         WHERE da.discussion_id=${discussionId}
@@ -429,7 +429,7 @@ const getArguments = sage.resource(
         ${info ?
           pg`
           LEFT JOIN argument_votes av
-          ON da.id=av.argument_id AND da.user_id=${info.userId}` :
+          ON da.id=av.argument_id AND av.user_id=${info.userId}` :
           pg``
         }
         WHERE da.discussion_id=${discussionId}
