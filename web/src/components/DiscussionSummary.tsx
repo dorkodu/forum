@@ -11,7 +11,7 @@ import { ActionIcon, Card, Flex, Menu, Text } from "@mantine/core"
 import { date } from "../lib/date";
 import { css } from "@emotion/react";
 import { useTranslation } from "react-i18next";
-import { nowrap } from "../styles/css";
+import { nowrap, wrapContent } from "../styles/css";
 import { useAppStore } from "../stores/appStore";
 
 
@@ -126,7 +126,7 @@ function DiscussionSummary({ discussionId }: Props) {
         </Menu>
       </Flex>
 
-      <Text>{discussion.title}</Text>
+      <Text css={wrapContent}>{discussion.title}</Text>
 
       <Flex align="center" gap="xs">
         <Flex align="center">
