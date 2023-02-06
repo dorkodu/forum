@@ -1,5 +1,5 @@
 import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
-import { useEffect, useReducer } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DiscussionSummary from "../components/DiscussionSummary";
 import { request, sage } from "../stores/api";
@@ -7,19 +7,35 @@ import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 
 interface State {
-  loading: boolean;
-  status: boolean | undefined;
+  user: {
+    loading: boolean;
+    status: boolean | undefined;
+  }
+
+  favourite: {
+    loading: boolean;
+    status: boolean | undefined;
+  }
+
+  guest: {
+    loading: boolean;
+    status: boolean | undefined;
+  }
 
   order: "newer" | "older";
   feed: "user" | "favourite" | "guest";
 }
 
-
 function Home() {
-  const [state, setState] = useReducer(
-    (prev: State, next: State) => ({ ...prev, ...next }),
-    { loading: false, status: undefined, order: "newer", feed: "guest" }
-  )
+  const [state, setState] = useState<State>(
+    {
+      user: { loading: false, status: undefined },
+      favourite: { loading: false, status: undefined },
+      guest: { loading: false, status: undefined },
+      order: "newer",
+      feed: "guest",
+    }
+  );
 
   const { t } = useTranslation();
   const userFeed = useDiscussionStore(_state => _state.getUserFeedDiscussions(state.order));
@@ -27,9 +43,9 @@ function Home() {
   const guestFeed = useDiscussionStore(_state => _state.getGuestFeedDiscussions(state.order));
 
   const fetchUserFeed = async (type: "newer" | "older", refresh?: boolean) => {
-    if (state.loading) return;
+    if (state.user.loading) return;
 
-    setState({ ...state, loading: true, status: undefined });
+    setState(s => ({ ...s, user: { ...s.user, loading: true, status: undefined } }));
 
     const anchorId = useDiscussionStore.getState().getUserFeedAnchor(type, refresh);
     const res = await sage.get(
@@ -46,13 +62,13 @@ function Home() {
     if (discussions) useDiscussionStore.getState().addUserFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
-    setState({ ...state, loading: false, status: status });
+    setState(s => ({ ...s, user: { ...s.user, loading: false, status: status } }));
   }
 
   const fetchFavouriteFeed = async (type: "newer" | "older", refresh?: boolean) => {
-    if (state.loading) return;
+    if (state.favourite.loading) return;
 
-    setState({ ...state, loading: true, status: undefined });
+    setState(s => ({ ...s, favourite: { ...s.favourite, loading: true, status: undefined } }));
 
     const anchorId = useDiscussionStore.getState().getFavouriteFeedAnchor(type, refresh);
     const res = await sage.get(
@@ -69,13 +85,13 @@ function Home() {
     if (discussions) useDiscussionStore.getState().addFavouriteFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
-    setState({ ...state, loading: false, status: status });
+    setState(s => ({ ...s, favourite: { ...s.favourite, loading: false, status: status } }));
   }
 
   const fetchGuestFeed = async (type: "newer" | "older", refresh?: boolean) => {
-    if (state.loading) return;
+    if (state.guest.loading) return;
 
-    setState({ ...state, loading: true, status: undefined });
+    setState(s => ({ ...s, guest: { ...s.guest, loading: true, status: undefined } }));
 
     const anchorId = useDiscussionStore.getState().getGuestFeedAnchor(type, refresh);
     const res = await sage.get(
@@ -92,7 +108,7 @@ function Home() {
     if (discussions) useDiscussionStore.getState().addGuestFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
-    setState({ ...state, loading: false, status: status });
+    setState(s => ({ ...s, guest: { ...s.guest, loading: false, status: status } }));
   }
 
   const refresh = () => {
@@ -119,12 +135,17 @@ function Home() {
     }
   }
 
-  const feed = () => {
-    switch (state.feed) {
+  const feed = (feed: typeof state.feed) => {
+    switch (feed) {
       case "user": return userFeed;
       case "favourite": return favouriteFeed;
       case "guest": return guestFeed;
     }
+  }
+
+  const changeFeed = (value: typeof state.feed) => {
+    setState(s => ({ ...s, feed: value }));
+    if (feed(value).length === 0) refresh();
   }
 
   useEffect(() => { fetchGuestFeed("newer", true) }, []);
@@ -135,7 +156,7 @@ function Home() {
         <Flex direction="column" gap="md">
           <SegmentedControl radius="md" fullWidth
             value={state.feed}
-            onChange={(feed: typeof state.feed) => setState({ ...state, feed })}
+            onChange={changeFeed}
             data={[
               { label: t("userFeed"), value: "user" },
               { label: t("favouriteFeed"), value: "favourite" },
@@ -160,7 +181,7 @@ function Home() {
         </Flex>
       </Card>
 
-      {feed().map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+      {feed(state.feed).map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
     </>
   )
 }
