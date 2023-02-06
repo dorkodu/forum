@@ -62,7 +62,7 @@ function Comment({ commentId }: Props) {
             {date(comment.date).fromNow()}
           </Text>
         </Flex>
-        <Menu shadow="md" radius="md">
+        <Menu shadow="md" radius="md" position="bottom-end">
           <Menu.Target>
             <ActionIcon color="dark"><IconDots /></ActionIcon>
           </Menu.Target>

@@ -40,7 +40,7 @@ function Profile({ user }: Props) {
       <Flex align="center" justify="space-between">
         <Text>{user.name}</Text>
 
-        <Menu shadow="md" radius="md">
+        <Menu shadow="md" radius="md" position="bottom-end">
           <Menu.Target>
             <ActionIcon color="dark" onClick={(ev) => { ev.stopPropagation() }}>
               <IconDots />

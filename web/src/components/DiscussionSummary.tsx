@@ -103,7 +103,7 @@ function DiscussionSummary({ discussionId }: Props) {
             {date(discussion.date).fromNow()}
           </Text>
         </Flex>
-        <Menu shadow="md" radius="md">
+        <Menu shadow="md" radius="md" position="bottom-end">
           <Menu.Target>
             <ActionIcon color="dark" onClick={(ev) => { ev.stopPropagation() }}>
               <IconDots />
