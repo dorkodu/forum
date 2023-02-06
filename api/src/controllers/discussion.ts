@@ -35,8 +35,6 @@ const createDiscussion = sage.resource(
       argumentCount: 0,
       commentCount: 0,
       lastUpdateDate: -1,
-      lastArgumentDate: -1,
-      lastCommentDate: -1,
     }
 
     const result = await pg`INSERT INTO discussions ${pg(row)}`;
