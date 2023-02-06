@@ -166,7 +166,7 @@ function Home() {
 
           <SegmentedControl radius="md" fullWidth
             value={state.order}
-            onChange={(order: typeof state.order) => setState({ ...state, order })}
+            onChange={(order: typeof state.order) => setState(s => ({ ...s, order }))}
             data={[
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },

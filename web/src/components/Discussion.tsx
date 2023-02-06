@@ -1,6 +1,6 @@
 import { Alert, Button, Card, Flex, Loader, LoadingOverlay, SegmentedControl, Textarea } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons";
-import { useEffect, useReducer, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
@@ -16,11 +16,14 @@ interface Props {
 
 interface State {
   discussion: { loading: boolean, status: boolean | undefined };
-  fetch: { loading: boolean, status: boolean | undefined };
-  action: { loading: boolean, status: boolean | undefined };
+
+  fetchArgument: { loading: boolean, status: boolean | undefined };
+  fetchComment: { loading: boolean, status: boolean | undefined };
+
+  actionArgument: { loading: boolean, status: boolean | undefined };
+  actionComment: { loading: boolean, status: boolean | undefined };
 
   show: "comments" | "arguments";
-
   commentType: "newer" | "older";
   argumentType: "newer" | "older" | "top" | "bottom";
 
@@ -29,20 +32,14 @@ interface State {
 }
 
 function Discussion({ discussionId }: Props) {
-  const [state, setState] = useReducer((prev: State, next: State) => {
-    const newState = { ...prev, ...next };
-
-    if (newState.comment.text.length > 500)
-      newState.comment.text = newState.comment.text.substring(0, 500);
-
-    if (newState.argument.text.length > 500)
-      newState.argument.text = newState.argument.text.substring(0, 500);
-
-    return newState;
-  }, {
+  const [state, setState] = useState<State>({
     discussion: { loading: true, status: undefined },
-    fetch: { loading: false, status: undefined },
-    action: { loading: false, status: undefined },
+
+    fetchArgument: { loading: false, status: undefined },
+    fetchComment: { loading: false, status: undefined },
+
+    actionArgument: { loading: false, status: undefined },
+    actionComment: { loading: false, status: undefined },
 
     show: "arguments",
     argumentType: "newer",
@@ -77,17 +74,15 @@ function Discussion({ discussionId }: Props) {
     if (state.argument.text.length === 0) return;
     if (state.argument.text.length > 500) return;
     if (!discussion) return;
-    if (state.action.loading) return;
+    if (state.actionArgument.loading) return;
 
-    setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
+    setState(s => ({ ...s, actionArgument: { ...s.actionArgument, loading: true, status: undefined } }));
     const status = await queryCreateArgument(discussion.id, state.argument.text, state.argument.type);
-    setState({ ...state, action: { ...state.action, loading: false, status: status } });
+    setState(s => ({ ...s, actionArgument: { ...s.actionArgument, loading: false, status: status } }));
 
     // Since it's a controlled component, it's value can't be changed
     // directly with a setState call, instead it's html property must be changed
-    if (argumentInputRef.current) {
-      argumentInputRef.current.value = "";
-    }
+    if (argumentInputRef.current) argumentInputRef.current.value = "";
   }
 
   const createComment = async () => {
@@ -97,42 +92,80 @@ function Discussion({ discussionId }: Props) {
     if (state.comment.text.length === 0) return;
     if (state.comment.text.length > 500) return;
     if (!discussion) return;
-    if (state.action.loading) return;
+    if (state.actionComment.loading) return;
 
-    setState({ ...state, action: { ...state.action, loading: true, status: undefined } });
+    setState(s => ({ ...s, actionComment: { ...s.actionComment, loading: true, status: undefined } }));
     const status = await queryCreateComment(discussion.id, state.comment.text);
-    setState({ ...state, action: { ...state.action, loading: false, status: status } });
+    setState(s => ({ ...s, actionComment: { ...s.actionComment, loading: false, status: status } }));
 
     // Since it's a controlled component, it's value can't be changed
     // directly with a setState call, instead it's html property must be changed
-    if (commentInputRef.current) {
-      commentInputRef.current.value = "";
-    }
+    if (commentInputRef.current) commentInputRef.current.value = "";
   }
 
   const getArguments = async (type: "newer" | "older" | "top" | "bottom", refresh?: boolean) => {
     if (!discussion) return;
-    if (state.fetch.loading) return;
+    if (state.fetchArgument.loading) return;
 
-    setState({ ...state, fetch: { ...state.fetch, loading: true, status: undefined } });
+    setState(s => ({ ...s, fetchArgument: { ...s.fetchArgument, loading: true, status: undefined } }));
     const status = await queryGetArguments(discussion.id, type, refresh);
-    setState({ ...state, fetch: { ...state.fetch, loading: false, status: status } });
+    setState(s => ({ ...s, fetchArgument: { ...s.fetchArgument, loading: false, status: status } }));
   }
 
   const getComments = async (type: "newer" | "older", refresh?: boolean) => {
     if (!discussion) return;
-    if (state.fetch.loading) return;
+    if (state.fetchComment.loading) return;
 
-    setState({ ...state, fetch: { ...state.fetch, loading: true, status: undefined } });
+    setState(s => ({ ...s, fetchComment: { ...s.fetchComment, loading: true, status: undefined } }));
     const status = await queryGetComments(discussion.id, type, refresh);
-    setState({ ...state, fetch: { ...state.fetch, loading: false, status: status } });
+    setState(s => ({ ...s, fetchComment: { ...s.fetchComment, loading: false, status: status } }));
+  }
+
+  const refresh = () => {
+    switch (state.show) {
+      case "arguments": getArguments("newer", true); break;
+      case "comments": getComments("newer", true); break;
+    }
+  }
+
+  const loadNewer = () => {
+    switch (state.show) {
+      case "arguments": getArguments("newer"); break;
+      case "comments": getComments("newer"); break;
+    }
+  }
+
+  const loadOlder = () => {
+    switch (state.show) {
+      case "arguments": getArguments("older"); break;
+      case "comments": getComments("older"); break;
+    }
+  }
+
+  const show = (show: typeof state.show) => {
+    switch (show) {
+      case "arguments": return _arguments;
+      case "comments": return comments;
+    }
+  }
+
+  const changeShow = (value: typeof state.show) => {
+    setState(s => ({ ...s, show: value }));
+    if (show(value).length === 0) refresh();
+  }
+
+  const isActionLoading = () => {
+    switch (state.show) {
+      case "arguments": return state.actionArgument.loading;
+      case "comments": return state.actionComment.loading;
+    }
   }
 
   useEffect(() => {
     (async () => {
-      setState({ ...state, discussion: { ...state.discussion, loading: true, status: undefined } });
+      setState(s => ({ ...s, discussion: { ...s.discussion, loading: true, status: undefined } }));
       const status = await queryGetDiscussion(discussionId);
-      setState({ ...state, discussion: { ...state.discussion, loading: false, status: status } });
+      setState(s => ({ ...s, discussion: { ...s.discussion, loading: false, status: status } }));
     })()
   }, [])
 
@@ -170,7 +203,7 @@ function Discussion({ discussionId }: Props) {
         <Flex direction="column" gap="md">
           <SegmentedControl radius="md" fullWidth
             value={state.show}
-            onChange={(show: typeof state.show) => setState({ ...state, show })}
+            onChange={changeShow}
             data={[
               { label: t("showArguments"), value: "arguments" },
               { label: t("showComments"), value: "comments" },
@@ -181,7 +214,7 @@ function Discussion({ discussionId }: Props) {
             <>
               <SegmentedControl radius="md" fullWidth
                 value={state.argumentType}
-                onChange={(argumentType: typeof state.argumentType) => setState({ ...state, argumentType })}
+                onChange={(argumentType: typeof state.argumentType) => setState(s => ({ ...s, argumentType }))}
                 data={[
                   { label: t("newer"), value: "newer" },
                   { label: t("older"), value: "older" },
@@ -191,7 +224,7 @@ function Discussion({ discussionId }: Props) {
               />
 
               <Button.Group>
-                <Button radius="md" fullWidth variant="default" onClick={() => getArguments(state.argumentType, true)}>{t("refresh")}</Button>
+                <Button radius="md" fullWidth variant="default" onClick={refresh}>{t("refresh")}</Button>
                 <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("newer")}>{t("loadNewer")}</Button>
                 <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("older")}>{t("loadOlder")}</Button>
               </Button.Group>
@@ -202,7 +235,7 @@ function Discussion({ discussionId }: Props) {
             <>
               <SegmentedControl radius="md" fullWidth
                 value={state.commentType}
-                onChange={(commentType: typeof state.commentType) => setState({ ...state, commentType })}
+                onChange={(commentType: typeof state.commentType) => setState(s => ({ ...s, commentType }))}
                 data={[
                   { label: t("newer"), value: "newer" },
                   { label: t("older"), value: "older" },
@@ -210,9 +243,9 @@ function Discussion({ discussionId }: Props) {
               />
 
               <Button.Group >
-                <Button radius="md" fullWidth variant="default" onClick={() => getComments("newer", true)}>{t("refresh")}</Button>
-                <Button radius="md" fullWidth variant="default" onClick={() => getComments("newer")}>{t("loadNewer")}</Button>
-                <Button radius="md" fullWidth variant="default" onClick={() => getComments("older")}>{t("loadOlder")}</Button>
+                <Button radius="md" fullWidth variant="default" onClick={refresh}>{t("refresh")}</Button>
+                <Button radius="md" fullWidth variant="default" onClick={loadNewer}>{t("loadNewer")}</Button>
+                <Button radius="md" fullWidth variant="default" onClick={loadOlder}>{t("loadOlder")}</Button>
               </Button.Group>
             </>
           }
@@ -220,7 +253,7 @@ function Discussion({ discussionId }: Props) {
       </Card>
 
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
-        <LoadingOverlay visible={state.action.loading} overlayBlur={2} />
+        <LoadingOverlay visible={isActionLoading()} overlayBlur={2} />
 
         {state.show === "arguments" &&
           <>
@@ -229,7 +262,7 @@ function Discussion({ discussionId }: Props) {
               placeholder={t("writeArgument")}
               ref={argumentInputRef}
               defaultValue={state.argument.text}
-              onChange={(ev) => setState({ ...state, argument: { ...state.argument, text: ev.target.value } })}
+              onChange={(ev) => setState(s => ({ ...s, argument: { ...s.argument, text: ev.target.value } }))}
               autosize
               pb="md"
             />
@@ -238,7 +271,7 @@ function Discussion({ discussionId }: Props) {
 
             <SegmentedControl radius="md"
               value={state.argument.type ? "+" : "-"}
-              onChange={(type: "+" | "-") => setState({ ...state, argument: { ...state.argument, type: type === "+" } })}
+              onChange={(type: "+" | "-") => setState(s => ({ ...s, argument: { ...s.argument, type: type === "+" } }))}
               data={[
                 { label: "+", value: "+" },
                 { label: "-", value: "-" },
@@ -253,7 +286,7 @@ function Discussion({ discussionId }: Props) {
               placeholder={t("writeComment")}
               ref={commentInputRef}
               defaultValue={state.comment.text}
-              onChange={(ev) => setState({ ...state, comment: { ...state.comment, text: ev.target.value } })}
+              onChange={(ev) => setState(s => ({ ...s, comment: { ...s.comment, text: ev.target.value } }))}
               autosize
               pb="md"
             />
