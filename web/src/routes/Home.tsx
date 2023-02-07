@@ -2,6 +2,8 @@ import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DiscussionSummary from "../components/DiscussionSummary";
+import { useWait } from "../components/hooks";
+import InfiniteScroll from "../components/InfiniteScroll";
 import { request, sage } from "../stores/api";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
@@ -22,6 +24,8 @@ interface State {
     status: boolean | undefined;
   }
 
+  loader: "top" | "bottom" | "mid" | undefined;
+
   order: "newer" | "older";
   feed: "user" | "favourite" | "guest";
 }
@@ -32,6 +36,7 @@ function Home() {
       user: { loading: false, status: undefined },
       favourite: { loading: false, status: undefined },
       guest: { loading: false, status: undefined },
+      loader: undefined,
       order: "newer",
       feed: "guest",
     }
@@ -45,7 +50,11 @@ function Home() {
   const fetchUserFeed = async (type: "newer" | "older", refresh?: boolean) => {
     if (state.user.loading) return;
 
-    setState(s => ({ ...s, user: { ...s.user, loading: true, status: undefined } }));
+    setState(s => ({
+      ...s,
+      user: { ...s.user, loading: true, status: undefined },
+      loader: refresh ? "mid" : type === "newer" ? "top" : "bottom",
+    }));
 
     const anchorId = useDiscussionStore.getState().getUserFeedAnchor(type, refresh);
     const res = await sage.get(
@@ -53,7 +62,7 @@ function Home() {
         a: sage.query("getUserDiscussionFeed", { anchorId, type }, { ctx: "a" }),
         b: sage.query("getUser", {}, { ctx: "a", wait: "a" }),
       },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
     const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
     const discussions = res?.a.data;
@@ -62,13 +71,17 @@ function Home() {
     if (discussions) useDiscussionStore.getState().addUserFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
-    setState(s => ({ ...s, user: { ...s.user, loading: false, status: status } }));
+    setState(s => ({ ...s, user: { ...s.user, loading: false, status: status }, loader: undefined }));
   }
 
   const fetchFavouriteFeed = async (type: "newer" | "older", refresh?: boolean) => {
     if (state.favourite.loading) return;
 
-    setState(s => ({ ...s, favourite: { ...s.favourite, loading: true, status: undefined } }));
+    setState(s => ({
+      ...s,
+      favourite: { ...s.favourite, loading: true, status: undefined },
+      loader: refresh ? "mid" : type === "newer" ? "top" : "bottom",
+    }));
 
     const anchorId = useDiscussionStore.getState().getFavouriteFeedAnchor(type, refresh);
     const res = await sage.get(
@@ -76,7 +89,7 @@ function Home() {
         a: sage.query("getFavouriteDiscussionFeed", { anchorId, type }, { ctx: "a" }),
         b: sage.query("getUser", {}, { ctx: "a", wait: "a" }),
       },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
     const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
     const discussions = res?.a.data;
@@ -85,13 +98,17 @@ function Home() {
     if (discussions) useDiscussionStore.getState().addFavouriteFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
-    setState(s => ({ ...s, favourite: { ...s.favourite, loading: false, status: status } }));
+    setState(s => ({ ...s, favourite: { ...s.favourite, loading: false, status: status }, loader: undefined }));
   }
 
   const fetchGuestFeed = async (type: "newer" | "older", refresh?: boolean) => {
     if (state.guest.loading) return;
 
-    setState(s => ({ ...s, guest: { ...s.guest, loading: true, status: undefined } }));
+    setState(s => ({
+      ...s,
+      guest: { ...s.guest, loading: true, status: undefined },
+      loader: refresh ? "mid" : type === "newer" ? "top" : "bottom",
+    }));
 
     const anchorId = useDiscussionStore.getState().getGuestFeedAnchor(type, refresh);
     const res = await sage.get(
@@ -99,7 +116,7 @@ function Home() {
         a: sage.query("getGuestDiscussionFeed", { anchorId, type }, { ctx: "a" }),
         b: sage.query("getUser", {}, { ctx: "a", wait: "a" }),
       },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
     const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
     const discussions = res?.a.data;
@@ -108,30 +125,30 @@ function Home() {
     if (discussions) useDiscussionStore.getState().addGuestFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
-    setState(s => ({ ...s, guest: { ...s.guest, loading: false, status: status } }));
+    setState(s => ({ ...s, guest: { ...s.guest, loading: false, status: status }, loader: undefined }));
   }
 
-  const refresh = (feed: typeof state.feed) => {
+  const refresh = async (feed: typeof state.feed) => {
     switch (feed) {
-      case "user": fetchUserFeed("newer", true); break;
-      case "favourite": fetchFavouriteFeed("newer", true); break;
-      case "guest": fetchGuestFeed("newer", true); break;
+      case "user": await fetchUserFeed("newer", true); break;
+      case "favourite": await fetchFavouriteFeed("newer", true); break;
+      case "guest": await fetchGuestFeed("newer", true); break;
     }
   }
 
-  const loadNewer = () => {
+  const loadNewer = async () => {
     switch (state.feed) {
-      case "user": fetchUserFeed("newer"); break;
-      case "favourite": fetchFavouriteFeed("newer"); break;
-      case "guest": fetchGuestFeed("newer"); break;
+      case "user": await fetchUserFeed("newer"); break;
+      case "favourite": await fetchFavouriteFeed("newer"); break;
+      case "guest": await fetchGuestFeed("newer"); break;
     }
   }
 
-  const loadOlder = () => {
+  const loadOlder = async () => {
     switch (state.feed) {
-      case "user": fetchUserFeed("older"); break;
-      case "favourite": fetchFavouriteFeed("older"); break;
-      case "guest": fetchGuestFeed("older"); break;
+      case "user": await fetchUserFeed("older"); break;
+      case "favourite": await fetchFavouriteFeed("older"); break;
+      case "guest": await fetchGuestFeed("older"); break;
     }
   }
 
@@ -181,7 +198,13 @@ function Home() {
         </Flex>
       </Card>
 
-      {feed(state.feed).map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+      <InfiniteScroll
+        onTop={loadNewer}
+        onBottom={loadOlder}
+        loaders={{ top: state.loader === "top", bottom: state.loader === "bottom", mid: state.loader === "mid", }}
+      >
+        {feed(state.feed).map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+      </InfiniteScroll>
     </>
   )
 }
