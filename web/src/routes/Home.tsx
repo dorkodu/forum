@@ -36,7 +36,7 @@ function Home() {
       user: { loading: false, status: undefined },
       favourite: { loading: false, status: undefined },
       guest: { loading: false, status: undefined },
-      loader: undefined,
+      loader: "mid",
       order: "newer",
       feed: "guest",
     }
