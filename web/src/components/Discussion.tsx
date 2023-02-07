@@ -1,5 +1,4 @@
-import { Alert, Button, Card, Flex, Loader, LoadingOverlay, SegmentedControl, Textarea } from "@mantine/core";
-import { IconAlertCircle } from "@tabler/icons";
+import { Button, Card, Flex, LoadingOverlay, SegmentedControl, Textarea } from "@mantine/core";
 import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "../stores/appStore";
@@ -7,6 +6,8 @@ import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { wrapContent } from "../styles/css";
 import Argument from "./Argument";
+import CardAlert from "./cards/CardAlert";
+import CardLoader from "./cards/CardLoader";
 import Comment from "./Comment"
 import DiscussionSummary from "./DiscussionSummary";
 
@@ -171,25 +172,12 @@ function Discussion({ discussionId }: Props) {
 
   if (!discussion || state.discussion.loading) {
     return (
-      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
-        {state.discussion.loading &&
-          <Flex direction="column" align="center">
-            <Loader variant="dots" color="green" />
-          </Flex>
-        }
+      <>
+        {state.discussion.loading && <CardLoader />}
         {!state.discussion.loading && state.discussion.status === false &&
-          <>
-            <Alert
-              icon={<IconAlertCircle size={24} />}
-              title={t("error.text")}
-              color="red"
-              variant="light"
-            >
-              {t("error.default")}
-            </Alert>
-          </>
+          <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
         }
-      </Card>
+      </>
     )
   }
 
