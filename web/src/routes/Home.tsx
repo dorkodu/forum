@@ -111,8 +111,8 @@ function Home() {
     setState(s => ({ ...s, guest: { ...s.guest, loading: false, status: status } }));
   }
 
-  const refresh = () => {
-    switch (state.feed) {
+  const refresh = (feed: typeof state.feed) => {
+    switch (feed) {
       case "user": fetchUserFeed("newer", true); break;
       case "favourite": fetchFavouriteFeed("newer", true); break;
       case "guest": fetchGuestFeed("newer", true); break;
@@ -145,7 +145,7 @@ function Home() {
 
   const changeFeed = (value: typeof state.feed) => {
     setState(s => ({ ...s, feed: value }));
-    if (feed(value).length === 0) refresh();
+    if (feed(value).length === 0) refresh(value);
   }
 
   useEffect(() => { fetchGuestFeed("newer", true) }, []);
@@ -174,7 +174,7 @@ function Home() {
           />
 
           <Button.Group>
-            <Button radius="md" fullWidth variant="default" onClick={refresh}>{t("refresh")}</Button>
+            <Button radius="md" fullWidth variant="default" onClick={() => refresh(state.feed)}>{t("refresh")}</Button>
             <Button radius="md" fullWidth variant="default" onClick={loadNewer}>{t("loadNewer")}</Button>
             <Button radius="md" fullWidth variant="default" onClick={loadOlder}>{t("loadOlder")}</Button>
           </Button.Group>

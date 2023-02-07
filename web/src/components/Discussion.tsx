@@ -121,8 +121,8 @@ function Discussion({ discussionId }: Props) {
     setState(s => ({ ...s, fetchComment: { ...s.fetchComment, loading: false, status: status } }));
   }
 
-  const refresh = () => {
-    switch (state.show) {
+  const refresh = (show: typeof state.show) => {
+    switch (show) {
       case "arguments": getArguments("newer", true); break;
       case "comments": getComments("newer", true); break;
     }
@@ -151,7 +151,7 @@ function Discussion({ discussionId }: Props) {
 
   const changeShow = (value: typeof state.show) => {
     setState(s => ({ ...s, show: value }));
-    if (show(value).length === 0) refresh();
+    if (show(value).length === 0) refresh(value);
   }
 
   const isActionLoading = () => {
@@ -224,7 +224,7 @@ function Discussion({ discussionId }: Props) {
               />
 
               <Button.Group>
-                <Button radius="md" fullWidth variant="default" onClick={refresh}>{t("refresh")}</Button>
+                <Button radius="md" fullWidth variant="default" onClick={() => refresh(state.show)}>{t("refresh")}</Button>
                 <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("newer")}>{t("loadNewer")}</Button>
                 <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("older")}>{t("loadOlder")}</Button>
               </Button.Group>
@@ -243,7 +243,7 @@ function Discussion({ discussionId }: Props) {
               />
 
               <Button.Group >
-                <Button radius="md" fullWidth variant="default" onClick={refresh}>{t("refresh")}</Button>
+                <Button radius="md" fullWidth variant="default" onClick={() => refresh(state.show)}>{t("refresh")}</Button>
                 <Button radius="md" fullWidth variant="default" onClick={loadNewer}>{t("loadNewer")}</Button>
                 <Button radius="md" fullWidth variant="default" onClick={loadOlder}>{t("loadOlder")}</Button>
               </Button.Group>
