@@ -1,8 +1,12 @@
 import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
-import { useEffect, useReducer } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import CardAlert from "../../components/cards/CardAlert";
+import CardLoader from "../../components/cards/CardLoader";
 import DiscussionSummary from "../../components/DiscussionSummary";
+import { useWait } from "../../components/hooks";
+import InfiniteScroll from "../../components/InfiniteScroll";
 import Profile from "../../components/Profile"
 import { request, sage } from "../../stores/api";
 import { useDiscussionStore } from "../../stores/discussionStore";
@@ -13,13 +17,13 @@ interface State {
   status: boolean | undefined;
 
   order: "newer" | "older";
+  loader: "top" | "bottom" | "mid" | undefined;
 }
 
 function ProfileRoute() {
-  const [state, setState] = useReducer(
-    (prev: State, next: State) => ({ ...prev, ...next }),
-    { loading: false, status: undefined, order: "newer" }
-  )
+  const [state, setState] = useState<State>({
+    loading: false, status: undefined, order: "newer", loader: undefined,
+  });
 
   const { t } = useTranslation();
   const username = useParams<{ username: string }>().username;
@@ -29,28 +33,33 @@ function ProfileRoute() {
   const fetchDiscussions = async (type: "newer" | "older", refresh?: boolean) => {
     if (!user) return;
 
-    setState({ ...state, loading: true, status: undefined });
+    setState(s => ({
+      ...s, loading: true, status: undefined,
+      loader: refresh ? "mid" : type === "newer" ? "top" : "bottom",
+    }));
 
     const anchorId = useDiscussionStore.getState().getUserDiscussionAnchor(user.id, type, refresh)
     const res = await sage.get(
       { a: sage.query("getUserDiscussions", { userId: user.id, type, anchorId }), },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
     const status = !(!res?.a.data || res.a.error);
     const discussions = res?.a.data;
 
     if (discussions) useDiscussionStore.getState().setUserDiscussions(user.id, discussions);
 
-    setState({ ...state, loading: false, status: status });
+    setState(s => ({ ...s, loading: false, status: status, loader: undefined }));
   }
 
-  const fetchRoute = async (): Promise<boolean> => {
+  const fetchRoute = async () => {
+    setState(s => ({ ...s, loading: true, status: undefined, loader: "mid" }));
+
     const res = await sage.get(
       {
         a: sage.query("getUser", { username }, { ctx: "a" }),
         b: sage.query("getUserDiscussions", { type: "newer", anchorId: "-1" }, { ctx: "a", wait: "a" }),
       },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
 
     const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
@@ -60,22 +69,18 @@ function ProfileRoute() {
     if (user) useUserStore.getState().setUsers([user]);
     if (user && discussions) useDiscussionStore.getState().setUserDiscussions(user.id, discussions);
 
-    return status;
+    setState(s => ({ ...s, loading: false, status: status, loader: undefined }));
   }
 
-  useEffect(() => {
-    (async () => {
-      setState({ ...state, loading: true, status: undefined });
-      const status = await fetchRoute();
-      setState({ ...state, loading: false, status: status });
-    })()
-  }, [])
+  useEffect(() => { fetchRoute() }, []);
 
   if (!user) {
     return (
       <>
-        {state.loading && <>loading...</>}
-        {state.status === false && <>fail...</>}
+        {state.loading && <CardLoader />}
+        {state.status === false &&
+          <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
+        }
       </>
     )
   }
@@ -88,7 +93,7 @@ function ProfileRoute() {
         <Flex direction="column" gap="md">
           <SegmentedControl radius="md" fullWidth
             value={state.order}
-            onChange={(order: typeof state.order) => setState({ ...state, order })}
+            onChange={(order: typeof state.order) => setState(s => ({ ...s, order }))}
             data={[
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },
@@ -103,7 +108,13 @@ function ProfileRoute() {
         </Flex>
       </Card>
 
-      {discussions.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+      <InfiniteScroll
+        onTop={() => fetchDiscussions("newer")}
+        onBottom={() => fetchDiscussions("older")}
+        loaders={{ top: state.loader === "top", bottom: state.loader === "bottom", mid: state.loader === "mid", }}
+      >
+        {discussions.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+      </InfiniteScroll>
     </>
   )
 }

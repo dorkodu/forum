@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import CardLoader from "./CardLoader";
+import CardLoader from "./cards/CardLoader";
 
 interface Props {
   children: React.ReactNode;
