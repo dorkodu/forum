@@ -1,24 +1,40 @@
 import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
-import { useEffect, useReducer } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import CardAlert from "../../components/cards/CardAlert";
+import CardLoader from "../../components/cards/CardLoader";
+import { useWait } from "../../components/hooks";
+import InfiniteScroll from "../../components/InfiniteScroll";
 import Profile from "../../components/Profile"
 import ProfileSummary from "../../components/ProfileSummary"
 import { request, sage } from "../../stores/api";
 import { useUserStore } from "../../stores/userStore";
 
 interface State {
-  loading: boolean;
-  status: boolean | undefined;
+  user: {
+    loading: boolean;
+    status: boolean | undefined;
+
+  }
+
+  following: {
+    loading: boolean;
+    status: boolean | undefined;
+  }
 
   order: "newer" | "older";
+  loader: "top" | "bottom" | "mid" | undefined;
 }
 
 function Following() {
-  const [state, setState] = useReducer(
-    (prev: State, next: State) => ({ ...prev, ...next }),
-    { loading: false, status: undefined, order: "newer" }
-  )
+  const [state, setState] = useState<State>({
+    user: { loading: true, status: undefined },
+    following: { loading: false, status: undefined },
+
+    order: "newer",
+    loader: undefined,
+  });
 
   const { t } = useTranslation();
   const username = useParams<{ username: string }>().username;
@@ -27,29 +43,41 @@ function Following() {
 
   const fetchFollowing = async (type: "newer" | "older", refresh?: boolean) => {
     if (!user) return;
+    if (state.following.loading) return;
 
-    setState({ ...state, loading: true, status: undefined });
+    setState(s => ({
+      ...s, following: { ...s.following, loading: true, status: undefined },
+      loader: refresh ? "mid" : type === "newer" ? "top" : "bottom",
+    }));
 
     const anchorId = useUserStore.getState().getUserFollowingAnchor(user, type, refresh)
     const res = await sage.get(
       { a: sage.query("getUserFollowing", { userId: user.id, type, anchorId }), },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
     const status = !(!res?.a.data || res.a.error);
     const following = res?.a.data;
 
     if (following) useUserStore.getState().addUserFollowing(user, following);
 
-    setState({ ...state, loading: false, status: status });
+    setState(s => ({
+      ...s, following: { ...s.following, loading: false, status: status },
+      loader: undefined,
+    }));
   }
 
-  const fetchRoute = async (): Promise<boolean> => {
+  const fetchRoute = async () => {
+    setState(s => ({
+      ...s, user: { ...s.user, loading: true, status: undefined },
+      loader: "mid"
+    }));
+
     const res = await sage.get(
       {
         a: sage.query("getUser", { username }, { ctx: "a" }),
         b: sage.query("getUserFollowing", { type: "newer", anchorId: "-1" }, { ctx: "a", wait: "a" }),
       },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
 
     const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
@@ -60,22 +88,21 @@ function Following() {
     if (following) useUserStore.getState().setUsers(following);
     if (user && following) useUserStore.getState().addUserFollowing(user, following);
 
-    return status;
+    setState(s => ({
+      ...s, user: { ...s.user, loading: false, status: status },
+      loader: undefined
+    }));
   }
 
-  useEffect(() => {
-    (async () => {
-      setState({ ...state, loading: true, status: undefined });
-      const status = await fetchRoute();
-      setState({ ...state, loading: false, status: status });
-    })()
-  }, [])
+  useEffect(() => { fetchRoute() }, []);
 
-  if (!user) {
+  if (!user || state.user.loading) {
     return (
       <>
-        {state.loading && <>loading...</>}
-        {state.status === false && <>fail...</>}
+        {state.user.loading && <CardLoader />}
+        {state.user.status === false &&
+          <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
+        }
       </>
     )
   }
@@ -88,7 +115,7 @@ function Following() {
         <Flex direction="column" gap="md">
           <SegmentedControl radius="md" fullWidth
             value={state.order}
-            onChange={(order: typeof state.order) => setState({ ...state, order })}
+            onChange={(order: typeof state.order) => setState(s => ({ ...s, order }))}
             data={[
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },
@@ -103,7 +130,13 @@ function Following() {
         </Flex>
       </Card>
 
-      {following.map((_following) => <ProfileSummary key={_following.id} user={_following} />)}
+      <InfiniteScroll
+        onTop={() => fetchFollowing("newer")}
+        onBottom={() => fetchFollowing("older")}
+        loaders={{ top: state.loader === "top", bottom: state.loader === "bottom", mid: state.loader === "mid" }}
+      >
+        {following.map((_following) => <ProfileSummary key={_following.id} user={_following} />)}
+      </InfiniteScroll>
     </>
   )
 }

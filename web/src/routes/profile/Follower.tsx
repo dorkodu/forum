@@ -1,24 +1,40 @@
 import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
-import { useEffect, useReducer } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import CardAlert from "../../components/cards/CardAlert";
+import CardLoader from "../../components/cards/CardLoader";
+import { useWait } from "../../components/hooks";
+import InfiniteScroll from "../../components/InfiniteScroll";
 import Profile from "../../components/Profile"
 import ProfileSummary from "../../components/ProfileSummary"
 import { request, sage } from "../../stores/api";
 import { useUserStore } from "../../stores/userStore";
 
 interface State {
-  loading: boolean;
-  status: boolean | undefined;
+  user: {
+    loading: boolean;
+    status: boolean | undefined;
+
+  }
+
+  followers: {
+    loading: boolean;
+    status: boolean | undefined;
+  }
 
   order: "newer" | "older";
+  loader: "top" | "bottom" | "mid" | undefined;
 }
 
 function Follower() {
-  const [state, setState] = useReducer(
-    (prev: State, next: State) => ({ ...prev, ...next }),
-    { loading: false, status: undefined, order: "newer" }
-  )
+  const [state, setState] = useState<State>({
+    user: { loading: true, status: undefined },
+    followers: { loading: false, status: undefined },
+
+    order: "newer",
+    loader: undefined,
+  });
 
   const { t } = useTranslation();
   const username = useParams<{ username: string }>().username;
@@ -27,29 +43,41 @@ function Follower() {
 
   const fetchFollowers = async (type: "newer" | "older", refresh?: boolean) => {
     if (!user) return;
+    if (state.followers.loading) return;
 
-    setState({ ...state, loading: true, status: undefined });
+    setState(s => ({
+      ...s, followers: { ...s.followers, loading: true, status: undefined },
+      loader: refresh ? "mid" : type === "newer" ? "top" : "bottom",
+    }));
 
     const anchorId = useUserStore.getState().getUserFollowersAnchor(user, type, refresh)
     const res = await sage.get(
       { a: sage.query("getUserFollowers", { userId: user.id, type, anchorId }), },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
     const status = !(!res?.a.data || res.a.error);
     const followers = res?.a.data;
 
     if (followers) useUserStore.getState().addUserFollowers(user, followers);
 
-    setState({ ...state, loading: false, status: status });
+    setState(s => ({
+      ...s, followers: { ...s.followers, loading: false, status: status },
+      loader: undefined,
+    }));
   }
 
-  const fetchRoute = async (): Promise<boolean> => {
+  const fetchRoute = async () => {
+    setState(s => ({
+      ...s, user: { ...s.user, loading: true, status: undefined },
+      loader: "mid"
+    }));
+
     const res = await sage.get(
       {
         a: sage.query("getUser", { username }, { ctx: "a" }),
         b: sage.query("getUserFollowers", { type: "newer", anchorId: "-1" }, { ctx: "a", wait: "a" }),
       },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
 
     const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
@@ -60,22 +88,21 @@ function Follower() {
     if (followers) useUserStore.getState().setUsers(followers);
     if (user && followers) useUserStore.getState().addUserFollowers(user, followers);
 
-    return status;
+    setState(s => ({
+      ...s, user: { ...s.user, loading: false, status: status },
+      loader: undefined
+    }));
   }
 
-  useEffect(() => {
-    (async () => {
-      setState({ ...state, loading: true, status: undefined });
-      const status = await fetchRoute();
-      setState({ ...state, loading: false, status: status });
-    })()
-  }, [])
+  useEffect(() => { fetchRoute() }, []);
 
-  if (!user) {
+  if (!user || state.user.loading) {
     return (
       <>
-        {state.loading && <>loading...</>}
-        {state.status === false && <>fail...</>}
+        {state.user.loading && <CardLoader />}
+        {state.user.status === false &&
+          <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
+        }
       </>
     )
   }
@@ -103,7 +130,13 @@ function Follower() {
         </Flex>
       </Card>
 
-      {followers.map((follower) => <ProfileSummary key={follower.id} user={follower} />)}
+      <InfiniteScroll
+        onTop={() => fetchFollowers("newer")}
+        onBottom={() => fetchFollowers("older")}
+        loaders={{ top: state.loader === "top", bottom: state.loader === "bottom", mid: state.loader === "mid" }}
+      >
+        {followers.map((follower) => <ProfileSummary key={follower.id} user={follower} />)}
+      </InfiniteScroll>
     </>
   )
 }
