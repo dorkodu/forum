@@ -1,6 +1,8 @@
 import { Button, Card, TextInput } from "@mantine/core";
-import { useEffect, useReducer } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useWait } from "../components/hooks";
+import InfiniteScroll from "../components/InfiniteScroll";
 import ProfileSummary from "../components/ProfileSummary";
 import { array } from "../lib/array";
 import { request, sage } from "../stores/api";
@@ -11,6 +13,7 @@ interface State {
   status: boolean | undefined;
 
   search: string;
+  loader: "top" | "bottom" | "mid" | undefined;
 }
 
 function Search() {
@@ -25,15 +28,17 @@ function Search() {
     return array.getAnchor(getSorted(), "id", "-1", type, refresh);
   }
 
-  const [state, setState] = useReducer(
-    (prev: State, next: State) => ({ ...prev, ...next }),
-    { loading: false, status: undefined, search: "" }
-  );
+  const [state, setState] = useState<State>({
+    loading: false, status: undefined, search: "", loader: undefined,
+  });
 
   const fetchUsers = async (type: "newer" | "older", refresh?: boolean) => {
     if (state.loading) return;
 
-    setState({ ...state, loading: true, status: undefined });
+    setState(s => ({
+      ...s, loading: true, status: undefined,
+      loader: refresh ? "mid" : type === "newer" ? "top" : "bottom",
+    }));
 
     const name = state.search.startsWith("@") ? undefined : state.search;
     const username = state.search.startsWith("@") ? state.search.substring(1) : undefined;
@@ -41,14 +46,14 @@ function Search() {
     const anchorId = getAnchor(type, refresh);
     const res = await sage.get(
       { a: sage.query("searchUser", { name, username, anchorId, type }), },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
     const status = !(!res?.a.data || res.a.error);
     const users = res?.a.data;
 
     if (users) useUserStore.getState().setSearchUsers(users, refresh);
 
-    setState({ ...state, loading: false, status: status });
+    setState(s => ({ ...s, loading: false, status: status, loader: undefined }));
   }
 
   useEffect(() => {
@@ -68,7 +73,7 @@ function Search() {
           radius="md"
           placeholder={t("searchUser")}
           defaultValue={state.search}
-          onChange={(ev) => { setState({ ...state, search: ev.target.value }) }}
+          onChange={(ev) => { setState(s => ({ ...s, search: ev.target.value })) }}
           pb="md"
         />
 
@@ -79,7 +84,13 @@ function Search() {
         </Button.Group>
       </Card>
 
-      {users.map((user) => <ProfileSummary key={user.id} user={user} />)}
+      <InfiniteScroll
+        onTop={() => fetchUsers("newer")}
+        onBottom={() => fetchUsers("older")}
+        loaders={{ top: state.loader === "top", bottom: state.loader === "bottom", mid: state.loader === "mid", }}
+      >
+        {users.map((user) => <ProfileSummary key={user.id} user={user} />)}
+      </InfiniteScroll>
     </>
   )
 }
