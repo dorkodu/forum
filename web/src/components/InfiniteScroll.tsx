@@ -21,18 +21,19 @@ function InfiniteScroll({ children, onTop, onBottom, loaders }: Props) {
 
   const previousHeight = useRef(document.body.offsetHeight);
   const overScrolled = useRef(false);
+  const loading = useRef(false);
 
-  const onScroll = (): void => {
+  const onScroll = async (): Promise<void> => {
     if (!previousHeightEqual()) return void (previousHeight.current = document.body.offsetHeight);
-
-    if (scrolledTop() && !overScrolled.current) {
-      onTop && onTop();
-    }
-    else if (scrolledBottom() && !overScrolled.current) {
-      onBottom && onBottom();
-    }
-
     overScrolled.current = scrolledTop() || scrolledBottom();
+
+    if (!overScrolled.current) return;
+    if (loading.current) return;
+
+    loading.current = true;
+    if (scrolledTop()) onTop && await onTop();
+    else if (scrolledBottom()) onBottom && await onBottom();
+    loading.current = false;
   }
 
   useEffect(() => {
