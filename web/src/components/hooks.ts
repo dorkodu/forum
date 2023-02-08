@@ -1,19 +1,39 @@
+import { useEffect, useState } from "react";
+
 export function useWait<T>(start: () => Promise<T>): () => Promise<T> {
-  const threshold = 500;
+  const before = 100;
+  const after = 500;
   let out: T;
 
   return () => new Promise(async (resolve) => {
-    let waited = false;
+    let didBefore = false;
+    let didAfter = false;
     let loaded = false;
 
     setTimeout(() => {
       if (loaded) resolve(out);
-      waited = true;
-    }, threshold);
+      didBefore = true;
+    }, before);
+
+    setTimeout(() => {
+      if (loaded) resolve(out);
+      didAfter = true;
+    }, after);
 
     out = await start();
 
-    if (waited) resolve(out);
+    if (!didBefore || didAfter) resolve(out);
     loaded = true;
   })
+}
+
+export function useDelay() {
+  const [state, setState] = useState(true);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setState(false), 100);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  return state;
 }

@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
+import { useWait } from "../components/hooks";
 import { request, sage } from "./api";
 import { useAppStore } from "./appStore";
 import { useDiscussionStore } from "./discussionStore";
@@ -27,7 +28,7 @@ export const useAuthStore = create(immer<State & Action>((set, _get) => ({
   queryAuth: async () => {
     const res = await sage.get(
       { a: sage.query("auth", undefined) },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
 
     const status = !(!res?.a.data || res.a.error);
@@ -61,7 +62,7 @@ export const useAuthStore = create(immer<State & Action>((set, _get) => ({
   queryGetAccessToken: async (code) => {
     const res = await sage.get(
       { a: sage.query("getAccessToken", { code }) },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
 
     const status = !(!res?.a.data || res.a.error);

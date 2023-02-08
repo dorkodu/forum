@@ -1,6 +1,10 @@
-import { Card, Flex, Loader } from "@mantine/core"
+import { Card, Flex, Loader } from "@mantine/core";
+import { useDelay } from "../hooks";
 
 function CardLoader() {
+  const delay = useDelay();
+  if (delay) return null;
+
   return (
     <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex direction="column" align="center">
