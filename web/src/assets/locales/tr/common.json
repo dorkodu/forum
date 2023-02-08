@@ -23,7 +23,9 @@
   "followUser": "Takip Et",
   "unfollowUser": "Takipten Çık",
   "userFollowsYou": "Seni Takip Ediyor",
-  "searchUser": "@Kullanıcıadı veya Ad Ara",
+  "searchUser": "@Kullanıcıadı veya Ad Girin",
+  "searchUserLabel": "Kullanıcı Ara",
+  "searchUserDescription": "@kullanıcıadı veya ad ile kullanıcı ara.",
   "userFollowers": "{{count}} Takipçi",
   "userFollowing": "{{count}} Takip Edilen",
 
@@ -31,21 +33,34 @@
   "createDiscussion": "Oluştur",
   "editDiscussion": "Tartışmayı Düzenle",
   "deleteDiscussion": "Tartışmayı Sil",
-  "discussionTitle": "Başlık Girin",
-  "discussionReadme": "Beni Oku Girin",
   "discussionUpdateNever": "Hiç",
+
+
+  "discussion": {
+    "titleLabel": "Başlık",
+    "titleDescription": "Maksimum 100 karakter.",
+    "title": "Başlık Girin",
+
+    "readmeLabel": "Beni Oku",
+    "readmeDescription": "Maksimum 100000 karakter.",
+    "readme": "Beni Oku Girin"
+  },
 
 
   "createArgument": "Yolla",
   "writeArgument": "Argümanını Yaz",
   "deleteArgument": "Argümanı Sil",
   "showArguments": "Argümanları Göster",
+  "argumentTitle": "Argüman",
+  "argumentDescription": "Maksimum 500 karakter.",
 
 
   "createComment": "Yolla",
   "writeComment": "Yorumunu Yaz...",
   "deleteComment": "Yorumu Sil",
   "showComments": "Yorumları Göster",
+  "commentTitle": "Yorum",
+  "commentDescription": "Maksimum 500 karakter.",
 
 
   "heyThere": "Hey Merhaba!",

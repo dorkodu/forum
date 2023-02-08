@@ -23,7 +23,9 @@
   "followUser": "Follow",
   "unfollowUser": "Unfollow",
   "userFollowsYou": "Follows You",
-  "searchUser": "Search @Username or Name...",
+  "searchUser": "Enter @Username or Name",
+  "searchUserLabel": "Search Users",
+  "searchUserDescription": "Search users by @username or name.",
   "userFollowers_one": "{{count}} Follower",
   "userFollowers_other": "{{count}} Followers",
   "userFollowing": "{{count}} Following",
@@ -32,21 +34,34 @@
   "createDiscussion": "Create",
   "editDiscussion": "Edit Discussion",
   "deleteDiscussion": "Delete Discussion",
-  "discussionTitle": "Enter Title",
-  "discussionReadme": "Enter Readme",
   "discussionUpdateNever": "Never",
+  
+  
+  "discussion": {
+    "titleLabel": "Title",
+    "titleDescription": "Maximum of 100 characters.",
+    "title": "Enter Title",
+
+    "readmeLabel": "Readme",
+    "readmeDescription": "Maximum of 100000 characters.",
+    "readme": "Enter Readme"
+  },
 
 
   "createArgument": "Send",
   "writeArgument": "Write Your Argument",
   "deleteArgument": "Delete Argument",
   "showArguments": "Show Arguments",
+  "argumentTitle": "Argument",
+  "argumentDescription": "Maximum of 500 characters.",
 
   
   "createComment": "Send",
   "writeComment": "Write Your Comment",
   "deleteComment": "Delete Comement",
   "showComments": "Show Comments",
+  "commentTitle": "Comment",
+  "commentDescription": "Maximum of 500 characters.",
 
   
   "heyThere": "Hey There!",

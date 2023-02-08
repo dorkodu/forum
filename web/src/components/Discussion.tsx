@@ -277,6 +277,8 @@ function Discussion({ discussionId }: Props) {
           <>
             <Textarea
               radius="md"
+              label={`${t("argumentTitle")} (${state.argument.text.length} / 500)`}
+              description={t("argumentDescription")}
               placeholder={t("writeArgument")}
               ref={argumentInputRef}
               defaultValue={state.argument.text}
@@ -301,6 +303,8 @@ function Discussion({ discussionId }: Props) {
           <>
             <Textarea
               radius="md"
+              label={`${t("commentTitle")} (${state.comment.text.length} / 500)`}
+              description={t("commentDescription")}
               placeholder={t("writeComment")}
               ref={commentInputRef}
               defaultValue={state.comment.text}

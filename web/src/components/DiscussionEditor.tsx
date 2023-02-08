@@ -104,7 +104,9 @@ function DiscussionEditor({ id }: Props) {
 
       <TextInput
         radius="md"
-        placeholder={t("discussionTitle")}
+        label={`${t("discussion.titleLabel")} (${state.title.length} / 100)`}
+        description={t("discussion.titleDescription")}
+        placeholder={t("discussion.title")}
         defaultValue={state.title}
         onChange={(ev) => { setState({ ...state, title: ev.target.value }) }}
         pb="md"
@@ -112,7 +114,9 @@ function DiscussionEditor({ id }: Props) {
 
       <Textarea
         radius="md"
-        placeholder={t("discussionReadme")}
+        label={`${t("discussion.readmeLabel")} (${state.readme.length} / 100000)`}
+        description={t("discussion.readmeDescription")}
+        placeholder={t("discussion.readme")}
         defaultValue={state.readme}
         onChange={(ev) => setState({ ...state, readme: ev.target.value })}
         autosize

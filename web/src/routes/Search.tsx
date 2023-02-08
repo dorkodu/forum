@@ -71,6 +71,8 @@ function Search() {
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
         <TextInput
           radius="md"
+          label={t("searchUserLabel")}
+          description={t("searchUserDescription")}
           placeholder={t("searchUser")}
           defaultValue={state.search}
           onChange={(ev) => { setState(s => ({ ...s, search: ev.target.value })) }}
