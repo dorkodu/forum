@@ -1,5 +1,5 @@
 import { css, Global } from "@emotion/react";
-import { ActionIcon, AppShell, Card, ColorScheme, ColorSchemeProvider, Flex, Footer, Header, LoadingOverlay, MantineProvider } from "@mantine/core";
+import { ActionIcon, AppShell, Card, ColorScheme, ColorSchemeProvider, Flex, Footer, Header, MantineProvider } from "@mantine/core";
 import { IconArrowLeft, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons";
 import { Suspense, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import ForumIcon from "./assets/forum.svg";
 import { useLocalStorage } from "@mantine/hooks";
 import RequestLogin from "./components/RequestLogin";
 import CenterLoader from "./components/cards/CenterLoader";
+import OverlayLoader from "./components/cards/OverlayLoader";
 
 const width = css`
   max-width: 768px;
@@ -103,11 +104,7 @@ function App() {
         <MantineProvider theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
           <AppShell padding={0} header={<AppHeader />} footer={<AppFooter />}>
             <Suspense fallback={<CenterLoader />}>
-              <LoadingOverlay
-                visible={loading.auth || loading.locale}
-                overlayBlur={2}
-                css={css`position: fixed;`}
-              />
+              {(loading.auth || loading.locale) && <OverlayLoader full={true} />}
               {!loading.auth && <Outlet />}
               <RequestLogin />
             </Suspense>

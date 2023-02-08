@@ -1,4 +1,4 @@
-import { Button, Card, Flex, LoadingOverlay, SegmentedControl, Textarea } from "@mantine/core";
+import { Button, Card, Flex, SegmentedControl, Textarea } from "@mantine/core";
 import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "../stores/appStore";
@@ -8,6 +8,7 @@ import { wrapContent } from "../styles/css";
 import Argument from "./Argument";
 import CardAlert from "./cards/CardAlert";
 import CardLoader from "./cards/CardLoader";
+import OverlayLoader from "./cards/OverlayLoader";
 import Comment from "./Comment"
 import DiscussionSummary from "./DiscussionSummary";
 import { useWait } from "./hooks";
@@ -104,6 +105,7 @@ function Discussion({ discussionId }: Props) {
     // Since it's a controlled component, it's value can't be changed
     // directly with a setState call, instead it's html property must be changed
     if (argumentInputRef.current) argumentInputRef.current.value = "";
+    setState(s => ({ ...s, argument: { ...s.argument, text: "" } }));
   }
 
   const createComment = async () => {
@@ -122,6 +124,7 @@ function Discussion({ discussionId }: Props) {
     // Since it's a controlled component, it's value can't be changed
     // directly with a setState call, instead it's html property must be changed
     if (commentInputRef.current) commentInputRef.current.value = "";
+    setState(s => ({ ...s, comment: { ...s.comment, text: "" } }));
   }
 
   const getArguments = async (type: "newer" | "older" | "top" | "bottom", refresh?: boolean) => {
@@ -271,7 +274,7 @@ function Discussion({ discussionId }: Props) {
       </Card>
 
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
-        <LoadingOverlay visible={isActionLoading()} overlayBlur={2} />
+        {isActionLoading() && <OverlayLoader />}
 
         {state.show === "arguments" &&
           <>
