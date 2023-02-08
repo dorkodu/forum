@@ -10,6 +10,8 @@ import CardAlert from "./cards/CardAlert";
 import CardLoader from "./cards/CardLoader";
 import Comment from "./Comment"
 import DiscussionSummary from "./DiscussionSummary";
+import { useWait } from "./hooks";
+import InfiniteScroll from "./InfiniteScroll";
 
 interface Props {
   discussionId: string | undefined;
@@ -30,6 +32,8 @@ interface State {
 
   argument: { text: string, type: boolean };
   comment: { text: string };
+
+  loader: "top" | "bottom" | "mid" | undefined;
 }
 
 function Discussion({ discussionId }: Props) {
@@ -48,6 +52,8 @@ function Discussion({ discussionId }: Props) {
 
     argument: { text: "", type: true },
     comment: { text: "" },
+
+    loader: "mid",
   });
 
   const { t } = useTranslation();
@@ -68,6 +74,20 @@ function Discussion({ discussionId }: Props) {
   const argumentInputRef = useRef<HTMLTextAreaElement>(null);
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
+  const getDiscussion = async () => {
+    setState(s => ({
+      ...s, discussion: { ...s.discussion, loading: true, status: undefined },
+      loader: "mid"
+    }));
+
+    const status = await useWait(() => queryGetDiscussion(discussionId))();
+
+    setState(s => ({
+      ...s, discussion: { ...s.discussion, loading: false, status: status },
+      loader: undefined
+    }));
+  }
+
   const createArgument = async () => {
     // If user is trying to create argument while not being logged in
     if (!currentUserId) return requestLogin(true);
@@ -78,7 +98,7 @@ function Discussion({ discussionId }: Props) {
     if (state.actionArgument.loading) return;
 
     setState(s => ({ ...s, actionArgument: { ...s.actionArgument, loading: true, status: undefined } }));
-    const status = await queryCreateArgument(discussion.id, state.argument.text, state.argument.type);
+    const status = await useWait(() => queryCreateArgument(discussion.id, state.argument.text, state.argument.type))();
     setState(s => ({ ...s, actionArgument: { ...s.actionArgument, loading: false, status: status } }));
 
     // Since it's a controlled component, it's value can't be changed
@@ -96,7 +116,7 @@ function Discussion({ discussionId }: Props) {
     if (state.actionComment.loading) return;
 
     setState(s => ({ ...s, actionComment: { ...s.actionComment, loading: true, status: undefined } }));
-    const status = await queryCreateComment(discussion.id, state.comment.text);
+    const status = await useWait(() => queryCreateComment(discussion.id, state.comment.text))();
     setState(s => ({ ...s, actionComment: { ...s.actionComment, loading: false, status: status } }));
 
     // Since it's a controlled component, it's value can't be changed
@@ -108,38 +128,54 @@ function Discussion({ discussionId }: Props) {
     if (!discussion) return;
     if (state.fetchArgument.loading) return;
 
-    setState(s => ({ ...s, fetchArgument: { ...s.fetchArgument, loading: true, status: undefined } }));
-    const status = await queryGetArguments(discussion.id, type, refresh);
-    setState(s => ({ ...s, fetchArgument: { ...s.fetchArgument, loading: false, status: status } }));
+    setState(s => ({
+      ...s,
+      fetchArgument: { ...s.fetchArgument, loading: true, status: undefined },
+      loader: refresh ? "mid" : type === "newer" ? "top" : "bottom",
+    }));
+    const status = await useWait(() => queryGetArguments(discussion.id, type, refresh))();
+    setState(s => ({
+      ...s,
+      fetchArgument: { ...s.fetchArgument, loading: false, status: status },
+      loader: undefined,
+    }));
   }
 
   const getComments = async (type: "newer" | "older", refresh?: boolean) => {
     if (!discussion) return;
     if (state.fetchComment.loading) return;
 
-    setState(s => ({ ...s, fetchComment: { ...s.fetchComment, loading: true, status: undefined } }));
-    const status = await queryGetComments(discussion.id, type, refresh);
-    setState(s => ({ ...s, fetchComment: { ...s.fetchComment, loading: false, status: status } }));
+    setState(s => ({
+      ...s,
+      fetchComment: { ...s.fetchComment, loading: true, status: undefined },
+      loader: refresh ? "mid" : type === "newer" ? "top" : "bottom",
+    }));
+    const status = await useWait(() => queryGetComments(discussion.id, type, refresh))();
+    setState(s => ({
+      ...s,
+      fetchComment: { ...s.fetchComment, loading: false, status: status },
+      loader: undefined,
+    }));
   }
 
-  const refresh = (show: typeof state.show) => {
+  const refresh = async (show: typeof state.show) => {
     switch (show) {
-      case "arguments": getArguments("newer", true); break;
-      case "comments": getComments("newer", true); break;
+      case "arguments": await getArguments("newer", true); break;
+      case "comments": await getComments("newer", true); break;
     }
   }
 
-  const loadNewer = () => {
+  const loadNewer = async () => {
     switch (state.show) {
-      case "arguments": getArguments("newer"); break;
-      case "comments": getComments("newer"); break;
+      case "arguments": await getArguments("newer"); break;
+      case "comments": await getComments("newer"); break;
     }
   }
 
-  const loadOlder = () => {
+  const loadOlder = async () => {
     switch (state.show) {
-      case "arguments": getArguments("older"); break;
-      case "comments": getComments("older"); break;
+      case "arguments": await getArguments("older"); break;
+      case "comments": await getComments("older"); break;
     }
   }
 
@@ -162,13 +198,7 @@ function Discussion({ discussionId }: Props) {
     }
   }
 
-  useEffect(() => {
-    (async () => {
-      setState(s => ({ ...s, discussion: { ...s.discussion, loading: true, status: undefined } }));
-      const status = await queryGetDiscussion(discussionId);
-      setState(s => ({ ...s, discussion: { ...s.discussion, loading: false, status: status } }));
-    })()
-  }, [])
+  useEffect(() => { getDiscussion() }, []);
 
   if (!discussion || state.discussion.loading) {
     return (
@@ -284,8 +314,14 @@ function Discussion({ discussionId }: Props) {
         }
       </Card>
 
-      {state.show === "arguments" && _arguments.map((argument) => <Argument key={argument.id} argumentId={argument.id} />)}
-      {state.show === "comments" && comments.map((comment) => <Comment key={comment.id} commentId={comment.id} />)}
+      <InfiniteScroll
+        onTop={loadNewer}
+        onBottom={loadOlder}
+        loaders={{ top: state.loader === "top", bottom: state.loader === "bottom", mid: state.loader === "mid", }}
+      >
+        {state.show === "arguments" && _arguments.map((argument) => <Argument key={argument.id} argumentId={argument.id} />)}
+        {state.show === "comments" && comments.map((comment) => <Comment key={comment.id} commentId={comment.id} />)}
+      </InfiniteScroll>
     </>
   )
 }
