@@ -33,16 +33,16 @@ function InfiniteScroll({ children, onTop, onBottom, loaders }: Props) {
     loading.current = true;
     if (scrolledTop()) onTop && await onTop();
     else if (scrolledBottom()) onBottom && await onBottom();
-    loading.current = false;
-  }
+    setTimeout(() => {
+      loading.current = false;
 
-  useEffect(() => {
-    if (!loaders.bottom) {
-      if (scrolledBottom()) window.scrollTo(0, window.scrollY - 1);
-      overScrolled.current = false;
-      return;
-    }
-  }, [loaders.bottom])
+      // Scroll 1px up to make it easier to scroll bottom
+      if (scrolledBottom()) {
+        window.scrollTo(0, window.scrollY - 1);
+        overScrolled.current = false;
+      }
+    }, 500);
+  }
 
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
