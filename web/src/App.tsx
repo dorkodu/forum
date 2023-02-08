@@ -10,7 +10,7 @@ import theme from "./styles/theme";
 import ForumIcon from "./assets/forum.svg";
 import { useLocalStorage } from "@mantine/hooks";
 import RequestLogin from "./components/RequestLogin";
-import CardLoader from "./components/cards/CardLoader";
+import CenterLoader from "./components/cards/CenterLoader";
 
 const width = css`
   max-width: 768px;
@@ -102,7 +102,7 @@ function App() {
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
           <AppShell padding={0} header={<AppHeader />} footer={<AppFooter />}>
-            <Suspense fallback={<CardLoader />}>
+            <Suspense fallback={<CenterLoader />}>
               <LoadingOverlay
                 visible={loading.auth || loading.locale}
                 overlayBlur={2}
