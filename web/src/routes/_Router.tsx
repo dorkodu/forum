@@ -2,18 +2,19 @@ import React from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import App from "../App";
+import { useWait } from "../components/hooks";
 import RequireAuth from "../components/RequireAuth";
 
-const Home = React.lazy(() => import("./Home"));
-const Profile = React.lazy(() => import("./profile/Profile"));
-const Follower = React.lazy(() => import("./profile/Follower"));
-const Following = React.lazy(() => import("./profile/Following"));
-const Discussion = React.lazy(() => import("./Discussion"));
-const DiscussionEditor = React.lazy(() => import("./DiscussionEditor"));
-const Search = React.lazy(() => import("./Search"));
-const Menu = React.lazy(() => import("./Menu"));
-const DorkoduID = React.lazy(() => import("./DorkoduID"));
-const NotFound = React.lazy(() => import("./NotFound"));
+const Home = React.lazy(useWait(() => import("./Home")));
+const Profile = React.lazy(useWait(() => import("./profile/Profile")));
+const Follower = React.lazy(useWait(() => import("./profile/Follower")));
+const Following = React.lazy(useWait(() => import("./profile/Following")));
+const Discussion = React.lazy(useWait(() => import("./Discussion")));
+const DiscussionEditor = React.lazy(useWait(() => import("./DiscussionEditor")));
+const Search = React.lazy(useWait(() => import("./Search")));
+const Menu = React.lazy(useWait(() => import("./Menu")));
+const DorkoduID = React.lazy(useWait(() => import("./DorkoduID")));
+const NotFound = React.lazy(useWait(() => import("./NotFound")));
 
 function Router() {
   return (
