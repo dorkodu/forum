@@ -9,7 +9,7 @@ import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
-import { nowrap, wrapContent } from "../styles/css";
+import { autoGrid, nowrap, wrapContent } from "../styles/css";
 import TextParser from "./TextParser";
 
 interface Props {
@@ -71,13 +71,13 @@ function Argument({ argumentId }: Props) {
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
-          <Flex miw={0} onClick={gotoUser}>
-            <Text truncate pr={4}>{user.name}</Text>
+          <Flex miw={0} onClick={gotoUser} css={autoGrid}>
+            <Text truncate mr={4}>{user.name}</Text>
             <Text>@</Text>
             <Text truncate>{user.username}</Text>
           </Flex>
           <Text mx={4}>·</Text>
-          <Text css={nowrap} title={date(argument.date).format('lll')}>
+          <Text css={nowrap} mr={4} title={date(argument.date).format('lll')}>
             {date(argument.date).fromNow()}
           </Text>
         </Flex>

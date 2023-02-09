@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
-import { wrapContent } from "../styles/css";
+import { autoGrid, wrapContent } from "../styles/css";
 
 interface Props {
   user: IUser;
@@ -44,8 +44,8 @@ function ProfileSummary({ user }: Props) {
 
   return (
     <Card shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoUser}>
-      <Flex miw={0}>
-        <Text truncate pr={4}>{user.name}</Text>
+      <Flex miw={0} css={autoGrid}>
+        <Text truncate mr={4}>{user.name}</Text>
         <Text>@</Text>
         <Text truncate>{user.username}</Text>
       </Flex>
