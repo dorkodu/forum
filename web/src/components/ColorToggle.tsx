@@ -5,13 +5,16 @@ import { IconSun, IconMoon } from "@tabler/icons";
 export function ColorToggleSegmented() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
+  const toggle = (value: string) => {
+    if (value !== "light" && value !== "dark") return;
+    toggleColorScheme(value);
+  }
+
   return (
     <SegmentedControl
       radius="md"
       value={colorScheme}
-      onChange={(value: "light" | "dark") => {
-        toggleColorScheme(value);
-      }}
+      onChange={toggle}
       data={[
         {
           value: "light",

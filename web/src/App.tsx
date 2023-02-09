@@ -53,13 +53,19 @@ function App() {
   const goBack = () => navigate(-1);
 
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
-    key: 'theme',
-    defaultValue: 'light',
+    key: "theme",
+    defaultValue: "light",
     getInitialValueInEffect: true,
   });
 
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
+  const toggleColorScheme = (value?: ColorScheme) => {
+    const scheme = value || (colorScheme === "dark" ? "light" : "dark");
+    setColorScheme(scheme);
+
+    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!themeColor) return;
+    themeColor.content = scheme === "light" ? "#ffffff" : "#1A1B1E";
+  }
 
   useEffect(() => { queryAuth() }, []);
 
