@@ -37,23 +37,25 @@ function Segments({ segments }: { segments?: ISegment[] }) {
 
   return (
     <>
-      {smallScreen && segments?.map(segment =>
+      {smallScreen && segments?.map((segment, index) =>
         <NativeSelect
           radius="md"
           variant="default"
           value={segment.value}
           onChange={(ev) => segment.setValue(ev.currentTarget.value)}
           data={segment.data}
+          key={index}
         />
       )}
 
-      {!smallScreen && segments?.map(segment =>
+      {!smallScreen && segments?.map((segment, index) =>
         <SegmentedControl
           radius="md"
           fullWidth
           value={segment.value}
           onChange={segment.setValue}
           data={segment.data}
+          key={index}
         />
       )}
     </>
@@ -67,13 +69,14 @@ function Buttons({ buttons }: { buttons?: IButton[] }) {
     <>
       {buttons && buttons.length > 0 &&
         <Button.Group>
-          {buttons.map(button =>
+          {buttons.map((button, index) =>
             <Button
               radius="md"
               variant="default"
               fullWidth
               onClick={button.onClick}
               disabled={button.disabled}
+              key={index}
             >
               {smallScreen ? button.icon : button.text}
             </Button>
