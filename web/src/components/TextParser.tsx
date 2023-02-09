@@ -19,6 +19,8 @@ function TextParser({ text }: Props) {
     navigate(`/profile/${username}`);
   }
 
+  if (text === "") return null;
+
   return (
     <>
       {parsed.map((p, i) => {
