@@ -1,6 +1,7 @@
-import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
+import { IconArrowBigDownLine, IconArrowBigUpLine, IconRefresh } from "@tabler/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import CardPanel from "../components/cards/CardPanel";
 import DiscussionSummary from "../components/DiscussionSummary";
 import { useWait } from "../components/hooks";
 import InfiniteScroll from "../components/InfiniteScroll";
@@ -41,7 +42,6 @@ function Home() {
       feed: "guest",
     }
   );
-
   const { t } = useTranslation();
   const userFeed = useDiscussionStore(_state => _state.getUserFeedDiscussions(state.order));
   const favouriteFeed = useDiscussionStore(_state => _state.getFavouriteFeedDiscussions(state.order));
@@ -160,43 +160,50 @@ function Home() {
     }
   }
 
-  const changeFeed = (value: typeof state.feed) => {
-    setState(s => ({ ...s, feed: value }));
-    if (feed(value).length === 0) refresh(value);
+  const changeFeed = (value: string) => {
+    if (value === "user" || value === "favourite" || value === "guest") {
+      setState(s => ({ ...s, feed: value }));
+      if (feed(value).length === 0) refresh(value);
+    }
+  }
+
+  const changeOrder = (value: string) => {
+    if (value === "newer" || value === "older") {
+      setState(s => ({ ...s, order: value }));
+    }
   }
 
   useEffect(() => { fetchGuestFeed("newer", true) }, []);
 
   return (
     <>
-      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
-        <Flex direction="column" gap="md">
-          <SegmentedControl radius="md" fullWidth
-            value={state.feed}
-            onChange={changeFeed}
-            data={[
+      <CardPanel
+        segments={[
+          {
+            value: state.feed,
+            setValue: changeFeed,
+            data: [
               { label: t("userFeed"), value: "user" },
               { label: t("favouriteFeed"), value: "favourite" },
               { label: t("guestFeed"), value: "guest" },
-            ]}
-          />
-
-          <SegmentedControl radius="md" fullWidth
-            value={state.order}
-            onChange={(order: typeof state.order) => setState(s => ({ ...s, order }))}
-            data={[
+            ]
+          },
+          {
+            value: state.order,
+            setValue: changeOrder,
+            data: [
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },
-            ]}
-          />
+            ]
+          },
+        ]}
 
-          <Button.Group>
-            <Button radius="md" fullWidth variant="default" onClick={() => refresh(state.feed)}>{t("refresh")}</Button>
-            <Button radius="md" fullWidth variant="default" onClick={loadNewer}>{t("loadNewer")}</Button>
-            <Button radius="md" fullWidth variant="default" onClick={loadOlder}>{t("loadOlder")}</Button>
-          </Button.Group>
-        </Flex>
-      </Card>
+        buttons={[
+          { text: t("refresh"), onClick: () => refresh(state.feed), icon: <IconRefresh /> },
+          { text: t("loadOlder"), onClick: loadOlder, icon: <IconArrowBigDownLine /> },
+          { text: t("loadNewer"), onClick: loadNewer, icon: <IconArrowBigUpLine /> },
+        ]}
+      />
 
       <InfiniteScroll
         onTop={loadNewer}
