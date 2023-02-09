@@ -1,10 +1,7 @@
 {
   "newer": "Newer",
   "older": "Older",
-
-  "refresh": "Refresh",
-  "loadNewer": "Load Newer",
-  "loadOlder": "Load Older",
+  
 
   "mostVoted": "Most Voted",
   "leastVoted": "Least Voted",

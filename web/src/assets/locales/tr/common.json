@@ -1,10 +1,7 @@
 {
   "newer": "Daha Yeni",
   "older": "Daha Eski",
-
-  "refresh": "Yenile",
-  "loadNewer": "Yenileri Yükle",
-  "loadOlder": "Eskileri Yükle",
+  
 
   "mostVoted": "En Çok Oy",
   "leastVoted": "En Az Oy",
