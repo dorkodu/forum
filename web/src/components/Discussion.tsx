@@ -15,6 +15,7 @@ import Comment from "./Comment"
 import DiscussionSummary from "./DiscussionSummary";
 import { useWait } from "./hooks";
 import InfiniteScroll from "./InfiniteScroll";
+import TextParser from "./TextParser";
 
 interface Props {
   discussionId: string | undefined;
@@ -231,7 +232,9 @@ function Discussion({ discussionId }: Props) {
     <>
       <DiscussionSummary discussionId={discussionId} />
 
-      <Card shadow="sm" p="lg" m="md" radius="md" withBorder css={wrapContent}>{discussion.readme}</Card>
+      <Card shadow="sm" p="lg" m="md" radius="md" withBorder css={wrapContent}>
+        <TextParser text={discussion.readme} />
+      </Card>
 
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
         <Flex direction="column" gap="md">

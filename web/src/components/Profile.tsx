@@ -9,6 +9,7 @@ import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import { wrapContent } from "../styles/css";
+import TextParser from "./TextParser";
 
 interface Props {
   user: IUser;
@@ -58,7 +59,9 @@ function Profile({ user }: Props) {
 
       <Text css={wrapContent}>@{user.username}</Text>
 
-      <Text css={wrapContent}>{user.bio}</Text>
+      <Text css={wrapContent}>
+        <TextParser text={user.bio} />
+      </Text>
 
       <Flex align="center">
         <IconCalendar />

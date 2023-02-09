@@ -13,6 +13,7 @@ import { css } from "@emotion/react";
 import { useTranslation } from "react-i18next";
 import { nowrap, wrapContent } from "../styles/css";
 import { useAppStore } from "../stores/appStore";
+import TextParser from "./TextParser";
 
 interface Props {
   discussionId: string | undefined;
@@ -82,7 +83,7 @@ function DiscussionSummary({ discussionId }: Props) {
     setState({ ...state, loading: true, status: undefined });
     const status = await queryDeleteDiscussion(discussion);
     setState({ ...state, loading: false, status: status });
-    
+
     // Redirect to home after successfully deleting the discussion
     if (status) navigate("/home");
   }
@@ -128,7 +129,9 @@ function DiscussionSummary({ discussionId }: Props) {
         </Menu>
       </Flex>
 
-      <Text css={wrapContent}>{discussion.title}</Text>
+      <Text css={wrapContent}>
+        <TextParser text={discussion.title} />
+      </Text>
 
       <Flex align="center" gap="xs">
         <Flex align="center">

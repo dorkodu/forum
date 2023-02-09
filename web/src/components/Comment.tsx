@@ -9,6 +9,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import { nowrap, wrapContent } from "../styles/css";
+import TextParser from "./TextParser";
 
 interface Props {
   commentId: string;
@@ -80,7 +81,9 @@ function Comment({ commentId }: Props) {
         </Menu>
       </Flex>
 
-      <Text css={wrapContent}>{comment.content}</Text>
+      <Text css={wrapContent}>
+        <TextParser text={comment.content} />
+      </Text>
     </Card>
   )
 }

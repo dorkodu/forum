@@ -10,6 +10,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import { nowrap, wrapContent } from "../styles/css";
+import TextParser from "./TextParser";
 
 interface Props {
   argumentId: string;
@@ -97,7 +98,9 @@ function Argument({ argumentId }: Props) {
         </Menu>
       </Flex>
 
-      <Text css={wrapContent}>{argument.content}</Text>
+      <Text css={wrapContent}>
+        <TextParser text={argument.content} />
+      </Text>
 
       <Flex align="center">
         {argument.type ? <IconPlus /> : <IconMinus />}
