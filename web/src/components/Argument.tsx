@@ -75,7 +75,8 @@ function Argument({ argumentId }: Props) {
             <Text>@</Text>
             <Text truncate>{user.username}</Text>
           </Flex>
-          <Text css={nowrap} ml={4} title={date(argument.date).format('lll')}>
+          <Text mx={4}>·</Text>
+          <Text css={nowrap} title={date(argument.date).format('lll')}>
             {date(argument.date).fromNow()}
           </Text>
         </Flex>

@@ -58,7 +58,8 @@ function Comment({ commentId }: Props) {
             <Text>@</Text>
             <Text truncate>{user.username}</Text>
           </Flex>
-          <Text css={nowrap} ml={4} title={date(comment.date).format('lll')}>
+          <Text mx={4}>·</Text>
+          <Text css={nowrap} title={date(comment.date).format('lll')}>
             {date(comment.date).fromNow()}
           </Text>
         </Flex>
