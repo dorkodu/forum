@@ -199,9 +199,9 @@ function Home() {
         ]}
 
         buttons={[
-          { text: t("refresh"), onClick: () => refresh(state.feed), icon: <IconRefresh /> },
-          { text: t("loadOlder"), onClick: loadOlder, icon: <IconArrowBigDownLine /> },
-          { text: t("loadNewer"), onClick: loadNewer, icon: <IconArrowBigUpLine /> },
+          { onClick: () => refresh(state.feed), text: <IconRefresh /> },
+          { onClick: loadOlder, text: <IconArrowBigDownLine /> },
+          { onClick: loadNewer, text: <IconArrowBigUpLine /> },
         ]}
       />
 

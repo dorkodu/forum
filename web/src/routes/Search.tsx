@@ -83,9 +83,9 @@ function Search() {
 
         <CardPanel.Buttons
           buttons={[
-            { text: t("refresh"), onClick: () => fetchUsers("newer", true), icon: <IconRefresh /> },
-            { text: t("loadOlder"), onClick: () => fetchUsers("newer"), icon: <IconArrowBigDownLine /> },
-            { text: t("loadNewer"), onClick: () => fetchUsers("older"), icon: <IconArrowBigUpLine /> },
+            { onClick: () => fetchUsers("newer", true), text: <IconRefresh /> },
+            { onClick: () => fetchUsers("newer"), text: <IconArrowBigDownLine /> },
+            { onClick: () => fetchUsers("older"), text: <IconArrowBigUpLine /> },
           ]}
         />
       </Card>

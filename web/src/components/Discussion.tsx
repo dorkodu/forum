@@ -283,17 +283,15 @@ function Discussion({ discussionId }: Props) {
 
           <CardPanel.Buttons
             buttons={[
-              { text: t("refresh"), onClick: () => refresh(state.show), icon: <IconRefresh /> },
+              { onClick: () => refresh(state.show), text: <IconRefresh /> },
               {
-                text: t("loadOlder"),
                 onClick: loadNewer,
-                icon: <IconArrowBigDownLine />,
+                text: <IconArrowBigDownLine />,
                 disabled: state.show === "arguments" && ["top", "bottom"].includes(state.argumentType)
               },
               {
-                text: t("loadNewer"),
                 onClick: loadOlder,
-                icon: <IconArrowBigUpLine />,
+                text: <IconArrowBigUpLine />,
                 disabled: state.show === "arguments" && ["top", "bottom"].includes(state.argumentType)
               },
             ]}

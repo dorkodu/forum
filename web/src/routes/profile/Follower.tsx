@@ -131,9 +131,9 @@ function Follower() {
         ]}
 
         buttons={[
-          { text: t("refresh"), onClick: () => fetchFollowers("newer", true), icon: <IconRefresh /> },
-          { text: t("loadOlder"), onClick: () => fetchFollowers("newer"), icon: <IconArrowBigDownLine /> },
-          { text: t("loadNewer"), onClick: () => fetchFollowers("older"), icon: <IconArrowBigUpLine /> },
+          { onClick: () => fetchFollowers("newer", true), text: <IconRefresh /> },
+          { onClick: () => fetchFollowers("newer"), text: <IconArrowBigDownLine /> },
+          { onClick: () => fetchFollowers("older"), text: <IconArrowBigUpLine /> },
         ]}
       />
 

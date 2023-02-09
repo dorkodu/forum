@@ -1,12 +1,9 @@
-import { theme } from "@dorkodu/prism";
-import { Button, Card, Flex, NativeSelect, SegmentedControl } from "@mantine/core"
-import { useMediaQuery } from "@mantine/hooks";
+import { Button, Card, Flex, NativeSelect } from "@mantine/core"
 import React from "react";
 
 interface IButton {
   onClick: () => any;
-  text: string;
-  icon: React.ReactNode;
+  text: React.ReactNode;
   disabled?: boolean;
 }
 
@@ -21,7 +18,7 @@ interface Props {
   buttons?: IButton[];
 }
 
-function _CardPanelComponent({ segments, buttons }: Props) {
+function _CardPanel({ segments, buttons }: Props) {
   return (
     <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex direction="column" gap="md">
@@ -33,11 +30,9 @@ function _CardPanelComponent({ segments, buttons }: Props) {
 }
 
 function Segments({ segments }: { segments?: ISegment[] }) {
-  const smallScreen = useMediaQuery(`(max-width: ${theme.breakpoints?.xs}px)`);
-
   return (
     <>
-      {smallScreen && segments?.map((segment, index) =>
+      {segments?.map((segment, index) =>
         <NativeSelect
           radius="md"
           variant="default"
@@ -47,24 +42,11 @@ function Segments({ segments }: { segments?: ISegment[] }) {
           key={index}
         />
       )}
-
-      {!smallScreen && segments?.map((segment, index) =>
-        <SegmentedControl
-          radius="md"
-          fullWidth
-          value={segment.value}
-          onChange={segment.setValue}
-          data={segment.data}
-          key={index}
-        />
-      )}
     </>
   )
 }
 
 function Buttons({ buttons }: { buttons?: IButton[] }) {
-  const smallScreen = useMediaQuery(`(max-width: ${theme.breakpoints?.xs}px)`);
-
   return (
     <>
       {buttons && buttons.length > 0 &&
@@ -78,7 +60,7 @@ function Buttons({ buttons }: { buttons?: IButton[] }) {
               disabled={button.disabled}
               key={index}
             >
-              {smallScreen ? button.icon : button.text}
+              {button.text}
             </Button>
           )}
         </Button.Group>
@@ -87,5 +69,5 @@ function Buttons({ buttons }: { buttons?: IButton[] }) {
   )
 }
 
-export default _CardPanelComponent
+export default _CardPanel
 export const CardPanel = { Buttons, Segments }

@@ -130,9 +130,9 @@ function ProfileRoute() {
         ]}
 
         buttons={[
-          { text: t("refresh"), onClick: () => fetchDiscussions("newer", true), icon: <IconRefresh /> },
-          { text: t("loadOlder"), onClick: () => fetchDiscussions("newer"), icon: <IconArrowBigDownLine /> },
-          { text: t("loadNewer"), onClick: () => fetchDiscussions("older"), icon: <IconArrowBigUpLine /> },
+          { onClick: () => fetchDiscussions("newer", true), text: <IconRefresh /> },
+          { onClick: () => fetchDiscussions("newer"), text: <IconArrowBigDownLine /> },
+          { onClick: () => fetchDiscussions("older"), text: <IconArrowBigUpLine /> },
         ]}
       />
 
