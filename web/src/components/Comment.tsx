@@ -8,7 +8,7 @@ import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
-import { wrapContent } from "../styles/css";
+import { nowrap, wrapContent } from "../styles/css";
 
 interface Props {
   commentId: string;
@@ -58,7 +58,7 @@ function Comment({ commentId }: Props) {
             <Text>@</Text>
             <Text truncate>{user.username}</Text>
           </Flex>
-          <Text ml={4} title={date(comment.date).format('lll')}>
+          <Text css={nowrap} ml={4} title={date(comment.date).format('lll')}>
             {date(comment.date).fromNow()}
           </Text>
         </Flex>

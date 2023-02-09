@@ -9,7 +9,7 @@ import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
-import { wrapContent } from "../styles/css";
+import { nowrap, wrapContent } from "../styles/css";
 
 interface Props {
   argumentId: string;
@@ -75,7 +75,7 @@ function Argument({ argumentId }: Props) {
             <Text>@</Text>
             <Text truncate>{user.username}</Text>
           </Flex>
-          <Text ml={4} title={date(argument.date).format('lll')}>
+          <Text css={nowrap} ml={4} title={date(argument.date).format('lll')}>
             {date(argument.date).fromNow()}
           </Text>
         </Flex>
