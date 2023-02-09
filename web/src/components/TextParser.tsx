@@ -15,6 +15,7 @@ function TextParser({ text }: Props) {
 
   const onClick = (ev: MouseEvent, username: string) => {
     ev.preventDefault();
+    ev.stopPropagation();
     navigate(`/profile/${username}`);
   }
 
