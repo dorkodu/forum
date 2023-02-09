@@ -73,7 +73,7 @@ interface Action {
   setComments: (discussionId: string, comments: IComment[]) => void;
   getCommentAnchor: (discussionId: string, type: "newer" | "older", refresh?: boolean) => string;
 
-  queryCreateDiscussion: (title: string, readme: string) => Promise<boolean>;
+  queryCreateDiscussion: (title: string, readme: string) => Promise<{ status: boolean, id?: string }>;
   queryDeleteDiscussion: (discussion: IDiscussion) => Promise<boolean>;
   queryGetDiscussion: (discussionId: string | undefined) => Promise<boolean>;
   queryEditDiscussion: (discussionId: string, title: string, readme: string) => Promise<boolean>;
@@ -388,7 +388,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
       state.discussion.entities[discussion.id] = discussion;
     })
 
-    return status;
+    return { status, id: discussion?.id };
   },
 
   queryDeleteDiscussion: async (discussion) => {

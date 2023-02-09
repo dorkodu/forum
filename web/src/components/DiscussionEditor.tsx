@@ -50,8 +50,9 @@ function DiscussionEditor({ id }: Props) {
     if (state.readme.length > 100000) return;
 
     setState({ ...state, loading: true, status: undefined });
-    const status = await queryCreateDiscussion(state.title, state.readme);
-    setState({ ...state, loading: false, status: status });
+    const res = await queryCreateDiscussion(state.title, state.readme);
+    setState({ ...state, loading: false, status: res.status });
+    if (res.id) navigate(`/discussion/${res.id}`);
   }
 
   const editDiscussion = async () => {
@@ -66,6 +67,7 @@ function DiscussionEditor({ id }: Props) {
     setState({ ...state, loading: true, status: undefined });
     const status = await queryEditDiscussion(id, state.title, state.readme);
     setState({ ...state, loading: false, status: status });
+    navigate(`/discussion/${id}`);
   }
 
   const fetchDiscussion = async (id: string) => {
