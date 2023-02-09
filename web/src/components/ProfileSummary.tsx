@@ -52,23 +52,29 @@ function ProfileSummary({ user }: Props) {
 
       <Text css={wrapContent}>{user.bio}</Text>
 
-      <Flex align="center" justify="space-between">
-        <Flex align="center" gap="xs">
-          <Text onClick={() => navigate(`/profile/${user.username}/followers`)}>
-            {t("userFollowers", { count: user.followerCount })}
-          </Text>
-          <Text onClick={() => navigate(`/profile/${user.username}/following`)}>
-            {t("userFollowing", { count: user.followingCount })}
-          </Text>
-        </Flex>
-        {user.id !== currentUserId &&
-          <Button onClick={followUser} color="dark" radius="md">
-            {user.follower ? t("unfollowUser") : t("followUser")}
-          </Button>
-        }
-      </Flex>
+      <Text onClick={() => navigate(`/profile/${user.username}/followers`)}>
+        {t("userFollowers", { count: user.followerCount })}
+      </Text>
 
-      {user.following && <Flex><IconUsers />{t("userFollowsYou")}</Flex>}
+      <Text onClick={() => navigate(`/profile/${user.username}/following`)}>
+        {t("userFollowing", { count: user.followingCount })}
+      </Text>
+
+      <Flex justify="space-between">
+        {user.following &&
+          <Flex align="center" gap="xs">
+            <IconUsers />{t("userFollowsYou")}
+          </Flex>
+        }
+
+        <Flex align="flex-end">
+          {user.id !== currentUserId &&
+            <Button onClick={followUser} color="dark" radius="md">
+              {user.follower ? t("unfollowUser") : t("followUser")}
+            </Button>
+          }
+        </Flex>
+      </Flex>
     </Card>
   )
 }
