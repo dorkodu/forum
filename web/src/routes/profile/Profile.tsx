@@ -1,9 +1,10 @@
-import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
+import { IconArrowBigDownLine, IconArrowBigUpLine, IconRefresh } from "@tabler/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import CardAlert from "../../components/cards/CardAlert";
 import CardLoader from "../../components/cards/CardLoader";
+import CardPanel from "../../components/cards/CardPanel";
 import DiscussionSummary from "../../components/DiscussionSummary";
 import { useWait } from "../../components/hooks";
 import InfiniteScroll from "../../components/InfiniteScroll";
@@ -93,6 +94,12 @@ function ProfileRoute() {
     }));
   }
 
+  const changeOrder = (value: string) => {
+    if (value === "newer" || value === "older") {
+      setState(s => ({ ...s, order: value }));
+    }
+  }
+
   useEffect(() => { fetchRoute() }, []);
 
   if (!user || state.user.loading) {
@@ -110,24 +117,24 @@ function ProfileRoute() {
     <>
       <Profile user={user} />
 
-      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
-        <Flex direction="column" gap="md">
-          <SegmentedControl radius="md" fullWidth
-            value={state.order}
-            onChange={(order: typeof state.order) => setState(s => ({ ...s, order }))}
-            data={[
+      <CardPanel
+        segments={[
+          {
+            value: state.order,
+            setValue: changeOrder,
+            data: [
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },
-            ]}
-          />
+            ]
+          },
+        ]}
 
-          <Button.Group>
-            <Button radius="md" fullWidth variant="default" onClick={() => fetchDiscussions("newer", true)}>{t("refresh")}</Button>
-            <Button radius="md" fullWidth variant="default" onClick={() => fetchDiscussions("newer")}>{t("loadNewer")}</Button>
-            <Button radius="md" fullWidth variant="default" onClick={() => fetchDiscussions("older")}>{t("loadOlder")}</Button>
-          </Button.Group>
-        </Flex>
-      </Card>
+        buttons={[
+          { text: t("refresh"), onClick: () => fetchDiscussions("newer", true), icon: <IconRefresh /> },
+          { text: t("loadOlder"), onClick: () => fetchDiscussions("newer"), icon: <IconArrowBigDownLine /> },
+          { text: t("loadNewer"), onClick: () => fetchDiscussions("older"), icon: <IconArrowBigUpLine /> },
+        ]}
+      />
 
       <InfiniteScroll
         onTop={() => fetchDiscussions("newer")}

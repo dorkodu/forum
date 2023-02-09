@@ -1,4 +1,5 @@
 import { Button, Card, Flex, SegmentedControl, Textarea } from "@mantine/core";
+import { IconArrowBigDownLine, IconArrowBigUpLine, IconRefresh } from "@tabler/icons";
 import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "../stores/appStore";
@@ -8,6 +9,7 @@ import { wrapContent } from "../styles/css";
 import Argument from "./Argument";
 import CardAlert from "./cards/CardAlert";
 import CardLoader from "./cards/CardLoader";
+import { CardPanel } from "./cards/CardPanel";
 import OverlayLoader from "./cards/OverlayLoader";
 import Comment from "./Comment"
 import DiscussionSummary from "./DiscussionSummary";
@@ -189,9 +191,20 @@ function Discussion({ discussionId }: Props) {
     }
   }
 
-  const changeShow = (value: typeof state.show) => {
-    setState(s => ({ ...s, show: value }));
-    if (show(value).length === 0) refresh(value);
+  const changeShow = (value: string) => {
+    if (value === "arguments" || value === "comments") {
+      setState(s => ({ ...s, show: value }));
+      if (show(value).length === 0) refresh(value);
+    }
+  }
+
+  const changeType = (value: string) => {
+    if (state.show === "arguments") {
+      setState(s => ({ ...s, argumentType: value as typeof state.argumentType }));
+    }
+    else if (state.show === "comments") {
+      setState(s => ({ ...s, commentType: value as typeof state.commentType }));
+    }
   }
 
   const isActionLoading = () => {
@@ -222,54 +235,69 @@ function Discussion({ discussionId }: Props) {
 
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
         <Flex direction="column" gap="md">
-          <SegmentedControl radius="md" fullWidth
-            value={state.show}
-            onChange={changeShow}
-            data={[
-              { label: t("showArguments"), value: "arguments" },
-              { label: t("showComments"), value: "comments" },
+
+          <CardPanel.Segments
+            segments={[
+              {
+                value: state.show,
+                setValue: changeShow,
+                data: [
+                  { label: t("showArguments"), value: "arguments" },
+                  { label: t("showComments"), value: "comments" },
+                ]
+              }
             ]}
           />
 
           {state.show === "arguments" &&
-            <>
-              <SegmentedControl radius="md" fullWidth
-                value={state.argumentType}
-                onChange={(argumentType: typeof state.argumentType) => setState(s => ({ ...s, argumentType }))}
-                data={[
-                  { label: t("newer"), value: "newer" },
-                  { label: t("older"), value: "older" },
-                  { label: t("mostVoted"), value: "top" },
-                  { label: t("leastVoted"), value: "bottom" },
-                ]}
-              />
-
-              <Button.Group>
-                <Button radius="md" fullWidth variant="default" onClick={() => refresh(state.show)}>{t("refresh")}</Button>
-                <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("newer")}>{t("loadNewer")}</Button>
-                <Button radius="md" disabled={(state.argumentType !== "newer" && state.argumentType !== "older")} fullWidth variant="default" onClick={() => getArguments("older")}>{t("loadOlder")}</Button>
-              </Button.Group>
-            </>
+            <CardPanel.Segments
+              segments={[
+                {
+                  value: state.argumentType,
+                  setValue: changeType,
+                  data: [
+                    { label: t("newer"), value: "newer" },
+                    { label: t("older"), value: "older" },
+                    { label: t("mostVoted"), value: "top" },
+                    { label: t("leastVoted"), value: "bottom" },
+                  ]
+                }
+              ]}
+            />
           }
 
           {state.show === "comments" &&
-            <>
-              <SegmentedControl radius="md" fullWidth
-                value={state.commentType}
-                onChange={(commentType: typeof state.commentType) => setState(s => ({ ...s, commentType }))}
-                data={[
-                  { label: t("newer"), value: "newer" },
-                  { label: t("older"), value: "older" },
-                ]}
-              />
-
-              <Button.Group >
-                <Button radius="md" fullWidth variant="default" onClick={() => refresh(state.show)}>{t("refresh")}</Button>
-                <Button radius="md" fullWidth variant="default" onClick={loadNewer}>{t("loadNewer")}</Button>
-                <Button radius="md" fullWidth variant="default" onClick={loadOlder}>{t("loadOlder")}</Button>
-              </Button.Group>
-            </>
+            <CardPanel.Segments
+              segments={[
+                {
+                  value: state.commentType,
+                  setValue: changeType,
+                  data: [
+                    { label: t("newer"), value: "newer" },
+                    { label: t("older"), value: "older" },
+                  ]
+                }
+              ]}
+            />
           }
+
+          <CardPanel.Buttons
+            buttons={[
+              { text: t("refresh"), onClick: () => refresh(state.show), icon: <IconRefresh /> },
+              {
+                text: t("loadOlder"),
+                onClick: loadNewer,
+                icon: <IconArrowBigDownLine />,
+                disabled: state.show === "arguments" && ["top", "bottom"].includes(state.argumentType)
+              },
+              {
+                text: t("loadNewer"),
+                onClick: loadOlder,
+                icon: <IconArrowBigUpLine />,
+                disabled: state.show === "arguments" && ["top", "bottom"].includes(state.argumentType)
+              },
+            ]}
+          />
         </Flex>
       </Card>
 

@@ -1,9 +1,10 @@
-import { Button, Card, Flex, SegmentedControl } from "@mantine/core";
+import { IconArrowBigDownLine, IconArrowBigUpLine, IconRefresh } from "@tabler/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import CardAlert from "../../components/cards/CardAlert";
 import CardLoader from "../../components/cards/CardLoader";
+import CardPanel from "../../components/cards/CardPanel";
 import { useWait } from "../../components/hooks";
 import InfiniteScroll from "../../components/InfiniteScroll";
 import Profile from "../../components/Profile"
@@ -94,6 +95,12 @@ function Following() {
     }));
   }
 
+  const changeOrder = (value: string) => {
+    if (value === "newer" || value === "older") {
+      setState(s => ({ ...s, order: value }));
+    }
+  }
+
   useEffect(() => { fetchRoute() }, []);
 
   if (!user || state.user.loading) {
@@ -111,24 +118,24 @@ function Following() {
     <>
       <Profile user={user} />
 
-      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
-        <Flex direction="column" gap="md">
-          <SegmentedControl radius="md" fullWidth
-            value={state.order}
-            onChange={(order: typeof state.order) => setState(s => ({ ...s, order }))}
-            data={[
+      <CardPanel
+        segments={[
+          {
+            value: state.order,
+            setValue: changeOrder,
+            data: [
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },
-            ]}
-          />
+            ]
+          },
+        ]}
 
-          <Button.Group>
-            <Button radius="md" fullWidth variant="default" onClick={() => fetchFollowing("newer", true)}>{t("refresh")}</Button>
-            <Button radius="md" fullWidth variant="default" onClick={() => fetchFollowing("newer")}>{t("loadNewer")}</Button>
-            <Button radius="md" fullWidth variant="default" onClick={() => fetchFollowing("older")}>{t("loadOlder")}</Button>
-          </Button.Group>
-        </Flex>
-      </Card>
+        buttons={[
+          { text: t("refresh"), onClick: () => fetchFollowing("newer", true), icon: <IconRefresh /> },
+          { text: t("loadOlder"), onClick: () => fetchFollowing("newer"), icon: <IconArrowBigDownLine /> },
+          { text: t("loadNewer"), onClick: () => fetchFollowing("older"), icon: <IconArrowBigUpLine /> },
+        ]}
+      />
 
       <InfiniteScroll
         onTop={() => fetchFollowing("newer")}

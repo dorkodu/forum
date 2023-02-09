@@ -1,6 +1,8 @@
-import { Button, Card, TextInput } from "@mantine/core";
+import { Card, TextInput } from "@mantine/core";
+import { IconArrowBigDownLine, IconArrowBigUpLine, IconRefresh } from "@tabler/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CardPanel } from "../components/cards/CardPanel";
 import { useWait } from "../components/hooks";
 import InfiniteScroll from "../components/InfiniteScroll";
 import ProfileSummary from "../components/ProfileSummary";
@@ -79,11 +81,13 @@ function Search() {
           pb="md"
         />
 
-        <Button.Group >
-          <Button radius="md" fullWidth variant="default" onClick={() => fetchUsers("newer", true)}>{t("refresh")}</Button>
-          <Button radius="md" fullWidth variant="default" onClick={() => fetchUsers("newer")}>{t("loadNewer")}</Button>
-          <Button radius="md" fullWidth variant="default" onClick={() => fetchUsers("older")}>{t("loadOlder")}</Button>
-        </Button.Group>
+        <CardPanel.Buttons
+          buttons={[
+            { text: t("refresh"), onClick: () => fetchUsers("newer", true), icon: <IconRefresh /> },
+            { text: t("loadOlder"), onClick: () => fetchUsers("newer"), icon: <IconArrowBigDownLine /> },
+            { text: t("loadNewer"), onClick: () => fetchUsers("older"), icon: <IconArrowBigUpLine /> },
+          ]}
+        />
       </Card>
 
       <InfiniteScroll
