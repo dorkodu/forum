@@ -126,7 +126,7 @@ function DiscussionEditor({ id }: Props) {
       />
 
       <Button onClick={id ? editDiscussion : createDiscussion} color="dark" radius="md">
-        {id ? t("editDiscussion") : t("createDiscussion")}
+        {id ? t("discussion.edit") : t("discussion.create")}
       </Button>
     </Card>
   )

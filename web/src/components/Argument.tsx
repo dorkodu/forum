@@ -90,7 +90,7 @@ function Argument({ argumentId }: Props) {
             {user.id === currentUserId &&
               <>
                 <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={deleteArgument}>
-                  {t("deleteArgument")}
+                  {t("argument.delete")}
                 </Menu.Item>
               </>
             }

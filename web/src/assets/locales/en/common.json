@@ -1,12 +1,17 @@
 {
+  "show": "Show",
+  
+  "order": "Order",
+  "followersOrder": "Followers Order",
+  "followingOrder": "Following Order",
+  "discussionOrder": "Discussion Order",
+
   "newer": "Newer",
   "older": "Older",
-  
-
   "mostVoted": "Most Voted",
   "leastVoted": "Least Voted",
 
-
+  "feed": "Feed",
   "userFeed": "User Feed",
   "favouriteFeed": "Favourite Feed",
   "guestFeed": "Guest Feed",
@@ -17,23 +22,21 @@
   "notFound": "Not Found :(",
 
 
-  "followUser": "Follow",
-  "unfollowUser": "Unfollow",
-  "userFollowsYou": "Follows You",
-  "searchUser": "Enter @Username or Name",
-  "searchUserLabel": "Search Users",
-  "searchUserDescription": "Search users by @username or name.",
-  "userFollowers_one": "{{count}} Follower",
-  "userFollowers_other": "{{count}} Followers",
-  "userFollowing": "{{count}} Following",
+  "user": {
+    "follow": "Follow",
+    "unfollow": "Unfollow",
+    "followsYou": "Follows You",
+    
+    "followers_one": "{{count}} Follower",
+    "followers_other": "{{count}} Followers",
+    "following": "{{count}} Following",
+
+    "search": "Enter @Username or Name",
+    "searchLabel": "Search Users",
+    "searchDescription": "Search users by @username or name."
+  },
 
 
-  "createDiscussion": "Create",
-  "editDiscussion": "Edit Discussion",
-  "deleteDiscussion": "Delete Discussion",
-  "discussionUpdateNever": "Never",
-  
-  
   "discussion": {
     "titleLabel": "Title",
     "titleDescription": "Maximum of 100 characters.",
@@ -41,26 +44,35 @@
 
     "readmeLabel": "Readme",
     "readmeDescription": "Maximum of 100000 characters.",
-    "readme": "Enter Readme"
+    "readme": "Enter Readme",
+
+    "create": "Create",
+    "edit": "Edit Discussion",
+    "delete": "Delete Discussion",
+    "never": "Never"
   },
 
 
-  "createArgument": "Send",
-  "writeArgument": "Write Your Argument",
-  "deleteArgument": "Delete Argument",
-  "showArguments": "Show Arguments",
-  "argumentTitle": "Argument",
-  "argumentDescription": "Maximum of 500 characters.",
+  "argument": {
+    "plural": "Arguments",
+    "create": "Send",
+    "write": "Write Your Argument",
+    "delete": "Delete Argument",
+    "title": "Argument",
+    "description": "Maximum of 500 characters."
+  },
 
   
-  "createComment": "Send",
-  "writeComment": "Write Your Comment",
-  "deleteComment": "Delete Comement",
-  "showComments": "Show Comments",
-  "commentTitle": "Comment",
-  "commentDescription": "Maximum of 500 characters.",
-
+  "comment": {
+    "plural": "Comments",
+    "create": "Send",
+    "write": "Write Your Comment",
+    "delete": "Delete Comement",
+    "title": "Comment",
+    "description": "Maximum of 500 characters."
+  },
   
+
   "heyThere": "Hey There!",
   "pleaseLogin": "Want to enjoy the app to it's fullest? <br /> Please log in.",
 

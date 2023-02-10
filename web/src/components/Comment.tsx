@@ -73,7 +73,7 @@ function Comment({ commentId }: Props) {
             {user.id === currentUserId &&
               <>
                 <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={deleteComment}>
-                  {t("deleteComment")}
+                  {t("comment.delete")}
                 </Menu.Item>
               </>
             }

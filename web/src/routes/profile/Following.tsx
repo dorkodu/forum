@@ -123,6 +123,7 @@ function Following() {
           {
             value: state.order,
             setValue: changeOrder,
+            label: t("followingOrder"),
             data: [
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },

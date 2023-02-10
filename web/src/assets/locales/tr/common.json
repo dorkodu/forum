@@ -1,12 +1,17 @@
 {
+  "show": "Göster",
+  
+  "order": "Sıralama",
+  "followersOrder": "Takipçi Sıralaması",
+  "followingOrder": "Takip Edilen Sıralaması",
+  "discussionOrder": "Tartışma Sıralaması",
+
   "newer": "Daha Yeni",
   "older": "Daha Eski",
-  
-
   "mostVoted": "En Çok Oy",
   "leastVoted": "En Az Oy",
 
-  
+  "feed": "Akış",
   "userFeed": "Kullanıcı Akışı",
   "favouriteFeed": "Favori Akışı",
   "guestFeed": "Misafir Akışı",
@@ -17,20 +22,18 @@
   "notFound": "Bulunamadı :(",
 
   
-  "followUser": "Takip Et",
-  "unfollowUser": "Takipten Çık",
-  "userFollowsYou": "Seni Takip Ediyor",
-  "searchUser": "@Kullanıcıadı veya Ad Girin",
-  "searchUserLabel": "Kullanıcı Ara",
-  "searchUserDescription": "@kullanıcıadı veya ad ile kullanıcı ara.",
-  "userFollowers": "{{count}} Takipçi",
-  "userFollowing": "{{count}} Takip Edilen",
+  "user": {
+    "follow": "Takip Et",
+    "unfollow": "Takipten Çık",
+    "followsYou": "Seni Takip Ediyor",
 
+    "followers": "{{count}} Takipçi",
+    "following": "{{count}} Takip Edilen",
 
-  "createDiscussion": "Oluştur",
-  "editDiscussion": "Tartışmayı Düzenle",
-  "deleteDiscussion": "Tartışmayı Sil",
-  "discussionUpdateNever": "Hiç",
+    "search": "@Kullanıcıadı veya Ad Girin",
+    "searchLabel": "Kullanıcı Ara",
+    "searchDescription": "@kullanıcıadı veya ad ile kullanıcı ara."
+  },
 
 
   "discussion": {
@@ -40,24 +43,33 @@
 
     "readmeLabel": "Beni Oku",
     "readmeDescription": "Maksimum 100000 karakter.",
-    "readme": "Beni Oku Girin"
+    "readme": "Beni Oku Girin",
+
+    "create": "Oluştur",
+    "edit": "Tartışmayı Düzenle",
+    "delete": "Tartışmayı Sil",
+    "never": "Hiç"
   },
 
 
-  "createArgument": "Yolla",
-  "writeArgument": "Argümanını Yaz",
-  "deleteArgument": "Argümanı Sil",
-  "showArguments": "Argümanları Göster",
-  "argumentTitle": "Argüman",
-  "argumentDescription": "Maksimum 500 karakter.",
+  "argument": {
+    "plural": "Argümanlar",
+    "create": "Yolla",
+    "write": "Argümanını Yaz",
+    "delete": "Argümanı Sil",
+    "title": "Argüman",
+    "description": "Maksimum 500 karakter."
+  },
 
 
-  "createComment": "Yolla",
-  "writeComment": "Yorumunu Yaz...",
-  "deleteComment": "Yorumu Sil",
-  "showComments": "Yorumları Göster",
-  "commentTitle": "Yorum",
-  "commentDescription": "Maksimum 500 karakter.",
+  "comment": {
+    "plural": "Yorumlar",
+    "create": "Yolla",
+    "write": "Yorumunu Yaz...",
+    "delete": "Yorumu Sil",
+    "title": "Yorum",
+    "description": "Maksimum 500 karakter."
+  },
 
 
   "heyThere": "Hey Merhaba!",

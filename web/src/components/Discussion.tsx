@@ -244,9 +244,10 @@ function Discussion({ discussionId }: Props) {
               {
                 value: state.show,
                 setValue: changeShow,
+                label: t("show"),
                 data: [
-                  { label: t("showArguments"), value: "arguments" },
-                  { label: t("showComments"), value: "comments" },
+                  { label: t("argument.plural"), value: "arguments" },
+                  { label: t("comment.plural"), value: "comments" },
                 ]
               }
             ]}
@@ -258,6 +259,7 @@ function Discussion({ discussionId }: Props) {
                 {
                   value: state.argumentType,
                   setValue: changeType,
+                  label: t("order"),
                   data: [
                     { label: t("newer"), value: "newer" },
                     { label: t("older"), value: "older" },
@@ -275,6 +277,7 @@ function Discussion({ discussionId }: Props) {
                 {
                   value: state.commentType,
                   setValue: changeType,
+                  label: t("order"),
                   data: [
                     { label: t("newer"), value: "newer" },
                     { label: t("older"), value: "older" },
@@ -309,9 +312,9 @@ function Discussion({ discussionId }: Props) {
           <>
             <Textarea
               radius="md"
-              label={`${t("argumentTitle")} (${state.argument.text.length} / 500)`}
-              description={t("argumentDescription")}
-              placeholder={t("writeArgument")}
+              label={`${t("argument.title")} (${state.argument.text.length} / 500)`}
+              description={t("argument.description")}
+              placeholder={t("argument.write")}
               ref={argumentInputRef}
               defaultValue={state.argument.text}
               onChange={(ev) => setState(s => ({ ...s, argument: { ...s.argument, text: ev.target.value } }))}
@@ -319,7 +322,7 @@ function Discussion({ discussionId }: Props) {
               pb="md"
             />
 
-            <Button onClick={createArgument} color="dark" radius="md" mr="md">{t("createArgument")}</Button>
+            <Button onClick={createArgument} color="dark" radius="md" mr="md">{t("argument.create")}</Button>
 
             <SegmentedControl radius="md"
               value={state.argument.type ? "+" : "-"}
@@ -335,9 +338,9 @@ function Discussion({ discussionId }: Props) {
           <>
             <Textarea
               radius="md"
-              label={`${t("commentTitle")} (${state.comment.text.length} / 500)`}
-              description={t("commentDescription")}
-              placeholder={t("writeComment")}
+              label={`${t("comment.title")} (${state.comment.text.length} / 500)`}
+              description={t("comment.description")}
+              placeholder={t("comment.write")}
               ref={commentInputRef}
               defaultValue={state.comment.text}
               onChange={(ev) => setState(s => ({ ...s, comment: { ...s.comment, text: ev.target.value } }))}
@@ -345,7 +348,7 @@ function Discussion({ discussionId }: Props) {
               pb="md"
             />
 
-            <Button onClick={createComment} color="dark" radius="md" mr="md">{t("createComment")}</Button>
+            <Button onClick={createComment} color="dark" radius="md" mr="md">{t("comment.create")}</Button>
           </>
         }
       </Card>

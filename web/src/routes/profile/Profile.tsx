@@ -122,6 +122,7 @@ function ProfileRoute() {
           {
             value: state.order,
             setValue: changeOrder,
+            label: t("discussionOrder"),
             data: [
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },

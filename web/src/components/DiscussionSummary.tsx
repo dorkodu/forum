@@ -115,13 +115,13 @@ function DiscussionSummary({ discussionId }: Props) {
             {user.id === currentUserId &&
               <>
                 <Menu.Item icon={<IconEdit size={14} />} onClick={gotoDiscussionEditor}>
-                  {t("editDiscussion")}
+                  {t("discussion.edit")}
                 </Menu.Item>
 
                 <Menu.Divider />
 
                 <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={deleteDiscussion}>
-                  {t("deleteDiscussion")}
+                  {t("discussion.delete")}
                 </Menu.Item>
               </>
             }
@@ -152,7 +152,7 @@ function DiscussionSummary({ discussionId }: Props) {
           <IconActivity />
           <span>
             {discussion.lastUpdateDate === -1 ?
-              t("discussionUpdateNever") :
+              t("discussion.never") :
               date(discussion.lastUpdateDate).fromNow()
             }
           </span>

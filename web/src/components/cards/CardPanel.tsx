@@ -11,6 +11,7 @@ interface ISegment {
   value: string;
   setValue: (value: string) => any;
   data: { label: string, value: string }[];
+  label?: string;
 }
 
 interface Props {
@@ -34,6 +35,7 @@ function Segments({ segments }: { segments?: ISegment[] }) {
     <>
       {segments?.map((segment, index) =>
         <NativeSelect
+          label={segment.label}
           radius="md"
           variant="default"
           value={segment.value}

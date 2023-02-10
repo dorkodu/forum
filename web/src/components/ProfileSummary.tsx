@@ -53,24 +53,24 @@ function ProfileSummary({ user }: Props) {
       <Text css={wrapContent}>{user.bio}</Text>
 
       <Text onClick={() => navigate(`/profile/${user.username}/followers`)}>
-        {t("userFollowers", { count: user.followerCount })}
+        {t("user.followers", { count: user.followerCount })}
       </Text>
 
       <Text onClick={() => navigate(`/profile/${user.username}/following`)}>
-        {t("userFollowing", { count: user.followingCount })}
+        {t("user.following", { count: user.followingCount })}
       </Text>
 
       <Flex justify="space-between">
         {user.following &&
           <Flex align="center" gap="xs">
-            <IconUsers />{t("userFollowsYou")}
+            <IconUsers />{t("user.followsYou")}
           </Flex>
         }
 
         <Flex align="flex-end">
           {user.id !== currentUserId &&
             <Button onClick={followUser} color="dark" radius="md">
-              {user.follower ? t("unfollowUser") : t("followUser")}
+              {user.follower ? t("user.unfollow") : t("user.follow")}
             </Button>
           }
         </Flex>

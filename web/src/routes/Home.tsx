@@ -182,6 +182,7 @@ function Home() {
           {
             value: state.feed,
             setValue: changeFeed,
+            label: t("feed"),
             data: [
               { label: t("userFeed"), value: "user" },
               { label: t("favouriteFeed"), value: "favourite" },
@@ -191,6 +192,7 @@ function Home() {
           {
             value: state.order,
             setValue: changeOrder,
+            label: t("order"),
             data: [
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },
