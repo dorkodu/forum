@@ -28,6 +28,16 @@ function Profile({ user }: Props) {
   const queryFollowUser = useUserStore(state => state.queryFollowUser);
   const currentUserId = useAuthStore(state => state.userId);
 
+  const gotoFollowers = () => {
+    const target = `/profile/${user.username}/followers`;
+    if (location.pathname !== target) navigate(target);
+  }
+
+  const gotoFollowing = () => {
+    const target = `/profile/${user.username}/following`;
+    if (location.pathname !== target) navigate(target);
+  }
+
   const followUser = async () => {
     if (state.loading) return;
 
@@ -68,13 +78,15 @@ function Profile({ user }: Props) {
         {date(user.joinDate).format('ll')}
       </Flex>
 
-      <Text onClick={() => navigate(`/profile/${user.username}/followers`)}>
-        {t("user.followers", { count: user.followerCount })}
-      </Text>
+      <Flex direction="column" align="flex-start">
+        <Text onClick={gotoFollowers}>
+          {t("user.followers", { count: user.followerCount })}
+        </Text>
 
-      <Text onClick={() => navigate(`/profile/${user.username}/following`)}>
-        {t("user.following", { count: user.followingCount })}
-      </Text>
+        <Text onClick={gotoFollowing}>
+          {t("user.following", { count: user.followingCount })}
+        </Text>
+      </Flex>
 
       <Flex justify="space-between">
         {user.following &&

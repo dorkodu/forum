@@ -233,7 +233,7 @@ function Discussion({ discussionId }: Props) {
       <DiscussionSummary discussionId={discussionId} />
 
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder css={wrapContent}>
-        <TextParser text={discussion.readme} />
+        <TextParser text={discussion.readme ?? ""} />
       </Card>
 
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>

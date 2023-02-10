@@ -52,11 +52,11 @@ function ProfileSummary({ user }: Props) {
 
       <Text css={wrapContent}>{user.bio}</Text>
 
-      <Text onClick={() => navigate(`/profile/${user.username}/followers`)}>
+      <Text>
         {t("user.followers", { count: user.followerCount })}
       </Text>
 
-      <Text onClick={() => navigate(`/profile/${user.username}/following`)}>
+      <Text >
         {t("user.following", { count: user.followingCount })}
       </Text>
 
