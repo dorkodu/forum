@@ -56,15 +56,21 @@ function App() {
     key: "theme",
     defaultValue: "light",
     getInitialValueInEffect: true,
+    deserialize: (value) => {
+      const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+      if (themeColor) themeColor.content = value === "light" ? "#ffffff" : "#1A1B1E";
+      return JSON.parse(value);
+    },
+    serialize: (value) => {
+      const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+      if (themeColor) themeColor.content = value === "light" ? "#ffffff" : "#1A1B1E";
+      return JSON.stringify(value);
+    }
   });
 
   const toggleColorScheme = (value?: ColorScheme) => {
     const scheme = value || (colorScheme === "dark" ? "light" : "dark");
     setColorScheme(scheme);
-
-    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (!themeColor) return;
-    themeColor.content = scheme === "light" ? "#ffffff" : "#1A1B1E";
   }
 
   useEffect(() => { queryAuth() }, []);
