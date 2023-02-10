@@ -44,7 +44,7 @@ function ProfileSummary({ user }: Props) {
 
   return (
     <Card shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoUser}>
-      <Flex miw={0} css={autoGrid}>
+      <Flex miw={0} css={autoGrid} justify="flex-start">
         <Text truncate mr={4}>{user.name}</Text>
         <Text>@</Text>
         <Text truncate>{user.username}</Text>
