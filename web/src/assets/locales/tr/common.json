@@ -22,6 +22,10 @@
   "notFound": "Bulunamadı :(",
 
   
+  "share": "Paylaş",
+  "copyToClipboard": "Panoya Kopyala",
+
+
   "user": {
     "follow": "Takip Et",
     "unfollow": "Takipten Çık",

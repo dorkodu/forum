@@ -4,7 +4,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import {
-  IconStar, IconMessage, IconMessages, IconActivity, IconDots, IconTrash, IconEdit
+  IconStar, IconMessage, IconMessages, IconActivity, IconDots, IconTrash, IconEdit, IconShare, IconClipboardText
 } from "@tabler/icons";
 
 import { ActionIcon, Card, Flex, Menu, Text } from "@mantine/core"
@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { autoGrid, nowrap, wrapContent } from "../styles/css";
 import { useAppStore } from "../stores/appStore";
 import TextParser from "./TextParser";
+import { util } from "../lib/util";
 
 interface Props {
   discussionId: string | undefined;
@@ -88,6 +89,21 @@ function DiscussionSummary({ discussionId }: Props) {
     if (status) navigate("/home");
   }
 
+  const share = () => {
+    if (!discussion) return;
+
+    util.share(
+      `Discussion`,
+      `${discussion.title}`,
+      `https://forum.dorkodu.com/discussion/${discussion.id}`
+    )
+  }
+
+  const copyToClipboard = () => {
+    if (!discussion) return;
+    util.copyToClipboard(`https://forum.dorkodu.com/discussion/${discussion.id}`);
+  }
+
   if (!discussion || !user) return (<></>)
 
   return (
@@ -112,19 +128,34 @@ function DiscussionSummary({ discussionId }: Props) {
           </Menu.Target>
 
           <Menu.Dropdown>
+            <Menu.Item
+              icon={<IconShare size={14} />}
+              onClick={share}
+            >
+              {t("share")}
+            </Menu.Item>
+
+            <Menu.Item
+              icon={<IconClipboardText size={14} />}
+              onClick={copyToClipboard}
+            >
+              {t("copyToClipboard")}
+            </Menu.Item>
+
             {user.id === currentUserId &&
               <>
+                <Menu.Divider />
+
                 <Menu.Item icon={<IconEdit size={14} />} onClick={gotoDiscussionEditor}>
                   {t("discussion.edit")}
                 </Menu.Item>
-
-                <Menu.Divider />
 
                 <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={deleteDiscussion}>
                   {t("discussion.delete")}
                 </Menu.Item>
               </>
             }
+
           </Menu.Dropdown>
         </Menu>
       </Flex>

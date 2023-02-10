@@ -1,7 +1,7 @@
 import { IUser } from "@api/types/user";
 import { css } from "@emotion/react";
 import { ActionIcon, Button, Card, Flex, Menu, Text, } from "@mantine/core";
-import { IconCalendar, IconDots, IconUsers } from "@tabler/icons";
+import { IconCalendar, IconClipboardText, IconDots, IconShare, IconUsers } from "@tabler/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
@@ -10,6 +10,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import { wrapContent } from "../styles/css";
 import TextParser from "./TextParser";
+import { util } from "../lib/util";
 
 interface Props {
   user: IUser;
@@ -46,6 +47,18 @@ function Profile({ user }: Props) {
     setState({ ...state, loading: false, status: status });
   }
 
+  const share = () => {
+    util.share(
+      `Profile`,
+      `${user.name} @${user.username}`,
+      `https://forum.dorkodu.com/profile/${user.username}`
+    )
+  }
+
+  const copyToClipboard = () => {
+    util.copyToClipboard(`https://forum.dorkodu.com/profile/${user.username}`);
+  }
+
   return (
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex justify="space-between" gap="xs">
@@ -62,6 +75,19 @@ function Profile({ user }: Props) {
             </Menu.Target>
 
             <Menu.Dropdown>
+              <Menu.Item
+                icon={<IconShare size={14} />}
+                onClick={share}
+              >
+                {t("share")}
+              </Menu.Item>
+
+              <Menu.Item
+                icon={<IconClipboardText size={14} />}
+                onClick={copyToClipboard}
+              >
+                {t("copyToClipboard")}
+              </Menu.Item>
             </Menu.Dropdown>
           </Menu>
         </Flex>

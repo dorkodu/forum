@@ -21,6 +21,10 @@
   "logout": "Log Out",
   "notFound": "Not Found :(",
 
+  
+  "share": "Share",
+  "copyToClipboard": "Copy To Clipboard",
+
 
   "user": {
     "follow": "Follow",
