@@ -57,9 +57,10 @@ function App() {
     defaultValue: "light",
     getInitialValueInEffect: true,
     deserialize: (value) => {
+      value = JSON.parse(value);
       const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
       if (themeColor) themeColor.content = value === "light" ? "#ffffff" : "#1A1B1E";
-      return JSON.parse(value);
+      return value as ColorScheme;
     },
     serialize: (value) => {
       const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
