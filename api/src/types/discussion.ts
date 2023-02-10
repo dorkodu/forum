@@ -8,7 +8,7 @@ export const iDiscussionSchema = z.object({
   userId: z.string(),
   date: z.string().transform((arg) => parseInt(arg)),
   title: z.string(),
-  readme: z.string(),
+  readme: z.string().optional(),
   favouriteCount: z.string().transform((arg) => parseInt(arg)),
   argumentCount: z.string().transform((arg) => parseInt(arg)),
   commentCount: z.string().transform((arg) => parseInt(arg)),

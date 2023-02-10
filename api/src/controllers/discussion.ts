@@ -155,7 +155,7 @@ const getUserDiscussionFeed = sage.resource(
 
     const result = await pg`
       SELECT 
-        d.id, d.user_id, d.date, d.title, d.readme, 
+        d.id, d.user_id, d.date, d.title,
         d.favourite_count, d.argument_count, d.comment_count,
         d.last_update_date,
         (EXISTS (SELECT * FROM discussion_favourites df WHERE df.discussion_id=d.id AND df.user_id=${info.userId})) AS favourited
@@ -195,7 +195,7 @@ const getFavouriteDiscussionFeed = sage.resource(
 
     const result = await pg`
       SELECT 
-        d.id, d.user_id, d.date, d.title, d.readme, 
+        d.id, d.user_id, d.date, d.title,
         d.favourite_count, d.argument_count, d.comment_count,
         d.last_update_date,
         (df.user_id IS NOT NULL) AS favourited
@@ -234,7 +234,7 @@ const getGuestDiscussionFeed = sage.resource(
 
     const result = await pg`
       SELECT 
-        d.id, d.user_id, d.date, d.title, d.readme, 
+        d.id, d.user_id, d.date, d.title,
         d.favourite_count, d.argument_count, d.comment_count,
         d.last_update_date,
       ${info ?
