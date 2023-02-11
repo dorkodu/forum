@@ -64,11 +64,12 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
 
   getUserByUsername: (username) => {
     if (!username) return undefined;
+    const usernameCi = username.toLowerCase();
 
     const users = Object.values(get().user.entities);
     for (let i = 0; i < users.length; ++i) {
       const user = users[i];
-      if (user && user.username !== username) continue;
+      if (user && user.username.toLowerCase() !== usernameCi) continue;
       return user;
     }
 

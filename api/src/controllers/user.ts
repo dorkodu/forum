@@ -32,7 +32,7 @@ const getUser = sage.resource(
           pg`FALSE AS following, FALSE AS follower`
         }
         FROM users u
-        WHERE username = ${username}
+        WHERE username_ci = ${username.toLowerCase()}
       `;
       if (!result) return { error: ErrorCode.Default };
 
