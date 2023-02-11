@@ -164,10 +164,18 @@ function Discussion({ discussionId }: Props) {
     }));
   }
 
-  const refresh = async (show: typeof state.show) => {
+  const refresh = async (
+    show: typeof state.show,
+    type: typeof state.argumentType | typeof state.commentType
+  ) => {
     switch (show) {
-      case "arguments": await getArguments("newer", true); break;
-      case "comments": await getComments("newer", true); break;
+      case "arguments":
+        await getArguments(type, true);
+        break;
+      case "comments":
+        if (type !== "top" && type !== "bottom")
+          await getComments(type, true);
+        break;
     }
   }
 
@@ -195,16 +203,24 @@ function Discussion({ discussionId }: Props) {
   const changeShow = (value: string) => {
     if (value === "arguments" || value === "comments") {
       setState(s => ({ ...s, show: value }));
-      if (show(value).length === 0) refresh(value);
+      if (show(value).length === 0) {
+        switch (value) {
+          case "arguments": refresh(value, state.argumentType); break;
+          case "comments": refresh(value, state.commentType); break;
+        }
+      }
     }
   }
 
   const changeType = (value: string) => {
     if (state.show === "arguments") {
-      setState(s => ({ ...s, argumentType: value as typeof state.argumentType }));
+      if (value !== "newer" && value !== "older" && value !== "top" && value !== "bottom") return;
+      setState(s => ({ ...s, argumentType: value }));
+      if (value === "top" || value === "bottom") refresh("arguments", value);
     }
     else if (state.show === "comments") {
-      setState(s => ({ ...s, commentType: value as typeof state.commentType }));
+      if (value !== "newer" && value !== "older") return;
+      setState(s => ({ ...s, commentType: value }));
     }
   }
 
@@ -289,7 +305,13 @@ function Discussion({ discussionId }: Props) {
 
           <CardPanel.Buttons
             buttons={[
-              { onClick: () => refresh(state.show), text: <IconRefresh /> },
+              {
+                onClick: () => refresh(
+                  state.show,
+                  state.show === "arguments" ? state.argumentType : state.commentType
+                ),
+                text: <IconRefresh />
+              },
               {
                 onClick: loadNewer,
                 text: <IconArrowBigDownLine />,
