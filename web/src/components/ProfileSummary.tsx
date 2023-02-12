@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import { autoGrid, wrapContent } from "../styles/css";
+import TextParser from "./TextParser";
 
 interface Props {
   user: IUser;
@@ -50,7 +51,7 @@ function ProfileSummary({ user }: Props) {
         <Text truncate>{user.username}</Text>
       </Flex>
 
-      <Text css={wrapContent}>{user.bio}</Text>
+      <Text css={wrapContent}><TextParser text={user.bio} /></Text>
 
       <Text>
         {t("user.followers", { count: user.followerCount })}
