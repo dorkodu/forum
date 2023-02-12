@@ -35,9 +35,10 @@ export const schema = sage.schema(
     getUser: user.getUser,
     searchUser: user.searchUser,
 
-    getUserDiscussions: user.getUserDiscussions,
-
     followUser: user.followUser,
+    blockUser: user.blockUser,
+
+    getUserDiscussions: user.getUserDiscussions,
     getUserFollowers: user.getUserFollowers,
     getUserFollowing: user.getUserFollowing,
 

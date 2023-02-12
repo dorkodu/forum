@@ -1,7 +1,7 @@
 import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
-import { followUserSchema, getUserDiscussionsSchema, getUserFollowersSchema, getUserFollowingSchema, getUserSchema, searchUserSchema } from "../schemas/user";
+import { blockUserSchema, followUserSchema, getUserDiscussionsSchema, getUserFollowersSchema, getUserFollowingSchema, getUserSchema, searchUserSchema } from "../schemas/user";
 import { z } from "zod";
 import auth from "./auth";
 import pg from "../pg";
@@ -119,6 +119,151 @@ const searchUser = sage.resource(
   }
 )
 
+const blockUser = sage.resource(
+  {} as SchemaContext,
+  {} as z.infer<typeof blockUserSchema>,
+  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+    const parsed = followUserSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { userId, type } = parsed.data;
+
+    const [result0]: [{ exists: boolean }?] = await pg`
+      SELECT EXISTS (
+        SELECT * FROM user_blocks
+        WHERE blocker_id=${info.userId} AND blocking_id=${userId}
+      )
+    `;
+    if (!result0) return { error: ErrorCode.Default };
+
+    // Return error if trying to:
+    // - self block
+    // - unblock an user that is not being blocked
+    // - block an user that is already being blocked
+    if (info.userId === userId) return { error: ErrorCode.Default };
+    else if (!result0.exists && type === false) return { error: ErrorCode.Default };
+    else if (result0.exists && type === true) return { error: ErrorCode.Default };
+
+    if (type) {
+      const row = {
+        id: snowflake.id("user_blocks"),
+        blockerId: info.userId,
+        blockingId: userId,
+      }
+
+      const [[result1], [result2]] = await pg.begin(pg => [
+        pg`
+          SELECT EXISTS (
+            SELECT * FROM user_follows
+            WHERE follower_id=${info.userId} AND following_id=${userId}
+          )`,
+        pg`
+          SELECT EXISTS (
+            SELECT * FROM user_follows
+            WHERE follower_id=${userId} AND following_id=${info.userId}
+          )`,
+      ]);
+
+      const blockerFollow = result1?.exists as boolean | undefined;
+      const blockingFollow = result2?.exists as boolean | undefined;
+
+      const [result3] = await pg.begin(pg => [
+        pg`INSERT INTO user_blocks ${pg(row)}`,
+
+        blockerFollow ? pg`
+          UPDATE users
+          SET following_count=following_count-1
+          WHERE id=${info.userId}` : pg``,
+        blockerFollow ? pg`
+          UPDATE users
+          SET follower_count=follower_count-1
+          WHERE id=${userId}` : pg``,
+
+        blockingFollow ? pg`
+          UPDATE users
+          SET following_count=following_count-1
+          WHERE id=${userId}` : pg``,
+        blockingFollow ? pg`
+          UPDATE users
+          SET follower_count=follower_count-1
+          WHERE id=${info.userId}` : pg``,
+      ]);
+      if (result3.count === 0) return { error: ErrorCode.Default };
+    }
+    else {
+      const result1 = await pg`
+        DELETE FROM user_blocks
+        WHERE blocker_id=${info.userId} AND blocking_id=${userId}
+      `;
+      if (result1.count === 0) return { error: ErrorCode.Default };
+    }
+
+    return { data: {} };
+  }
+)
+
+const followUser = sage.resource(
+  {} as SchemaContext,
+  {} as z.infer<typeof followUserSchema>,
+  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
+    const parsed = followUserSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    const { userId, type } = parsed.data;
+
+    const [result0]: [{ exists: boolean }?] = await pg`
+      SELECT EXISTS (
+        SELECT * FROM user_follows
+        WHERE follower_id=${info.userId} AND following_id=${userId}
+      )
+    `;
+    if (!result0) return { error: ErrorCode.Default };
+
+    // Return error if trying to:
+    // - self follow
+    // - unfollow an user that is not being followed
+    // - follow an user that is already being followed
+    if (info.userId === userId) return { error: ErrorCode.Default };
+    else if (!result0.exists && type === false) return { error: ErrorCode.Default };
+    else if (result0.exists && type === true) return { error: ErrorCode.Default };
+
+    if (type) {
+      const row = {
+        id: snowflake.id("user_follows"),
+        followerId: info.userId,
+        followingId: userId,
+      }
+
+      const [result1, result2, result3] = await pg.begin(pg => [
+        pg`UPDATE users SET following_count=following_count+1 WHERE id=${info.userId}`,
+        pg`UPDATE users SET follower_count=follower_count+1 WHERE id=${userId}`,
+        pg`INSERT INTO user_follows ${pg(row)}`,
+      ]);
+      if (!result1) return { error: ErrorCode.Default };
+      if (!result2) return { error: ErrorCode.Default };
+      if (!result3) return { error: ErrorCode.Default };
+    }
+    else {
+      const [result1, result2, result3] = await pg.begin(pg => [
+        pg`UPDATE users SET following_count=following_count-1 WHERE id=${info.userId}`,
+        pg`UPDATE users SET follower_count=follower_count-1 WHERE id=${userId}`,
+        pg`DELETE FROM user_follows WHERE follower_id=${info.userId} AND following_id=${userId}`,
+      ]);
+      if (!result1) return { error: ErrorCode.Default };
+      if (!result2) return { error: ErrorCode.Default };
+      if (!result3) return { error: ErrorCode.Default };
+    }
+
+    return { data: {} };
+  }
+)
+
 const getUserDiscussions = sage.resource(
   {} as SchemaContext,
   {} as z.infer<typeof getUserDiscussionsSchema>,
@@ -158,65 +303,6 @@ const getUserDiscussions = sage.resource(
     })
 
     return { data: res };
-  }
-)
-
-const followUser = sage.resource(
-  {} as SchemaContext,
-  {} as z.infer<typeof followUserSchema>,
-  async (arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    const parsed = followUserSchema.safeParse(arg);
-    if (!parsed.success) return { error: ErrorCode.Default };
-
-    const info = await auth.getAuthInfo(ctx);
-    if (!info) return { error: ErrorCode.Default };
-
-    const { userId, type } = parsed.data;
-
-    const [result0]: [{ exists: boolean }?] = await pg`
-      SELECT EXISTS (
-        SELECT * FROM user_follows
-        WHERE follower_id=${info.userId} AND following_id=${userId}
-      )
-    `;
-    if (!result0) return { error: ErrorCode.Default };
-
-    // Return error if trying to:
-    // - self follow
-    // - unfollow an user that is not being followed
-    // - follow and user that is already being followed
-    if (info.userId === userId) return { error: ErrorCode.Default };
-    else if (!result0.exists && type === false) return { error: ErrorCode.Default };
-    else if (result0.exists && type === true) return { error: ErrorCode.Default };
-
-    if (type) {
-      const row = {
-        id: snowflake.id("user_follows"),
-        followerId: info.userId,
-        followingId: userId,
-      }
-
-      const [result1, result2, result3] = await pg.begin(pg => [
-        pg`UPDATE users SET following_count=following_count+1 WHERE id=${info.userId}`,
-        pg`UPDATE users SET follower_count=follower_count+1 WHERE id=${userId}`,
-        pg`INSERT INTO user_follows ${pg(row)}`,
-      ]);
-      if (!result1) return { error: ErrorCode.Default };
-      if (!result2) return { error: ErrorCode.Default };
-      if (!result3) return { error: ErrorCode.Default };
-    }
-    else {
-      const [result1, result2, result3] = await pg.begin(pg => [
-        pg`UPDATE users SET following_count=following_count-1 WHERE id=${info.userId}`,
-        pg`UPDATE users SET follower_count=follower_count-1 WHERE id=${userId}`,
-        pg`DELETE FROM user_follows WHERE follower_id=${info.userId} AND following_id=${userId}`,
-      ]);
-      if (!result1) return { error: ErrorCode.Default };
-      if (!result2) return { error: ErrorCode.Default };
-      if (!result3) return { error: ErrorCode.Default };
-    }
-
-    return { data: {} };
   }
 )
 
@@ -304,9 +390,10 @@ export default {
   getUser,
   searchUser,
 
-  getUserDiscussions,
-
+  blockUser,
   followUser,
+
+  getUserDiscussions,
   getUserFollowers,
   getUserFollowing,
 }

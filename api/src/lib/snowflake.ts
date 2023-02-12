@@ -58,6 +58,7 @@ class Snowflake {
 const generators = {
   "users": new Snowflake(),
   "user_follows": new Snowflake(),
+  "user_blocks": new Snowflake(),
   
   "discussions": new Snowflake(),
   "discussion_favourites": new Snowflake(),

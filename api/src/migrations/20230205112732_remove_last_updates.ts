@@ -1,6 +1,5 @@
 import { Knex } from "knex";
 
-
 export async function up(knex: Knex): Promise<void> {
   return knex.schema
     .alterTable("discussions", (table) => {
@@ -9,7 +8,6 @@ export async function up(knex: Knex): Promise<void> {
     })
 }
 
-
 export async function down(knex: Knex): Promise<void> {
   return knex.schema
     .alterTable("discussions", (table) => {
@@ -17,4 +15,3 @@ export async function down(knex: Knex): Promise<void> {
       table.bigint("last_comment_date")
     })
 }
-
