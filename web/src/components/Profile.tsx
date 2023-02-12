@@ -115,11 +115,9 @@ function Profile({ user }: Props) {
       </Flex>
 
       <Flex justify="space-between">
-        {user.following &&
-          <Flex align="center" gap="xs">
-            <IconUsers />{t("user.followsYou")}
-          </Flex>
-        }
+        <Flex align="center" gap="xs">
+          {user.following && <><IconUsers />{t("user.followsYou")}</>}
+        </Flex>
 
         <Flex align="flex-end">
           {user.id !== currentUserId &&
