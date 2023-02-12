@@ -173,9 +173,11 @@ const followUser = sage.resource(
 
     const { userId, type } = parsed.data;
 
-    const [result0]: [{ count: string }?] = await pg`
-      SELECT COUNT(*) FROM user_follows 
-      WHERE follower_id=${info.userId} AND following_id=${userId}
+    const [result0]: [{ exists: boolean }?] = await pg`
+      SELECT EXISTS (
+        SELECT * FROM user_follows
+        WHERE follower_id=${info.userId} AND following_id=${userId}
+      )
     `;
     if (!result0) return { error: ErrorCode.Default };
 
@@ -184,8 +186,8 @@ const followUser = sage.resource(
     // - unfollow an user that is not being followed
     // - follow and user that is already being followed
     if (info.userId === userId) return { error: ErrorCode.Default };
-    else if (result0.count === "0" && type === false) return { error: ErrorCode.Default };
-    else if (result0.count !== "0" && type === true) return { error: ErrorCode.Default };
+    else if (!result0.exists && type === false) return { error: ErrorCode.Default };
+    else if (result0.exists && type === true) return { error: ErrorCode.Default };
 
     if (type) {
       const row = {
