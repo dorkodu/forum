@@ -28,8 +28,14 @@ const getUser = sage.resource(
         ${info ?
           pg`
           (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
-          (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower` :
+          (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower,` :
           pg`FALSE AS following, FALSE AS follower`
+        }
+        ${info ?
+          pg`
+          (EXISTS (SELECT * FROM user_blocks WHERE blocker_id = u.id AND blocking_id = ${info.userId})) AS blocking,
+          (EXISTS (SELECT * FROM user_blocks WHERE blocking_id = u.id AND blocker_id = ${info.userId})) AS blocker` :
+          pg`NULL AS blocking, NULL AS blocker`
         }
         FROM users u
         WHERE username_ci = ${username.toLowerCase()}
@@ -167,29 +173,39 @@ const blockUser = sage.resource(
           )`,
       ]);
 
-      const blockerFollow = result1?.exists as boolean | undefined;
-      const blockingFollow = result2?.exists as boolean | undefined;
+      const blockingFollow = result1?.exists as boolean | undefined;
+      const blockerFollow = result2?.exists as boolean | undefined;
 
       const [result3] = await pg.begin(pg => [
         pg`INSERT INTO user_blocks ${pg(row)}`,
 
-        blockerFollow ? pg`
-          UPDATE users
-          SET following_count=following_count-1
-          WHERE id=${info.userId}` : pg``,
-        blockerFollow ? pg`
-          UPDATE users
-          SET follower_count=follower_count-1
-          WHERE id=${userId}` : pg``,
+        ...(blockingFollow ? [
+          pg`
+            UPDATE users
+            SET following_count=following_count-1
+            WHERE id=${userId}`,
+          pg`
+            UPDATE users
+            SET follower_count=follower_count-1
+            WHERE id=${info.userId}`,
+          pg`
+            DELETE FROM user_follows
+            WHERE follower_id=${userId} AND following_id=${info.userId}`,
+        ] : []),
 
-        blockingFollow ? pg`
-          UPDATE users
-          SET following_count=following_count-1
-          WHERE id=${userId}` : pg``,
-        blockingFollow ? pg`
-          UPDATE users
-          SET follower_count=follower_count-1
-          WHERE id=${info.userId}` : pg``,
+        ...(blockerFollow ? [
+          pg`
+            UPDATE users
+            SET following_count=following_count-1
+            WHERE id=${info.userId}`,
+          pg`
+            UPDATE users
+            SET follower_count=follower_count-1
+            WHERE id=${userId}`,
+          pg`
+            DELETE FROM user_follows
+            WHERE follower_id=${info.userId} AND following_id=${userId}`,
+        ] : []),
       ]);
       if (result3.count === 0) return { error: ErrorCode.Default };
     }

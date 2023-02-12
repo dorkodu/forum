@@ -27,6 +27,8 @@
 
 
   "user": {
+    "block": "Block",
+    "unblock": "Unblock",
     "follow": "Follow",
     "unfollow": "Unfollow",
     "followsYou": "Follows You",

@@ -187,44 +187,43 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
   },
 
   queryBlockUser: async (user) => {
-    //const type = !user.follower;
-    //
-    //const res = await sage.get(
-    //  { a: sage.query("followUser", { userId: user.id, type: type }) },
-    //  (query) => request(query)
-    //)
-    //
-    //const status = !(!res?.a.data || res.a.error);
-    //
-    //const currentUserId = useAuthStore.getState().userId;
-    //const currentUser = currentUserId && get().user.entities[currentUserId];
-    //const targetUser = user;
-    //
-    //set(state => {
-    //  if (!status) return;
-    //
-    //  const current = currentUser && state.user.entities[currentUser.id];
-    //  const target = state.user.entities[targetUser.id];
-    //
-    //  if (current) {
-    //    current.followingCount += type ? +1 : -1;
-    //  }
-    //  if (target) {
-    //    target.followerCount += type ? +1 : -1;
-    //    target.follower = type;
-    //  }
-    //})
-    //
-    //if (status && currentUser && targetUser) {
-    //  if (type) get().addUserFollowing(currentUser, [targetUser]);
-    //  else get().removeUserFollowing(currentUser, [targetUser]);
-    //
-    //  if (type) get().addUserFollowers(targetUser, [currentUser]);
-    //  else get().removeUserFollowers(targetUser, [currentUser]);
-    //}
-    //
-    //return status;
-    return false;
+    const type = !user.blocker;
+
+    const res = await sage.get(
+      { a: sage.query("blockUser", { userId: user.id, type: type }) },
+      (query) => request(query)
+    )
+
+    const status = !(!res?.a.data || res.a.error);
+
+    const currentUserId = useAuthStore.getState().userId;
+    const currentUser = currentUserId && get().user.entities[currentUserId];
+    const targetUser = user;
+
+    set(state => {
+      if (!status) return;
+
+      //const current = currentUser && state.user.entities[currentUser.id];
+      //const target = state.user.entities[targetUser.id];
+      //
+      //if (current) {
+      //  current.followingCount += type ? +1 : -1;
+      //}
+      //if (target) {
+      //  target.followerCount += type ? +1 : -1;
+      //  target.follower = type;
+      //}
+    })
+
+    if (status && currentUser && targetUser) {
+      //if (type) get().addUserFollowing(currentUser, [targetUser]);
+      //else get().removeUserFollowing(currentUser, [targetUser]);
+      //
+      //if (type) get().addUserFollowers(targetUser, [currentUser]);
+      //else get().removeUserFollowers(targetUser, [currentUser]);
+    }
+
+    return status;
   },
 
   queryFollowUser: async (user) => {

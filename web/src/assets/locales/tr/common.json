@@ -27,6 +27,8 @@
 
 
   "user": {
+    "block": "Engelle",
+    "unblock": "Engeli Kaldır",
     "follow": "Takip Et",
     "unfollow": "Takipten Çık",
     "followsYou": "Seni Takip Ediyor",

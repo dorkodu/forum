@@ -1,7 +1,7 @@
 import { IUser } from "@api/types/user";
 import { css } from "@emotion/react";
 import { ActionIcon, Button, Card, Flex, Menu, Text, } from "@mantine/core";
-import { IconCalendar, IconClipboardText, IconDots, IconShare, IconUsers } from "@tabler/icons";
+import { IconCalendar, IconClipboardText, IconDots, IconShare, IconUser, IconUserOff, IconUsers } from "@tabler/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
@@ -26,6 +26,7 @@ function Profile({ user }: Props) {
 
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryBlockUser = useUserStore(state => state.queryBlockUser);
   const queryFollowUser = useUserStore(state => state.queryFollowUser);
   const currentUserId = useAuthStore(state => state.userId);
 
@@ -37,6 +38,14 @@ function Profile({ user }: Props) {
   const gotoFollowing = () => {
     const target = `/profile/${user.username}/following`;
     if (location.pathname !== target) navigate(target);
+  }
+
+  const blockUser = async () => {
+    if (state.loading) return;
+
+    setState({ ...state, loading: true, status: undefined });
+    const status = await queryBlockUser(user);
+    setState({ ...state, loading: false, status: status });
   }
 
   const followUser = async () => {
@@ -88,6 +97,19 @@ function Profile({ user }: Props) {
               >
                 {t("copyToClipboard")}
               </Menu.Item>
+
+              {user.id !== currentUserId &&
+                <>
+                  <Menu.Divider />
+
+                  <Menu.Item
+                    icon={user.blocker ? <IconUser size={14} /> : <IconUserOff size={14} />}
+                    onClick={blockUser}
+                  >
+                    {user.blocker ? t("user.unblock") : t("user.block")}
+                  </Menu.Item>
+                </>
+              }
             </Menu.Dropdown>
           </Menu>
         </Flex>
