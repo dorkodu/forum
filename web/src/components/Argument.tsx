@@ -1,8 +1,7 @@
 import { css } from "@emotion/react";
-import { ActionIcon, Card, Flex, Menu, Text } from "@mantine/core";
-import { IconDots, IconTrash, IconArrowBigTop, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons";
-import { useReducer } from "react"
-import { useTranslation } from "react-i18next";
+import { ActionIcon, Card, Flex, Text } from "@mantine/core";
+import { IconArrowBigTop, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons";
+import { useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { date } from "../lib/date";
 import { useAppStore } from "../stores/appStore";
@@ -10,6 +9,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import { autoGrid, nowrap, wrapContent } from "../styles/css";
+import ArgumentMenu from "./menus/ArgumentMenu";
 import TextParser from "./TextParser";
 
 interface Props {
@@ -22,19 +22,11 @@ interface State {
 }
 
 function Argument({ argumentId }: Props) {
-  const [state, setState] = useReducer(
-    (prev: State, next: State) => ({ ...prev, ...next }),
-    { loading: false, status: undefined }
-  )
+  const [state, setState] = useState<State>({ loading: false, status: undefined });
 
-  const { t } = useTranslation();
   const navigate = useNavigate();
-
   const requestLogin = useAppStore(state => state.requestLogin);
-
   const queryVoteArgument = useDiscussionStore(state => state.queryVoteArgument);
-  const queryDeleteArgument = useDiscussionStore(state => state.queryDeleteArgument);
-
   const argument = useDiscussionStore(state => state.getArgument(argumentId));
   const user = useUserStore(state => state.getUserById(argument?.userId));
   const currentUserId = useAuthStore(state => state.userId);
@@ -56,15 +48,6 @@ function Argument({ argumentId }: Props) {
     setState({ ...state, loading: false, status: status });
   }
 
-  const deleteArgument = async () => {
-    if (!argument) return;
-    if (state.loading) return;
-
-    setState({ ...state, loading: true, status: undefined });
-    const status = await queryDeleteArgument(argument);
-    setState({ ...state, loading: false, status: status });
-  }
-
   if (!argument || !user) return (<></>)
 
   return (
@@ -81,21 +64,8 @@ function Argument({ argumentId }: Props) {
             {date(argument.date).fromNow()}
           </Text>
         </Flex>
-        <Menu shadow="md" radius="md" position="bottom-end">
-          <Menu.Target>
-            <ActionIcon color="dark"><IconDots /></ActionIcon>
-          </Menu.Target>
 
-          <Menu.Dropdown>
-            {user.id === currentUserId &&
-              <>
-                <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={deleteArgument}>
-                  {t("argument.delete")}
-                </Menu.Item>
-              </>
-            }
-          </Menu.Dropdown>
-        </Menu>
+        <ArgumentMenu user={user} argument={argument} />
       </Flex>
 
       <Text css={wrapContent}>
