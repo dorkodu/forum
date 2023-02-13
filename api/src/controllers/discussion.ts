@@ -425,13 +425,26 @@ const deleteArgument = sage.resource(
     `;
     if (!result0) return { error: ErrorCode.Default };
 
-    const [result1, result2, _result3] = await pg.begin(pg => [
+    // If current user is blocked by the discussion owner
+    const [result1]: [{ exists: boolean }?] = await pg`
+      SELECT EXISTS (
+        SELECT * FROM user_blocks
+        WHERE
+          blocker_id IN (SELECT user_id FROM discussion WHERE id=${result0.discussionId})
+          AND
+          blocking_id=${info.userId}
+      )
+    `;
+    if (!result1) return { error: ErrorCode.Default };
+    if (result1.exists) return { error: ErrorCode.Default };
+
+    const [result2, result3, _result4] = await pg.begin(pg => [
       pg`UPDATE discussions SET argument_count=argument_count-1 WHERE id=${result0.discussionId}`,
       pg`DELETE FROM discussion_arguments WHERE id=${argumentId} AND user_id=${info.userId}`,
       pg`DELETE FROM argument_votes WHERE argument_id=${argumentId}`,
     ]);
-    if (result1.count === 0) return { error: ErrorCode.Default };
     if (result2.count === 0) return { error: ErrorCode.Default };
+    if (result3.count === 0) return { error: ErrorCode.Default };
 
     return { data: {} };
   }
@@ -538,44 +551,62 @@ const voteArgument = sage.resource(
 
     const { argumentId, type } = parsed.data;
 
+    const [result0]: [{ discussionId: string }?] = await pg`
+      SELECT discussion_id FROM discussion_arguments WHERE id=${argumentId}
+    `;
+    if (!result0) return { error: ErrorCode.Default };
+
+    // If current user is blocked by the discussion owner
+    const [result1]: [{ exists: boolean }?] = await pg`
+      SELECT EXISTS (
+        SELECT * FROM user_blocks
+        WHERE
+          blocker_id IN (SELECT user_id FROM discussion WHERE id=${result0.discussionId})
+          AND
+          blocking_id=${info.userId}
+      )
+    `;
+    if (!result1) return { error: ErrorCode.Default };
+    if (result1.exists) return { error: ErrorCode.Default };
+
     if (type === "none") {
-      const [result0]: [{ type: boolean }?] = await pg`
+      const [result2]: [{ type: boolean }?] = await pg`
         DELETE FROM argument_votes 
         WHERE user_id=${info.userId} AND argument_id=${argumentId}
         RETURNING type
       `;
-      if (!result0) return { error: ErrorCode.Default };
+      if (!result2) return { error: ErrorCode.Default };
 
-      const voted = result0.type;
+      const voted = result2.type;
       let count = voted ? -1 : +1;
 
-      const result1 = await pg`
+      const result3 = await pg`
         UPDATE discussion_arguments SET vote_count=vote_count+${count}
         WHERE id=${argumentId}
       `;
-      if (result1.count === 0) return { error: ErrorCode.Default };
+      if (result3.count === 0) return { error: ErrorCode.Default };
     }
     else {
-      const [result0]: [{ discussionId: string }?] = await pg`
+      const [result2]: [{ discussionId: string }?] = await pg`
         SELECT discussion_id FROM discussion_arguments 
         WHERE id=${argumentId}
       `;
-      if (!result0) return { error: ErrorCode.Default };
+      if (!result2) return { error: ErrorCode.Default };
 
       const row = {
         id: snowflake.id("argument_votes"),
         userId: info.userId,
         argumentId: argumentId,
-        discussionId: result0.discussionId,
+        discussionId: result2.discussionId,
         type: type === "up",
       }
 
-      const [result1]: [{ type: boolean }?] = await pg`
+      const [result3]: [{ type: boolean }?] = await pg`
         SELECT type FROM argument_votes 
         WHERE user_id=${info.userId} AND argument_id=${argumentId}
       `;
 
-      const voted = result1?.type;
+      const voted = result3?.type;
       let count: number;
       if (voted === true && type === "down") count = -2;
       else if (voted === false && type === "up") count = +2;
@@ -583,23 +614,19 @@ const voteArgument = sage.resource(
       else if (voted === undefined && type === "down") count = -1;
       else return { error: ErrorCode.Default };
 
-      const [result2, result3] = await pg.begin(pg => {
-        const result2 = voted === undefined ?
+      const [result4, result5] = await pg.begin(pg => [
+        (voted === undefined ?
           pg`INSERT INTO argument_votes ${pg(row)}` :
           pg`
-            UPDATE argument_votes SET type=${row.type} 
-            WHERE user_id=${info.userId} AND argument_id=${argumentId}
-            `;
-
-        const result3 = pg`
+          UPDATE argument_votes SET type=${row.type} 
+          WHERE user_id=${info.userId} AND argument_id=${argumentId}`
+        ),
+        pg`
           UPDATE discussion_arguments SET vote_count=vote_count+${count} 
-          WHERE id=${argumentId}
-        `;
-
-        return [result2, result3];
-      })
-      if (result2.count === 0) return { error: ErrorCode.Default };
-      if (result3.count === 0) return { error: ErrorCode.Default };
+          WHERE id=${argumentId}`,
+      ]);
+      if (result4.count === 0) return { error: ErrorCode.Default };
+      if (result5.count === 0) return { error: ErrorCode.Default };
     }
 
     return { data: {} };
@@ -671,12 +698,25 @@ const deleteComment = sage.resource(
     `;
     if (!result0) return { error: ErrorCode.Default };
 
-    const [result1, result2] = await pg.begin(pg => [
+    // If current user is blocked by the discussion owner
+    const [result1]: [{ exists: boolean }?] = await pg`
+      SELECT EXISTS (
+        SELECT * FROM user_blocks
+        WHERE
+          blocker_id IN (SELECT user_id FROM discussion WHERE id=${result0.discussionId})
+          AND
+          blocking_id=${info.userId}
+      )
+    `;
+    if (!result1) return { error: ErrorCode.Default };
+    if (result1.exists) return { error: ErrorCode.Default };
+
+    const [result2, result3] = await pg.begin(pg => [
       pg`UPDATE discussions SET comment_count=comment_count-1 WHERE id=${result0.discussionId}`,
       pg`DELETE FROM discussion_comments WHERE id=${commentId} AND user_id=${info.userId}`,
     ])
-    if (result1.count === 0) return { error: ErrorCode.Default };
     if (result2.count === 0) return { error: ErrorCode.Default };
+    if (result3.count === 0) return { error: ErrorCode.Default };
 
     return { data: {} };
   }
