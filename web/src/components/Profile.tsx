@@ -1,7 +1,7 @@
 import { IUser } from "@api/types/user";
 import { css } from "@emotion/react";
-import { ActionIcon, Button, Card, Flex, Menu, Text, } from "@mantine/core";
-import { IconCalendar, IconClipboardText, IconDots, IconHandOff, IconHandStop, IconShare, IconUsers } from "@tabler/icons";
+import { Button, Card, Flex, Text, } from "@mantine/core";
+import { IconCalendar, IconHandOff, IconUsers } from "@tabler/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
@@ -10,7 +10,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import { wrapContent } from "../styles/css";
 import TextParser from "./TextParser";
-import { util } from "../lib/util";
+import UserMenu from "./menus/UserMenu";
 
 interface Props {
   user: IUser;
@@ -26,7 +26,6 @@ function Profile({ user }: Props) {
 
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const queryBlockUser = useUserStore(state => state.queryBlockUser);
   const queryFollowUser = useUserStore(state => state.queryFollowUser);
   const currentUserId = useAuthStore(state => state.userId);
 
@@ -40,32 +39,12 @@ function Profile({ user }: Props) {
     if (location.pathname !== target) navigate(target);
   }
 
-  const blockUser = async () => {
-    if (state.loading) return;
-
-    setState({ ...state, loading: true, status: undefined });
-    const status = await queryBlockUser(user);
-    setState({ ...state, loading: false, status: status });
-  }
-
   const followUser = async () => {
     if (state.loading) return;
 
     setState({ ...state, loading: true, status: undefined });
     const status = await queryFollowUser(user);
     setState({ ...state, loading: false, status: status });
-  }
-
-  const share = () => {
-    util.share(
-      `Profile`,
-      `${user.name} @${user.username}`,
-      `https://forum.dorkodu.com/profile/${user.username}`
-    )
-  }
-
-  const copyToClipboard = () => {
-    util.copyToClipboard(`https://forum.dorkodu.com/profile/${user.username}`);
   }
 
   return (
@@ -75,45 +54,7 @@ function Profile({ user }: Props) {
           <Text css={wrapContent}>{user.name}</Text>
         </Flex>
 
-        <Flex align="flex-start">
-          <Menu shadow="md" radius="md" position="bottom-end">
-            <Menu.Target>
-              <ActionIcon color="dark" onClick={(ev) => { ev.stopPropagation() }}>
-                <IconDots />
-              </ActionIcon>
-            </Menu.Target>
-
-            <Menu.Dropdown>
-              <Menu.Item
-                icon={<IconShare size={14} />}
-                onClick={share}
-              >
-                {t("share")}
-              </Menu.Item>
-
-              <Menu.Item
-                icon={<IconClipboardText size={14} />}
-                onClick={copyToClipboard}
-              >
-                {t("copyToClipboard")}
-              </Menu.Item>
-
-              {user.id !== currentUserId &&
-                <>
-                  <Menu.Divider />
-
-                  <Menu.Item
-                    icon={user.blocker ? <IconHandStop size={14} /> : <IconHandOff size={14} />}
-                    onClick={blockUser}
-                    color="red"
-                  >
-                    {user.blocker ? t("user.unblock") : t("user.block")}
-                  </Menu.Item>
-                </>
-              }
-            </Menu.Dropdown>
-          </Menu>
-        </Flex>
+        <Flex align="flex-start"><UserMenu user={user} /></Flex>
       </Flex>
 
       <Text css={wrapContent}>@{user.username}</Text>

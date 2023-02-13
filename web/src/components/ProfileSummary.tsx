@@ -1,4 +1,5 @@
 import { IUser } from "@api/types/user";
+import { css } from "@emotion/react";
 import { Button, Card, Flex, Text } from "@mantine/core";
 import { IconHandOff, IconUsers } from "@tabler/icons";
 import { MouseEvent, useReducer } from "react";
@@ -7,6 +8,7 @@ import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import { autoGrid, wrapContent } from "../styles/css";
+import UserMenu from "./menus/UserMenu";
 import TextParser from "./TextParser";
 
 interface Props {
@@ -44,11 +46,15 @@ function ProfileSummary({ user }: Props) {
   }
 
   return (
-    <Card shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoUser}>
-      <Flex miw={0} css={autoGrid} justify="flex-start">
-        <Text truncate mr={4}>{user.name}</Text>
-        <Text>@</Text>
-        <Text truncate>{user.username}</Text>
+    <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoUser}>
+      <Flex align="center" justify="space-between">
+        <Flex miw={0} onClick={gotoUser} css={autoGrid}>
+          <Text truncate mr={4}>{user.name}</Text>
+          <Text>@</Text>
+          <Text truncate>{user.username}</Text>
+        </Flex>
+
+        <UserMenu user={user} />
       </Flex>
 
       <Text css={wrapContent}><TextParser text={user.bio} /></Text>
