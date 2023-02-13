@@ -179,25 +179,11 @@ const blockUser = sage.resource(
           )`,
       ]);
 
-      const blockingFollow = result1?.exists as boolean | undefined;
-      const blockerFollow = result2?.exists as boolean | undefined;
+      const blockerFollow = result1?.exists as boolean | undefined;
+      const blockingFollow = result2?.exists as boolean | undefined;
 
       const [result3] = await pg.begin(pg => [
         pg`INSERT INTO user_blocks ${pg(row)}`,
-
-        ...(blockingFollow ? [
-          pg`
-            UPDATE users
-            SET following_count=following_count-1
-            WHERE id=${userId}`,
-          pg`
-            UPDATE users
-            SET follower_count=follower_count-1
-            WHERE id=${info.userId}`,
-          pg`
-            DELETE FROM user_follows
-            WHERE follower_id=${userId} AND following_id=${info.userId}`,
-        ] : []),
 
         ...(blockerFollow ? [
           pg`
@@ -211,6 +197,20 @@ const blockUser = sage.resource(
           pg`
             DELETE FROM user_follows
             WHERE follower_id=${info.userId} AND following_id=${userId}`,
+        ] : []),
+
+        ...(blockingFollow ? [
+          pg`
+            UPDATE users
+            SET following_count=following_count-1
+            WHERE id=${userId}`,
+          pg`
+            UPDATE users
+            SET follower_count=follower_count-1
+            WHERE id=${info.userId}`,
+          pg`
+            DELETE FROM user_follows
+            WHERE follower_id=${userId} AND following_id=${info.userId}`,
         ] : []),
       ]);
       if (result3.count === 0) return { error: ErrorCode.Default };
