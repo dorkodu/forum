@@ -325,7 +325,19 @@ const getUserDiscussions = sage.resource(
     const userId = parsed.data.userId ?? ctx.userId;
     if (!userId) return { error: ErrorCode.Default };
 
-    const result = await pg<IDiscussionRaw[]>`
+    // If logged in & target user is blocking current user
+    if (info) {
+      const [result0]: [{ exists: boolean }?] = await pg`
+        SELECT EXISTS (
+          SELECT * FROM user_blocks
+          WHERE blocker_id=${userId} AND blocking_id=${info.userId}
+        )
+      `;
+      if (!result0) return { error: ErrorCode.Default };
+      if (result0.exists) return { error: ErrorCode.Default };
+    }
+
+    const result0 = await pg<IDiscussionRaw[]>`
       SELECT
         d.id, d.user_id, d.date, d.title, d.readme,
         d.favourite_count, d.argument_count, d.comment_count,
@@ -345,7 +357,7 @@ const getUserDiscussions = sage.resource(
     `;
 
     const res: IDiscussionParsed[] = [];
-    result.forEach(argument => {
+    result0.forEach(argument => {
       const parsed = iDiscussionSchema.safeParse(argument);
       if (parsed.success) res.push(parsed.data);
     })
@@ -366,6 +378,18 @@ const getUserFollowers = sage.resource(
     const { anchorId, type } = parsed.data;
     const userId = parsed.data.userId ?? ctx.userId;
     if (!userId) return { error: ErrorCode.Default };
+
+    // If logged in & target user is blocking current user
+    if (info) {
+      const [result0]: [{ exists: boolean }?] = await pg`
+        SELECT EXISTS (
+          SELECT * FROM user_blocks
+          WHERE blocker_id=${userId} AND blocking_id=${info.userId}
+        )
+      `;
+      if (!result0) return { error: ErrorCode.Default };
+      if (result0.exists) return { error: ErrorCode.Default };
+    }
 
     const result = await pg<IUserRaw[]>`
       SELECT 
@@ -412,6 +436,18 @@ const getUserFollowing = sage.resource(
     const { anchorId, type } = parsed.data;
     const userId = parsed.data.userId ?? ctx.userId;
     if (!userId) return { error: ErrorCode.Default };
+
+    // If logged in & target user is blocking current user
+    if (info) {
+      const [result0]: [{ exists: boolean }?] = await pg`
+        SELECT EXISTS (
+          SELECT * FROM user_blocks
+          WHERE blocker_id=${userId} AND blocking_id=${info.userId}
+        )
+      `;
+      if (!result0) return { error: ErrorCode.Default };
+      if (result0.exists) return { error: ErrorCode.Default };
+    }
 
     const result = await pg<IUserRaw[]>`
       SELECT

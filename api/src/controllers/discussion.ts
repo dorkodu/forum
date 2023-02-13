@@ -204,6 +204,17 @@ const getFavouriteDiscussionFeed = sage.resource(
       ON d.id=df.discussion_id AND df.user_id=${info.userId}
       ${anchorId === "-1" ? pg`` :
         type === "newer" ? pg`WHERE d.id>${anchorId}` : pg`WHERE d.id<${anchorId}`}
+      ${info ?
+        pg`
+          ${anchorId === "-1" ? pg`WHERE` : pg`AND`} (
+            NOT EXISTS (
+              SELECT * FROM user_blocks ub
+              WHERE 
+                (ub.blocker_id=${info.userId} AND d.user_id=ub.blocking_id) OR
+                (ub.blocking_id=${info.userId} AND d.user_id=ub.blocker_id)
+            )
+          )
+        ` : pg``}
       ORDER BY d.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
       LIMIT 20
     `;
