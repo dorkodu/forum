@@ -29,7 +29,7 @@ const getUser = sage.resource(
           pg`
           (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
           (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower,` :
-          pg`FALSE AS following, FALSE AS follower`
+          pg`FALSE AS following, FALSE AS follower,`
         }
         ${info ?
           pg`
@@ -65,8 +65,14 @@ const getUser = sage.resource(
         ${info ?
           pg`
           (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
-          (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower` :
-          pg`FALSE AS following, FALSE AS follower`
+          (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower,` :
+          pg`FALSE AS following, FALSE AS follower,`
+        }
+        ${info ?
+          pg`
+          (EXISTS (SELECT * FROM user_blocks WHERE blocker_id = u.id AND blocking_id = ${info.userId})) AS blocking,
+          (EXISTS (SELECT * FROM user_blocks WHERE blocking_id = u.id AND blocker_id = ${info.userId})) AS blocker` :
+          pg`NULL AS blocking, NULL AS blocker`
         }
         FROM users u
         WHERE u.id IN ${pg(ids)}
