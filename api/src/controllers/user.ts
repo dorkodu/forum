@@ -109,8 +109,14 @@ const searchUser = sage.resource(
       ${info ?
         pg`
         (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
-        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower` :
-        pg`FALSE AS following, FALSE AS follower`
+        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower,` :
+        pg`FALSE AS following, FALSE AS follower,`
+      }
+      ${info ?
+        pg`
+        (EXISTS (SELECT * FROM user_blocks WHERE blocker_id = u.id AND blocking_id = ${info.userId})) AS blocking,
+        (EXISTS (SELECT * FROM user_blocks WHERE blocking_id = u.id AND blocker_id = ${info.userId})) AS blocker` :
+        pg`NULL AS blocking, NULL AS blocker`
       }
       FROM users u
       WHERE 
@@ -239,6 +245,26 @@ const followUser = sage.resource(
 
     const { userId, type } = parsed.data;
 
+    // Check if any of the users have blocked each other
+    const [[result1], [result2]] = await pg.begin(pg => [
+      pg`
+        SELECT EXISTS (
+          SELECT * FROM user_blocks
+          WHERE blocker_id=${info.userId} AND blocking_id=${userId}
+        )`,
+      pg`
+        SELECT EXISTS (
+          SELECT * FROM user_blocks
+          WHERE blocker_id=${userId} AND blocking_id=${info.userId}
+        )`,
+    ]);
+    const blocker = result1?.exists as boolean | undefined;
+    const blocking = result2?.exists as boolean | undefined;
+    if (blocker === undefined) return { error: ErrorCode.Default };
+    if (blocking === undefined) return { error: ErrorCode.Default };
+    if (blocker === true) return { error: ErrorCode.Default };
+    if (blocking === true) return { error: ErrorCode.Default };
+
     const [result0]: [{ exists: boolean }?] = await pg`
       SELECT EXISTS (
         SELECT * FROM user_follows
@@ -348,8 +374,14 @@ const getUserFollowers = sage.resource(
       ${info ?
         pg`
         (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
-        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower` :
-        pg`FALSE AS following, FALSE AS follower`
+        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower,` :
+        pg`FALSE AS following, FALSE AS follower,`
+      }
+      ${info ?
+        pg`
+        (EXISTS (SELECT * FROM user_blocks WHERE blocker_id = u.id AND blocking_id = ${info.userId})) AS blocking,
+        (EXISTS (SELECT * FROM user_blocks WHERE blocking_id = u.id AND blocker_id = ${info.userId})) AS blocker` :
+        pg`NULL AS blocking, NULL AS blocker`
       }
       FROM users u
       WHERE u.id IN (SELECT follower_id FROM user_follows WHERE following_id=${userId})
@@ -388,8 +420,14 @@ const getUserFollowing = sage.resource(
       ${info ?
         pg`
         (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
-        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower` :
-        pg`FALSE AS following, FALSE AS follower`
+        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower,` :
+        pg`FALSE AS following, FALSE AS follower,`
+      }
+      ${info ?
+        pg`
+        (EXISTS (SELECT * FROM user_blocks WHERE blocker_id = u.id AND blocking_id = ${info.userId})) AS blocking,
+        (EXISTS (SELECT * FROM user_blocks WHERE blocking_id = u.id AND blocker_id = ${info.userId})) AS blocker` :
+        pg`NULL AS blocking, NULL AS blocker`
       }
       FROM users u
       WHERE u.id IN (SELECT following_id FROM user_follows WHERE follower_id=${userId})
