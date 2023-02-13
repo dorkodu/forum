@@ -203,24 +203,43 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
     set(state => {
       if (!status) return;
 
-      //const current = currentUser && state.user.entities[currentUser.id];
-      //const target = state.user.entities[targetUser.id];
-      //
-      //if (current) {
-      //  current.followingCount += type ? +1 : -1;
-      //}
-      //if (target) {
-      //  target.followerCount += type ? +1 : -1;
-      //  target.follower = type;
-      //}
+      const current = currentUser && state.user.entities[currentUser.id];
+      const target = state.user.entities[targetUser.id];
+
+      // If blocking
+      if (current && target && type) {
+        target.blocker = true;
+
+        // If the current user is following the target user
+        if (target.follower) {
+          current.followingCount += -1;
+          target.followerCount += -1;
+          target.follower = false;
+        }
+        // If the target user is following the current user
+        if (target.following) {
+          target.followingCount += -1;
+          current.followerCount += -1;
+          target.following = false;
+        }
+      }
+      // If unblocking
+      else if (current && target && !type) {
+        target.blocker = false;
+      }
     })
 
-    if (status && currentUser && targetUser) {
-      //if (type) get().addUserFollowing(currentUser, [targetUser]);
-      //else get().removeUserFollowing(currentUser, [targetUser]);
-      //
-      //if (type) get().addUserFollowers(targetUser, [currentUser]);
-      //else get().removeUserFollowers(targetUser, [currentUser]);
+    if (status && currentUser && targetUser && type) {
+      // If the current user is following the target user
+      if (targetUser.follower) {
+        get().removeUserFollowing(currentUser, [targetUser]);
+        get().removeUserFollowers(targetUser, [currentUser]);
+      }
+      // If the target user is following the current user
+      if (targetUser.following) {
+        get().removeUserFollowing(targetUser, [currentUser]);
+        get().removeUserFollowers(currentUser, [targetUser]);
+      }
     }
 
     return status;
