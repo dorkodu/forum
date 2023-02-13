@@ -84,7 +84,7 @@ const getDiscussion = sage.resource(
 
     const { discussionId } = parsed.data;
 
-    const [result]: [IDiscussionRaw?] = await pg`
+    const [result0]: [IDiscussionRaw?] = await pg`
       SELECT
         d.id, d.user_id, d.date, d.title, d.readme,
         d.favourite_count, d.argument_count, d.comment_count,
@@ -96,7 +96,21 @@ const getDiscussion = sage.resource(
       FROM discussions d
       WHERE d.id=${discussionId}
     `;
-    const res = iDiscussionSchema.safeParse(result);
+    if (!result0) return { error: ErrorCode.Default };
+
+    // If current user is blocked by the discussion owner
+    if (info) {
+      const [result1]: [{ exists: boolean }?] = await pg`
+        SELECT EXISTS (
+          SELECT * FROM user_blocks
+          WHERE blocker_id=${result0.userId} AND blocking_id=${info.userId}
+        )
+      `;
+      if (!result1) return { error: ErrorCode.Default };
+      if (result1.exists) return { error: ErrorCode.Default };
+    }
+
+    const res = iDiscussionSchema.safeParse(result0);
     if (!res.success) return { error: ErrorCode.Default };
 
     if (ctx.userIds === undefined) ctx.userIds = new Set([res.data.userId]);
@@ -295,6 +309,19 @@ const favouriteDiscussion = sage.resource(
 
     const { discussionId, favourited } = parsed.data;
 
+    // If current user is blocked by the discussion owner
+    const [result0]: [{ exists: boolean }?] = await pg`
+      SELECT EXISTS (
+        SELECT * FROM user_blocks
+        WHERE
+          blocker_id IN (SELECT user_id FROM discussion WHERE id=${discussionId})
+          AND
+          blocking_id=${info.userId}
+      )
+    `;
+    if (!result0) return { error: ErrorCode.Default };
+    if (result0.exists) return { error: ErrorCode.Default };
+
     if (favourited) {
       const row = {
         id: snowflake.id("discussion_favourites"),
@@ -302,29 +329,29 @@ const favouriteDiscussion = sage.resource(
         discussionId: discussionId,
       }
 
-      const result0 = await pg`INSERT INTO discussion_favourites ${pg(row)}`;
-      if (result0.count === 0) return { error: ErrorCode.Default };
+      const result1 = await pg`INSERT INTO discussion_favourites ${pg(row)}`;
+      if (result1.count === 0) return { error: ErrorCode.Default };
 
-      const result1 = await pg`
+      const result2 = await pg`
         UPDATE discussions
         SET favourite_count=favourite_count+1
         WHERE id=${discussionId}
       `;
-      if (result1.count === 0) return { error: ErrorCode.Default };
+      if (result2.count === 0) return { error: ErrorCode.Default };
     }
     else {
-      const result0 = await pg`
+      const result1 = await pg`
         DELETE FROM discussion_favourites 
         WHERE user_id=${info.userId} AND discussion_id=${discussionId}
       `;
-      if (result0.count === 0) return { error: ErrorCode.Default };
+      if (result1.count === 0) return { error: ErrorCode.Default };
 
-      const result1 = await pg`
+      const result2 = await pg`
         UPDATE discussions 
         SET favourite_count=favourite_count-1 
         WHERE id=${discussionId}
       `;
-      if (result1.count === 0) return { error: ErrorCode.Default };
+      if (result2.count === 0) return { error: ErrorCode.Default };
     }
 
     return { data: {} };
@@ -343,6 +370,19 @@ const createArgument = sage.resource(
 
     const { discussionId, content, type } = parsed.data;
 
+    // If current user is blocked by the discussion owner
+    const [result0]: [{ exists: boolean }?] = await pg`
+    SELECT EXISTS (
+      SELECT * FROM user_blocks
+      WHERE
+        blocker_id IN (SELECT user_id FROM discussion WHERE id=${discussionId})
+        AND
+        blocking_id=${info.userId}
+    )
+    `;
+    if (!result0) return { error: ErrorCode.Default };
+    if (result0.exists) return { error: ErrorCode.Default };
+
     const row = {
       id: snowflake.id("discussion_arguments"),
       userId: info.userId,
@@ -353,7 +393,7 @@ const createArgument = sage.resource(
       voteCount: 0,
     }
 
-    const [result0, result1] = await pg.begin(pg => [
+    const [result1, result2] = await pg.begin(pg => [
       pg`INSERT INTO discussion_arguments ${pg(row)}`,
       pg`
         UPDATE discussions
@@ -361,8 +401,8 @@ const createArgument = sage.resource(
         WHERE id=${discussionId}
         `,
     ]);
-    if (result0.count === 0) return { error: ErrorCode.Default };
     if (result1.count === 0) return { error: ErrorCode.Default };
+    if (result2.count === 0) return { error: ErrorCode.Default };
 
     return { data: { ...row, voted: false, votedType: true } };
   }
@@ -407,6 +447,21 @@ const getArguments = sage.resource(
     const info = await auth.getAuthInfo(ctx);
 
     const { discussionId, anchorId, type } = parsed.data;
+
+    if (info) {
+      // If current user is blocked by the discussion owner
+      const [result0]: [{ exists: boolean }?] = await pg`
+      SELECT EXISTS (
+        SELECT * FROM user_blocks
+        WHERE
+          blocker_id IN (SELECT user_id FROM discussion WHERE id=${discussionId})
+          AND
+          blocking_id=${info.userId}
+      )
+      `;
+      if (!result0) return { error: ErrorCode.Default };
+      if (result0.exists) return { error: ErrorCode.Default };
+    }
 
     let result: postgres.RowList<IArgumentRaw[]>;
 
@@ -563,6 +618,19 @@ const createComment = sage.resource(
 
     const { discussionId, content } = parsed.data;
 
+    // If current user is blocked by the discussion owner
+    const [result0]: [{ exists: boolean }?] = await pg`
+    SELECT EXISTS (
+      SELECT * FROM user_blocks
+      WHERE
+        blocker_id IN (SELECT user_id FROM discussion WHERE id=${discussionId})
+        AND
+        blocking_id=${info.userId}
+    )
+    `;
+    if (!result0) return { error: ErrorCode.Default };
+    if (result0.exists) return { error: ErrorCode.Default };
+
     const row = {
       id: snowflake.id("discussion_comments"),
       userId: info.userId,
@@ -571,7 +639,7 @@ const createComment = sage.resource(
       content: content,
     }
 
-    const [result0, result1] = await pg.begin(pg => [
+    const [result1, result2] = await pg.begin(pg => [
       pg`INSERT INTO discussion_comments ${pg(row)}`,
       pg`
         UPDATE discussions 
@@ -579,8 +647,8 @@ const createComment = sage.resource(
         WHERE id=${discussionId}
         `,
     ]);
-    if (result0.count === 0) return { error: ErrorCode.Default };
     if (result1.count === 0) return { error: ErrorCode.Default };
+    if (result2.count === 0) return { error: ErrorCode.Default };
 
     return { data: row };
   }
@@ -621,7 +689,24 @@ const getComments = sage.resource(
     const parsed = getCommentsSchema.safeParse(arg);
     if (!parsed.success) return { error: ErrorCode.Default };
 
+    const info = await auth.getAuthInfo(ctx);
+
     const { discussionId, anchorId, type } = parsed.data;
+
+    if (info) {
+      // If current user is blocked by the discussion owner
+      const [result0]: [{ exists: boolean }?] = await pg`
+      SELECT EXISTS (
+        SELECT * FROM user_blocks
+        WHERE
+          blocker_id IN (SELECT user_id FROM discussion WHERE id=${discussionId})
+          AND
+          blocking_id=${info.userId}
+      )
+      `;
+      if (!result0) return { error: ErrorCode.Default };
+      if (result0.exists) return { error: ErrorCode.Default };
+    }
 
     const result = await pg<ICommentRaw[]>`
       SELECT id, user_id, discussion_id, date, content FROM discussion_comments
