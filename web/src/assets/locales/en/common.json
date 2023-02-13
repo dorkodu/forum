@@ -29,6 +29,10 @@
   "user": {
     "block": "Block",
     "unblock": "Unblock",
+    "blocker": "You are blocking",
+    "blocking": "You are being blocked",
+    "blockBoth": "You are blocking each other",
+
     "follow": "Follow",
     "unfollow": "Unfollow",
     "followsYou": "Follows You",

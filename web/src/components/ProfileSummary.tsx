@@ -1,6 +1,6 @@
 import { IUser } from "@api/types/user";
 import { Button, Card, Flex, Text } from "@mantine/core";
-import { IconUsers } from "@tabler/icons";
+import { IconUserOff, IconUsers } from "@tabler/icons";
 import { MouseEvent, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
@@ -61,19 +61,28 @@ function ProfileSummary({ user }: Props) {
         {t("user.following", { count: user.followingCount })}
       </Text>
 
-      <Flex justify="space-between">
+      {user.following &&
         <Flex align="center" gap="xs">
-          {user.following && <><IconUsers />{t("user.followsYou")}</>}
+          <IconUsers />{t("user.followsYou")}
         </Flex>
+      }
 
-        <Flex align="flex-end">
-          {user.id !== currentUserId &&
-            <Button onClick={followUser} color="dark" radius="md">
-              {user.follower ? t("user.unfollow") : t("user.follow")}
-            </Button>
-          }
+      {(user.blocking || user.blocker) &&
+        <Flex align="center" gap="xs">
+          <IconUserOff />
+          {user.blocking && user.blocker && t("user.blockBoth")}
+          {!user.blocking && user.blocker && t("user.blocker")}
+          {user.blocking && !user.blocker && t("user.blocking")}
         </Flex>
-      </Flex>
+      }
+
+      {user.id !== currentUserId &&
+        <Flex justify="flex-end">
+          <Button onClick={followUser} color="dark" radius="md">
+            {user.follower ? t("user.unfollow") : t("user.follow")}
+          </Button>
+        </Flex>
+      }
     </Card>
   )
 }

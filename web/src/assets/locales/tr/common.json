@@ -29,6 +29,10 @@
   "user": {
     "block": "Engelle",
     "unblock": "Engeli Kaldır",
+    "blocker": "Kullanıcıyı blokladınız",
+    "blocking": "Kullanıcı sizi blokladı",
+    "blockBoth": "Birbirinizi blokladınız",
+    
     "follow": "Takip Et",
     "unfollow": "Takipten Çık",
     "followsYou": "Seni Takip Ediyor",
