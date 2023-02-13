@@ -105,6 +105,7 @@ function Profile({ user }: Props) {
                   <Menu.Item
                     icon={user.blocker ? <IconHandStop size={14} /> : <IconHandOff size={14} />}
                     onClick={blockUser}
+                    color="red"
                   >
                     {user.blocker ? t("user.unblock") : t("user.block")}
                   </Menu.Item>
