@@ -1,6 +1,6 @@
 import { IUser } from "@api/types/user";
 import { Button, Card, Flex, Text } from "@mantine/core";
-import { IconUserOff, IconUsers } from "@tabler/icons";
+import { IconHandOff, IconUsers } from "@tabler/icons";
 import { MouseEvent, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
@@ -69,7 +69,7 @@ function ProfileSummary({ user }: Props) {
 
       {(user.blocking || user.blocker) &&
         <Flex align="center" gap="xs">
-          <IconUserOff />
+          <IconHandOff />
           {user.blocking && user.blocker && t("user.blockBoth")}
           {!user.blocking && user.blocker && t("user.blocker")}
           {user.blocking && !user.blocker && t("user.blocking")}

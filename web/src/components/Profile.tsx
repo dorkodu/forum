@@ -1,7 +1,7 @@
 import { IUser } from "@api/types/user";
 import { css } from "@emotion/react";
 import { ActionIcon, Button, Card, Flex, Menu, Text, } from "@mantine/core";
-import { IconCalendar, IconClipboardText, IconDots, IconShare, IconUser, IconUserOff, IconUsers } from "@tabler/icons";
+import { IconCalendar, IconClipboardText, IconDots, IconHandOff, IconHandStop, IconShare, IconUsers } from "@tabler/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
@@ -103,7 +103,7 @@ function Profile({ user }: Props) {
                   <Menu.Divider />
 
                   <Menu.Item
-                    icon={user.blocker ? <IconUser size={14} /> : <IconUserOff size={14} />}
+                    icon={user.blocker ? <IconHandStop size={14} /> : <IconHandOff size={14} />}
                     onClick={blockUser}
                   >
                     {user.blocker ? t("user.unblock") : t("user.block")}
@@ -144,7 +144,7 @@ function Profile({ user }: Props) {
 
       {(user.blocking || user.blocker) &&
         <Flex align="center" gap="xs">
-          <IconUserOff />
+          <IconHandOff />
           {user.blocking && user.blocker && t("user.blockBoth")}
           {!user.blocking && user.blocker && t("user.blocker")}
           {user.blocking && !user.blocker && t("user.blocking")}
