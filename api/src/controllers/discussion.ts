@@ -314,7 +314,7 @@ const favouriteDiscussion = sage.resource(
       SELECT EXISTS (
         SELECT * FROM user_blocks
         WHERE
-          blocker_id IN (SELECT user_id FROM discussion WHERE id=${discussionId})
+          blocker_id IN (SELECT user_id FROM discussions WHERE id=${discussionId})
           AND
           blocking_id=${info.userId}
       )
@@ -375,7 +375,7 @@ const createArgument = sage.resource(
     SELECT EXISTS (
       SELECT * FROM user_blocks
       WHERE
-        blocker_id IN (SELECT user_id FROM discussion WHERE id=${discussionId})
+        blocker_id IN (SELECT user_id FROM discussions WHERE id=${discussionId})
         AND
         blocking_id=${info.userId}
     )
@@ -430,7 +430,7 @@ const deleteArgument = sage.resource(
       SELECT EXISTS (
         SELECT * FROM user_blocks
         WHERE
-          blocker_id IN (SELECT user_id FROM discussion WHERE id=${result0.discussionId})
+          blocker_id IN (SELECT user_id FROM discussions WHERE id=${result0.discussionId})
           AND
           blocking_id=${info.userId}
       )
@@ -467,7 +467,7 @@ const getArguments = sage.resource(
       SELECT EXISTS (
         SELECT * FROM user_blocks
         WHERE
-          blocker_id IN (SELECT user_id FROM discussion WHERE id=${discussionId})
+          blocker_id IN (SELECT user_id FROM discussions WHERE id=${discussionId})
           AND
           blocking_id=${info.userId}
       )
@@ -498,6 +498,17 @@ const getArguments = sage.resource(
         }
         WHERE da.discussion_id=${discussionId}
         ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND da.id>${anchorId}` : pg`AND da.id<${anchorId}`}
+        ${info ?
+          pg`
+            AND (
+              NOT EXISTS (
+                SELECT * FROM user_blocks ub
+                WHERE 
+                  (ub.blocker_id=${info.userId} AND da.user_id=ub.blocking_id) OR
+                  (ub.blocking_id=${info.userId} AND da.user_id=ub.blocker_id)
+              )
+            )
+          ` : pg``}
         ORDER BY da.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
         LIMIT 20
       `;
@@ -521,6 +532,17 @@ const getArguments = sage.resource(
           pg``
         }
         WHERE da.discussion_id=${discussionId}
+        ${info ?
+          pg`
+            AND (
+              NOT EXISTS (
+                SELECT * FROM user_blocks ub
+                WHERE 
+                  (ub.blocker_id=${info.userId} AND da.user_id=ub.blocking_id) OR
+                  (ub.blocking_id=${info.userId} AND da.user_id=ub.blocker_id)
+              )
+            )
+          ` : pg``}
         ORDER BY da.vote_count ${type === "top" ? pg`DESC` : pg`ASC`}
         LIMIT 20
       `;
@@ -561,7 +583,7 @@ const voteArgument = sage.resource(
       SELECT EXISTS (
         SELECT * FROM user_blocks
         WHERE
-          blocker_id IN (SELECT user_id FROM discussion WHERE id=${result0.discussionId})
+          blocker_id IN (SELECT user_id FROM discussions WHERE id=${result0.discussionId})
           AND
           blocking_id=${info.userId}
       )
@@ -650,7 +672,7 @@ const createComment = sage.resource(
     SELECT EXISTS (
       SELECT * FROM user_blocks
       WHERE
-        blocker_id IN (SELECT user_id FROM discussion WHERE id=${discussionId})
+        blocker_id IN (SELECT user_id FROM discussions WHERE id=${discussionId})
         AND
         blocking_id=${info.userId}
     )
@@ -703,7 +725,7 @@ const deleteComment = sage.resource(
       SELECT EXISTS (
         SELECT * FROM user_blocks
         WHERE
-          blocker_id IN (SELECT user_id FROM discussion WHERE id=${result0.discussionId})
+          blocker_id IN (SELECT user_id FROM discussions WHERE id=${result0.discussionId})
           AND
           blocking_id=${info.userId}
       )
@@ -739,7 +761,7 @@ const getComments = sage.resource(
       SELECT EXISTS (
         SELECT * FROM user_blocks
         WHERE
-          blocker_id IN (SELECT user_id FROM discussion WHERE id=${discussionId})
+          blocker_id IN (SELECT user_id FROM discussions WHERE id=${discussionId})
           AND
           blocking_id=${info.userId}
       )
@@ -749,10 +771,21 @@ const getComments = sage.resource(
     }
 
     const result = await pg<ICommentRaw[]>`
-      SELECT id, user_id, discussion_id, date, content FROM discussion_comments
-      WHERE discussion_id=${discussionId}
-      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND id>${anchorId}` : pg`AND id<${anchorId}`}
-      ORDER BY id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      SELECT id, user_id, discussion_id, date, content FROM discussion_comments dc
+      WHERE dc.discussion_id=${discussionId}
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND dc.id>${anchorId}` : pg`AND dc.id<${anchorId}`}
+      ${info ?
+        pg`
+          AND (
+            NOT EXISTS (
+              SELECT * FROM user_blocks ub
+              WHERE 
+                (ub.blocker_id=${info.userId} AND dc.user_id=ub.blocking_id) OR
+                (ub.blocking_id=${info.userId} AND dc.user_id=ub.blocker_id)
+            )
+          )
+        ` : pg``}
+      ORDER BY dc.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
       LIMIT 20
     `;
 
