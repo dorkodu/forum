@@ -28,41 +28,44 @@ function TextParser({ text }: Props) {
     const elements: React.ReactNode[] = [];
 
     let pieces: { index: number, text: string, type: PieceType }[] = [];
-    let previousIndex = -1;
 
+    let discussionIndex = -1;
     const _discussions = text.match(discussionRegex);
     _discussions?.forEach(discussion => {
-      const index = text.indexOf(discussion, previousIndex);
+      const index = text.indexOf(discussion, discussionIndex);
       if (index !== -1) {
         pieces.push({ index, text: discussion, type: PieceType.Discussion });
-        previousIndex = index + discussion.length;
+        discussionIndex = index + discussion.length;
       }
     })
 
+    let usernameIndex = -1;
     const _usernames = text.match(usernameRegex);
     _usernames?.forEach(username => {
-      const index = text.indexOf(username, previousIndex);
+      const index = text.indexOf(username, usernameIndex);
       if (index !== -1) {
         pieces.push({ index, text: username, type: PieceType.Username });
-        previousIndex = index + username.length;
+        usernameIndex = index + username.length;
       }
     })
 
+    let urlIndex = -1;
     const _urls = text.match(urlRegex);
     _urls?.forEach(url => {
-      const index = text.indexOf(url, previousIndex);
+      const index = text.indexOf(url, urlIndex);
       if (index !== -1) {
         pieces.push({ index, text: url, type: PieceType.Url });
-        previousIndex = index + url.length;
+        urlIndex = index + url.length;
       }
     })
 
+    let emojiIndex = -1;
     const _emojis = text.match(emojiRegex);
     _emojis?.forEach(emoji => {
-      const index = text.indexOf(emoji, previousIndex);
+      const index = text.indexOf(emoji, emojiIndex);
       if (index !== -1) {
         pieces.push({ index, text: emoji, type: PieceType.Emoji });
-        previousIndex = index + emoji.length;
+        emojiIndex = index + emoji.length;
       }
     })
 
