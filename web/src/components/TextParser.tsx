@@ -1,13 +1,20 @@
 import { Anchor } from "@mantine/core";
 import { MouseEvent, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { emoji as emojiCSS } from "../styles/css";
+import twemoji from "twemoji";
+
 import urlRegexp from "url-regex";
+import emojiRegexp from "emoji-regex";
 
 const usernameRegex = new RegExp("(?:@)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9_.]{1,16}(?<![_.])", "g");
+const discussionRegex = new RegExp("#[0-9]+", "g");
 const urlRegex = urlRegexp();
+const emojiRegex = emojiRegexp();
 
 enum PieceType {
   Username,
+  Discussion,
   Url,
   Emoji,
 }
@@ -21,19 +28,42 @@ function TextParser({ text }: Props) {
     const elements: React.ReactNode[] = [];
 
     let pieces: { index: number, text: string, type: PieceType }[] = [];
+    let previousIndex = -1;
+
+    const _discussions = text.match(discussionRegex);
+    _discussions?.forEach(discussion => {
+      const index = text.indexOf(discussion, previousIndex);
+      if (index !== -1) {
+        pieces.push({ index, text: discussion, type: PieceType.Discussion });
+        previousIndex = index + discussion.length;
+      }
+    })
 
     const _usernames = text.match(usernameRegex);
     _usernames?.forEach(username => {
-      const index = text.indexOf(username);
-      if (index !== -1)
+      const index = text.indexOf(username, previousIndex);
+      if (index !== -1) {
         pieces.push({ index, text: username, type: PieceType.Username });
+        previousIndex = index + username.length;
+      }
     })
 
     const _urls = text.match(urlRegex);
     _urls?.forEach(url => {
-      const index = text.indexOf(url);
-      if (index !== -1)
+      const index = text.indexOf(url, previousIndex);
+      if (index !== -1) {
         pieces.push({ index, text: url, type: PieceType.Url });
+        previousIndex = index + url.length;
+      }
+    })
+
+    const _emojis = text.match(emojiRegex);
+    _emojis?.forEach(emoji => {
+      const index = text.indexOf(emoji, previousIndex);
+      if (index !== -1) {
+        pieces.push({ index, text: emoji, type: PieceType.Emoji });
+        previousIndex = index + emoji.length;
+      }
     })
 
     pieces = pieces.sort((a, b) => a.index - b.index);
@@ -52,16 +82,19 @@ function TextParser({ text }: Props) {
         switch (piece.type) {
           case PieceType.Username:
             elements.push(<UsernamePiece key={key++} username={piece.text} />)
-            i += piece.text.length;
+            break;
+          case PieceType.Discussion:
+            elements.push(<DiscussionPiece key={key++} discussion={piece.text} />)
             break;
           case PieceType.Url:
             elements.push(<UrlPiece key={key++} url={piece.text} />)
-            i += piece.text.length;
             break;
           case PieceType.Emoji:
-            // TODO: Implement emoji parsing
+            elements.push(<EmojiPiece key={key++} emoji={piece.text} />)
             break;
         }
+
+        i += piece.text.length;
       }
       else {
         elements.push(<TextPiece key={key++} text={text.substring(i)} />)
@@ -100,6 +133,40 @@ function UsernamePiece({ username }: { username: string }) {
   )
 }
 
+function DiscussionPiece({ discussion }: { discussion: string }) {
+  const navigate = useNavigate();
+
+  const onClick = (ev: MouseEvent, discussion: string) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    navigate(`/discussion/${discussion}`);
+  }
+
+  return (
+    <Anchor
+      href={`https://forum.dorkodu.com/discussion/${discussion.substring(1)}`}
+      onClick={(ev) => onClick(ev, discussion.substring(1))}
+    >
+      {discussion}
+    </Anchor>
+  )
+}
+
 function UrlPiece({ url }: { url: string }) {
   return <Anchor href={url}>{url}</Anchor>
+}
+
+function EmojiPiece({ emoji }: { emoji: string }) {
+  const element = document.createElement("div");
+  element.innerHTML = twemoji.parse(emoji, { ext: ".svg", folder: "svg" });
+  const src = (element.firstChild as HTMLImageElement).src;
+
+  return (
+    <img
+      src={src}
+      css={emojiCSS}
+      alt={emoji}
+      draggable={false}
+    />
+  )
 }
