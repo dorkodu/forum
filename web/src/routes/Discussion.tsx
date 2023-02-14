@@ -6,7 +6,7 @@ function DiscussionRoute() {
 
   return (
     <>
-      <Discussion discussionId={params.id} />
+      <Discussion key={params.id} discussionId={params.id} />
     </>
   )
 }
