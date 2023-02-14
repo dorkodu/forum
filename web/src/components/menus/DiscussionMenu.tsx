@@ -29,14 +29,14 @@ function DiscussionMenu({ user, discussion }: Props) {
 
   const share = () => {
     util.share(
-      `Profile`,
-      `${user.name} @${user.username}`,
-      `https://forum.dorkodu.com/profile/${user.username}`
+      `Discussion`,
+      `${discussion.title}`,
+      `https://forum.dorkodu.com/discussion/${discussion.id}`
     )
   }
 
   const copyToClipboard = () => {
-    util.copyToClipboard(`https://forum.dorkodu.com/profile/${user.username}`);
+    util.copyToClipboard(`https://forum.dorkodu.com/discussion/${discussion.id}`);
   }
 
   const gotoDiscussionEditor = (ev: MouseEvent) => {
