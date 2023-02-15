@@ -12,7 +12,7 @@ const discussionRegex = new RegExp("#[0-9]+", "g");
 const urlRegex = urlRegexp();
 const emojiRegex = emojiRegexp();
 
-enum PieceType {
+export enum PieceType {
   Username,
   Discussion,
   Url,
@@ -21,53 +21,26 @@ enum PieceType {
 
 interface Props {
   text: string;
+  types?: PieceType[];
 }
 
-function TextParser({ text }: Props) {
+function TextParser({ text, types }: Props) {
   const parsed = useMemo(() => {
     const elements: React.ReactNode[] = [];
-
     let pieces: { index: number, text: string, type: PieceType }[] = [];
 
-    let discussionIndex = -1;
-    const _discussions = text.match(discussionRegex);
-    _discussions?.forEach(discussion => {
-      const index = text.indexOf(discussion, discussionIndex);
-      if (index !== -1) {
-        pieces.push({ index, text: discussion, type: PieceType.Discussion });
-        discussionIndex = index + discussion.length;
-      }
-    })
-
-    let usernameIndex = -1;
-    const _usernames = text.match(usernameRegex);
-    _usernames?.forEach(username => {
-      const index = text.indexOf(username, usernameIndex);
-      if (index !== -1) {
-        pieces.push({ index, text: username, type: PieceType.Username });
-        usernameIndex = index + username.length;
-      }
-    })
-
-    let urlIndex = -1;
-    const _urls = text.match(urlRegex);
-    _urls?.forEach(url => {
-      const index = text.indexOf(url, urlIndex);
-      if (index !== -1) {
-        pieces.push({ index, text: url, type: PieceType.Url });
-        urlIndex = index + url.length;
-      }
-    })
-
-    let emojiIndex = -1;
-    const _emojis = text.match(emojiRegex);
-    _emojis?.forEach(emoji => {
-      const index = text.indexOf(emoji, emojiIndex);
-      if (index !== -1) {
-        pieces.push({ index, text: emoji, type: PieceType.Emoji });
-        emojiIndex = index + emoji.length;
-      }
-    })
+    if (!types || types.indexOf(PieceType.Username) !== -1) {
+      pieces.push(...index(text, usernameRegex, PieceType.Username))
+    }
+    if (!types || types.indexOf(PieceType.Discussion) !== -1) {
+      pieces.push(...index(text, discussionRegex, PieceType.Discussion))
+    }
+    if (!types || types.indexOf(PieceType.Url) !== -1) {
+      pieces.push(...index(text, urlRegex, PieceType.Url))
+    }
+    if (!types || types.indexOf(PieceType.Emoji) !== -1) {
+      pieces.push(...index(text, emojiRegex, PieceType.Emoji))
+    }
 
     pieces = pieces.sort((a, b) => a.index - b.index);
     let key = 0;
@@ -112,6 +85,22 @@ function TextParser({ text }: Props) {
 }
 
 export default TextParser
+
+function index(text: string, regex: RegExp, type: PieceType) {
+  let pieces: { index: number, text: string, type: PieceType }[] = [];
+  let i = -1;
+
+  const _pieces = text.match(regex);
+  _pieces?.forEach(piece => {
+    const index = text.indexOf(piece, i);
+    if (index !== -1) {
+      pieces.push({ index, text: piece, type });
+      i = index + piece.length;
+    }
+  })
+
+  return pieces;
+}
 
 function TextPiece({ text }: { text: string }) {
   return <>{text}</>

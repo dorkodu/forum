@@ -9,7 +9,7 @@ import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import { wrapContent } from "../styles/css";
-import TextParser from "./TextParser";
+import TextParser, { PieceType } from "./TextParser";
 import UserMenu from "./menus/UserMenu";
 
 interface Props {
@@ -51,7 +51,9 @@ function Profile({ user }: Props) {
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex justify="space-between" gap="xs">
         <Flex align="center">
-          <Text css={wrapContent}>{user.name}</Text>
+          <Text css={wrapContent}>
+            <TextParser text={user.name} types={[PieceType.Emoji]} />
+          </Text>
         </Flex>
 
         <Flex align="flex-start"><UserMenu user={user} /></Flex>

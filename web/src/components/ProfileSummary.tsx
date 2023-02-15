@@ -9,7 +9,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import { autoGrid, wrapContent } from "../styles/css";
 import UserMenu from "./menus/UserMenu";
-import TextParser from "./TextParser";
+import TextParser, { PieceType } from "./TextParser";
 
 interface Props {
   user: IUser;
@@ -49,7 +49,7 @@ function ProfileSummary({ user }: Props) {
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoUser}>
       <Flex align="center" justify="space-between">
         <Flex miw={0} onClick={gotoUser} css={autoGrid}>
-          <Text truncate mr={4}>{user.name}</Text>
+          <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
           <Text>@</Text>
           <Text truncate>{user.username}</Text>
         </Flex>

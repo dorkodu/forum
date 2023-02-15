@@ -13,7 +13,7 @@ import { css } from "@emotion/react";
 import { useTranslation } from "react-i18next";
 import { autoGrid, nowrap, wrapContent } from "../styles/css";
 import { useAppStore } from "../stores/appStore";
-import TextParser from "./TextParser";
+import TextParser, { PieceType } from "./TextParser";
 import DiscussionMenu from "./menus/DiscussionMenu";
 
 interface Props {
@@ -74,7 +74,7 @@ function DiscussionSummary({ discussionId }: Props) {
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
           <Flex miw={0} onClick={gotoUser} css={autoGrid}>
-            <Text truncate mr={4}>{user.name}</Text>
+            <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
             <Text>@</Text>
             <Text truncate>{user.username}</Text>
           </Flex>

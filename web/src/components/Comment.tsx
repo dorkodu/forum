@@ -6,7 +6,7 @@ import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import { autoGrid, nowrap, wrapContent } from "../styles/css";
 import CommentMenu from "./menus/CommentMenu";
-import TextParser from "./TextParser";
+import TextParser, { PieceType } from "./TextParser";
 
 interface Props {
   commentId: string;
@@ -29,7 +29,7 @@ function Comment({ commentId }: Props) {
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
           <Flex miw={0} onClick={gotoUser} css={autoGrid}>
-            <Text truncate mr={4}>{user.name}</Text>
+            <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
             <Text>@</Text>
             <Text truncate>{user.username}</Text>
           </Flex>
