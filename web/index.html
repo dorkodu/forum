@@ -50,7 +50,7 @@
   </style>
 
   <!-- Light/dark theme switcher, minified and original code. -->
-  <script>function set(e){let t="light"===e?"#ffffff":"#1A1B1E";document.documentElement.style.backgroundColor=t,document.querySelector('meta[name="theme-color"]').setAttribute("theme",t)}let theme=localStorage.getItem("theme");"light"!==theme&&"dark"!==theme&&(theme="light",localStorage.setItem("theme","light")),set(theme);</script>
+  <script>function set(e){let t="light"===e?"#ffffff":"#1A1B1E";document.documentElement.style.backgroundColor=t,document.querySelector('meta[name="theme-color"]').setAttribute("content",t)}let theme=localStorage.getItem("theme");"light"!==theme&&"dark"!==theme&&(theme="light",localStorage.setItem("theme","light")),set(theme);</script>
   <!--
     <script>
     function set(theme) {
@@ -58,7 +58,7 @@
       document.documentElement.style.backgroundColor = color;
       document
         .querySelector('meta[name="theme-color"]')
-        .setAttribute("theme", color)
+        .setAttribute("content", color)
     }
 
     let theme = localStorage.getItem('theme')
