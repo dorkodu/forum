@@ -173,3 +173,11 @@ function EmojiPiece({ emoji }: { emoji: string }) {
     />
   )
 }
+
+export const Piece = {
+  Text: TextPiece,
+  Username: UsernamePiece,
+  Discussion: DiscussionPiece,
+  Url: UrlPiece,
+  Emoji: EmojiPiece,
+}

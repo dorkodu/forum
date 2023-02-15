@@ -23,12 +23,10 @@ export default defineConfig({
     VitePWA({
       devOptions: { enabled: false },
       minify: true,
-      registerType: "autoUpdate",
+      registerType: "prompt",
       injectRegister: "inline",
       workbox: {
         globPatterns: ["**/*.{html,css,js,ico,json,png,svg,webp,woff2}"],
-        clientsClaim: true,
-        skipWaiting: true,
       },
       base: "/",
       manifest: {

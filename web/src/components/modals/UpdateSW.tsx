@@ -2,6 +2,7 @@ import { Flex, Loader, Modal, Title } from "@mantine/core";
 import ForumIcon from "@assets/forum.svg";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
+import { Piece } from "../TextParser";
 
 interface Props {
   updateSW: (reloadPage?: boolean | undefined) => Promise<void>
@@ -26,7 +27,11 @@ function UpdateSW({ updateSW }: Props) {
       <Flex direction="column" gap="md" align="center">
         <img src={ForumIcon} width={100} height={100} />
 
-        <Title order={5} align="center">{t("updating")}</Title>
+        <Title order={5} align="center">
+          {t("updating")}
+          &nbsp;
+          <Piece.Emoji emoji={"🌊"} />
+        </Title>
 
         <Loader variant="dots" color="green" />
       </Flex>
