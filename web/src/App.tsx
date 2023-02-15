@@ -56,21 +56,14 @@ function App() {
     key: "theme",
     defaultValue: "light",
     getInitialValueInEffect: true,
-    deserialize: (value) => {
-      value = JSON.parse(value);
-      const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-      if (themeColor) themeColor.content = value === "light" ? "#ffffff" : "#1A1B1E";
-      return value as ColorScheme;
-    },
-    serialize: (value) => {
-      const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-      if (themeColor) themeColor.content = value === "light" ? "#ffffff" : "#1A1B1E";
-      return JSON.stringify(value);
-    }
   });
 
   const toggleColorScheme = (value?: ColorScheme) => {
     const scheme = value || (colorScheme === "dark" ? "light" : "dark");
+    const color = scheme === "light" ? "#ffffff" : "#1A1B1E";
+    document.documentElement.style.backgroundColor = color;
+    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (themeColor) themeColor.content = color;
     setColorScheme(scheme);
   }
 
