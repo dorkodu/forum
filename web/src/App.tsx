@@ -9,9 +9,11 @@ import { useUserStore } from "./stores/userStore";
 import theme from "./styles/theme";
 import ForumIcon from "./assets/forum.svg";
 import { useLocalStorage } from "@mantine/hooks";
-import RequestLogin from "./components/RequestLogin";
+import RequestLogin from "./components/modals/RequestLogin";
 import CenterLoader from "./components/cards/CenterLoader";
 import OverlayLoader from "./components/cards/OverlayLoader";
+import { useRegisterSW } from 'virtual:pwa-register/react';
+import UpdateSW from "./components/modals/UpdateSW";
 
 const width = css`
   max-width: 768px;
@@ -51,6 +53,12 @@ function App() {
   }
   const routeMenu = () => navigate("/menu");
   const goBack = () => navigate(-1);
+
+  const {
+    offlineReady: [_offlineReady, _setOfflineReady],
+    needRefresh: [needRefresh, _setNeedRefresh],
+    updateServiceWorker,
+  } = useRegisterSW();
 
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
     key: "theme",
@@ -116,6 +124,7 @@ function App() {
               {(loading.auth || loading.locale) && <OverlayLoader full={true} />}
               {!loading.auth && <Outlet />}
               <RequestLogin />
+              {needRefresh && <UpdateSW updateSW={updateServiceWorker} />}
             </Suspense>
           </AppShell>
         </MantineProvider>

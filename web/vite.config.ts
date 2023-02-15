@@ -27,6 +27,8 @@ export default defineConfig({
       injectRegister: "inline",
       workbox: {
         globPatterns: ["**/*.{html,css,js,ico,json,png,svg,webp,woff2}"],
+        clientsClaim: true,
+        skipWaiting: true,
       },
       base: "/",
       manifest: {
