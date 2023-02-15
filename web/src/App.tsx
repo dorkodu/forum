@@ -12,7 +12,6 @@ import { useLocalStorage } from "@mantine/hooks";
 import RequestLogin from "./components/RequestLogin";
 import CenterLoader from "./components/cards/CenterLoader";
 import OverlayLoader from "./components/cards/OverlayLoader";
-import { useRegisterSW } from 'virtual:pwa-register/react'
 
 const width = css`
   max-width: 768px;
@@ -52,16 +51,6 @@ function App() {
   }
   const routeMenu = () => navigate("/menu");
   const goBack = () => navigate(-1);
-
-  const {
-    offlineReady: [_offlineReady, _setOfflineReady],
-    needRefresh: [_needRefresh, _setNeedRefresh],
-    updateServiceWorker: _updateServiceWorker
-  } = useRegisterSW({
-    immediate: true
-  });
-  console.log("offline ready " + _offlineReady)
-  console.log("need refresh " + _needRefresh)
 
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
     key: "theme",
