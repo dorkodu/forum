@@ -25,6 +25,15 @@ const global = css`
     ${width}
     overflow-y: scroll;
     overscroll-behavior: contain;
+    
+    font-family: Rubik, sans-serif;
+  }
+
+  @font-face {
+    font-family: sans-serif;
+    src: local("sans-serif");
+    letter-spacing: 0.6px;
+    word-spacing: -1.65px;
   }
 `;
 
