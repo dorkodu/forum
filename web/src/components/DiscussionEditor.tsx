@@ -34,7 +34,7 @@ function DiscussionEditor({ id }: Props) {
 
   const { t } = useTranslation();
 
-  const requestLogin = useAppStore(state => state.requestLogin);
+  const setRequestLogin = useAppStore(state => state.setRequestLogin);
   const currentUserId = useAuthStore(state => state.userId);
 
   const navigate = useNavigate();
@@ -86,7 +86,7 @@ function DiscussionEditor({ id }: Props) {
     (async () => {
       // If user is trying to create discussion while not being logged in
       if (!currentUserId) {
-        requestLogin(true);
+        setRequestLogin(true);
         navigate("/home");
         return;
       }

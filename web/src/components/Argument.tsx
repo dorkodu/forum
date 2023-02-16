@@ -25,7 +25,7 @@ function Argument({ argumentId }: Props) {
   const [state, setState] = useState<State>({ loading: false, status: undefined });
 
   const navigate = useNavigate();
-  const requestLogin = useAppStore(state => state.requestLogin);
+  const setRequestLogin = useAppStore(state => state.setRequestLogin);
   const queryVoteArgument = useDiscussionStore(state => state.queryVoteArgument);
   const argument = useDiscussionStore(state => state.getArgument(argumentId));
   const user = useUserStore(state => state.getUserById(argument?.userId));
@@ -38,7 +38,7 @@ function Argument({ argumentId }: Props) {
 
   const voteArgument = async (type: boolean) => {
     // If user is trying to vote argument while not being logged in
-    if (!currentUserId) return requestLogin(true);
+    if (!currentUserId) return setRequestLogin(true);
 
     if (!argument) return;
     if (state.loading) return;

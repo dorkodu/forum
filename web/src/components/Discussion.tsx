@@ -62,7 +62,7 @@ function Discussion({ discussionId }: Props) {
 
   const { t } = useTranslation();
 
-  const requestLogin = useAppStore(state => state.requestLogin);
+  const setRequestLogin = useAppStore(state => state.setRequestLogin);
   const currentUserId = useAuthStore(state => state.userId);
 
   const queryGetDiscussion = useDiscussionStore(state => state.queryGetDiscussion);
@@ -94,7 +94,7 @@ function Discussion({ discussionId }: Props) {
 
   const createArgument = async () => {
     // If user is trying to create argument while not being logged in
-    if (!currentUserId) return requestLogin(true);
+    if (!currentUserId) return setRequestLogin(true);
 
     if (state.argument.text.length === 0) return;
     if (state.argument.text.length > 500) return;
@@ -113,7 +113,7 @@ function Discussion({ discussionId }: Props) {
 
   const createComment = async () => {
     // If user is trying to create comment while not being logged in
-    if (!currentUserId) return requestLogin(true);
+    if (!currentUserId) return setRequestLogin(true);
 
     if (state.comment.text.length === 0) return;
     if (state.comment.text.length > 500) return;

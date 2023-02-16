@@ -12,8 +12,14 @@ import { useLocalStorage } from "@mantine/hooks";
 import RequestLogin from "./components/modals/RequestLogin";
 import CenterLoader from "./components/cards/CenterLoader";
 import OverlayLoader from "./components/cards/OverlayLoader";
-import { useRegisterSW } from 'virtual:pwa-register/react';
+import { registerSW } from 'virtual:pwa-register';
 import UpdateSW from "./components/modals/UpdateSW";
+
+const updateSW = registerSW({
+  onNeedRefresh: () => {
+    useAppStore.getState().setNeedRefresh(true);
+  }
+})
 
 const width = css`
   max-width: 768px;
@@ -35,7 +41,8 @@ function App() {
   // on locale, it's fine to keep current view since it doesn't effect functionality
   // on auth, it effects functionality so hide the view
   const loading = useAppStore((state) => state.loading);
-  const requestLogin = useAppStore(state => state.requestLogin);
+  const setRequestLogin = useAppStore(state => state.setRequestLogin);
+  const needRefresh = useAppStore(state => state.needRefresh);
 
   const queryAuth = useAuthStore((state) => state.queryAuth);
   const currentUserId = useAuthStore(state => state.userId);
@@ -44,21 +51,15 @@ function App() {
   const routeHome = () => navigate("/home");
   const routeSearch = () => navigate("/search");
   const routeProfile = () => {
-    if (!currentUser) requestLogin(true);
+    if (!currentUser) setRequestLogin(true);
     else navigate(`/profile/${currentUser.username}`)
   }
   const routeDiscussionEditor = () => {
-    if (!currentUser) requestLogin(true);
+    if (!currentUser) setRequestLogin(true);
     else navigate("/discussion-editor")
   }
   const routeMenu = () => navigate("/menu");
   const goBack = () => navigate(-1);
-
-  const {
-    offlineReady: [_offlineReady, _setOfflineReady],
-    needRefresh: [needRefresh, _setNeedRefresh],
-    updateServiceWorker,
-  } = useRegisterSW();
 
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
     key: "theme",
@@ -124,7 +125,7 @@ function App() {
               {(loading.auth || loading.locale) && <OverlayLoader full={true} />}
               {!loading.auth && <Outlet />}
               <RequestLogin />
-              {needRefresh && <UpdateSW updateSW={updateServiceWorker} />}
+              {needRefresh && <UpdateSW updateSW={updateSW} />}
             </Suspense>
           </AppShell>
         </MantineProvider>

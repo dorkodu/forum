@@ -5,7 +5,7 @@ import { Trans, useTranslation } from "react-i18next";
 
 function RequestLogin() {
   const { t } = useTranslation();
-  const requestedLogin = useAppStore(state => state.requestedLogin);
+  const setRequestLogin = useAppStore(state => state.setRequestLogin);
   const requestLogin = useAppStore(state => state.requestLogin);
 
   const login = () => {
@@ -14,8 +14,8 @@ function RequestLogin() {
 
   return (
     <Modal
-      opened={requestedLogin}
-      onClose={() => requestLogin(false)}
+      opened={requestLogin}
+      onClose={() => setRequestLogin(false)}
       title={t("heyThere")}
       lockScroll={false}
       centered

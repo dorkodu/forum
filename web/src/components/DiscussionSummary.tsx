@@ -35,7 +35,7 @@ function DiscussionSummary({ discussionId }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const requestLogin = useAppStore(state => state.requestLogin);
+  const setRequestLogin = useAppStore(state => state.setRequestLogin);
 
   const queryFavouriteDiscussion = useDiscussionStore(state => state.queryFavouriteDiscussion);
   const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
@@ -57,7 +57,7 @@ function DiscussionSummary({ discussionId }: Props) {
     ev.stopPropagation();
 
     // If user is trying to favourite while not being logged in
-    if (!currentUserId) return requestLogin(true);
+    if (!currentUserId) return setRequestLogin(true);
 
     if (!discussion) return;
     if (state.loading) return;
