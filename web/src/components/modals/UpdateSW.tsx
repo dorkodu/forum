@@ -13,7 +13,7 @@ function UpdateSW({ updateSW }: Props) {
 
   useEffect(() => {
     const timeout = setTimeout(() => updateSW(true), 500);
-    return clearTimeout(timeout);
+    return () => clearTimeout(timeout);
   }, []);
 
   return (

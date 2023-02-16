@@ -12,14 +12,8 @@ import { useLocalStorage } from "@mantine/hooks";
 import RequestLogin from "./components/modals/RequestLogin";
 import CenterLoader from "./components/cards/CenterLoader";
 import OverlayLoader from "./components/cards/OverlayLoader";
-import { registerSW } from 'virtual:pwa-register';
+import { useRegisterSW } from 'virtual:pwa-register/react';
 import UpdateSW from "./components/modals/UpdateSW";
-
-const updateSW = registerSW({
-  onNeedRefresh: () => {
-    useAppStore.getState().setNeedRefresh(true);
-  }
-})
 
 const width = css`
   max-width: 768px;
@@ -42,7 +36,6 @@ function App() {
   // on auth, it effects functionality so hide the view
   const loading = useAppStore((state) => state.loading);
   const setRequestLogin = useAppStore(state => state.setRequestLogin);
-  const needRefresh = useAppStore(state => state.needRefresh);
 
   const queryAuth = useAuthStore((state) => state.queryAuth);
   const currentUserId = useAuthStore(state => state.userId);
@@ -60,6 +53,12 @@ function App() {
   }
   const routeMenu = () => navigate("/menu");
   const goBack = () => navigate(-1);
+
+  const {
+    offlineReady: [_offlineReady, _setOfflineReady],
+    needRefresh: [needRefresh, _setNeedRefresh],
+    updateServiceWorker,
+  } = useRegisterSW();
 
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
     key: "theme",
@@ -125,7 +124,7 @@ function App() {
               {(loading.auth || loading.locale) && <OverlayLoader full={true} />}
               {!loading.auth && <Outlet />}
               <RequestLogin />
-              {needRefresh && <UpdateSW updateSW={updateSW} />}
+              {needRefresh && <UpdateSW updateSW={updateServiceWorker} />}
             </Suspense>
           </AppShell>
         </MantineProvider>

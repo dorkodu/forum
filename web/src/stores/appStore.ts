@@ -11,7 +11,6 @@ interface State {
   }
 
   requestLogin: boolean
-  needRefresh: boolean
 }
 
 interface Action {
@@ -20,7 +19,6 @@ interface Action {
 
   changeLocale: (lang: string) => void;
   setRequestLogin: (status: boolean) => void;
-  setNeedRefresh: (status: boolean) => void;
 }
 
 const initialState: State = {
@@ -30,7 +28,6 @@ const initialState: State = {
   },
 
   requestLogin: false,
-  needRefresh: false,
 }
 
 export const useAppStore = create(immer<State & Action>((set, _get) => ({
@@ -57,9 +54,5 @@ export const useAppStore = create(immer<State & Action>((set, _get) => ({
 
   setRequestLogin: (status) => {
     set(state => { state.requestLogin = status });
-  },
-
-  setNeedRefresh: (status) => {
-    set(state => { state.needRefresh = status });
   },
 })))
