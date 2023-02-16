@@ -25,7 +25,7 @@ function UpdateSW({ updateSW }: Props) {
       centered
     >
       <Flex direction="column" gap="md" align="center">
-        <img src={ForumIcon} width={100} height={100} />
+        <img src={ForumIcon} width={100} height={100} alt="Forum" />
 
         <Title order={5} align="center">
           {t("updating")}

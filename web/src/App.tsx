@@ -99,7 +99,7 @@ function App() {
             <IconArrowLeft />
           </ActionIcon>
 
-          <img src={ForumIcon} width={28} height={28} />
+          <img src={ForumIcon} width={28} height={28} alt="Forum" />
 
           <ActionIcon
             color="dark"

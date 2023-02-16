@@ -21,7 +21,7 @@ function RequestLogin() {
       centered
     >
       <Flex direction="column" gap="md">
-        <img src={ForumIcon} width={100} height={100} />
+        <img src={ForumIcon} width={100} height={100} alt="Forum" />
         <Title order={5}><Trans t={t} i18nKey="pleaseLogin" /></Title>
         <Flex direction="column">
           <Button radius="md" onClick={login}>{t("login")}</Button>
