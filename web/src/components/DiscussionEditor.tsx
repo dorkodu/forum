@@ -1,4 +1,4 @@
-import { Button, Card, LoadingOverlay, Textarea, TextInput } from "@mantine/core";
+import { Button, Card, Textarea, TextInput } from "@mantine/core";
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -6,12 +6,17 @@ import { request, sage } from "../stores/api";
 import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
+import CardLoader from "./cards/CardLoader";
+import OverlayLoader from "./cards/OverlayLoader";
+import { useWait } from "./hooks";
 
 interface Props {
   id: string | undefined;
 }
 
 interface State {
+  initial: boolean;
+
   loading: boolean;
   status: boolean | undefined;
 
@@ -21,7 +26,7 @@ interface State {
 
 function DiscussionEditor({ id }: Props) {
   const [state, setState] = useState<State>(
-    { title: "", readme: "", loading: false, status: undefined }
+    { title: "", readme: "", initial: true, loading: !!id, status: undefined }
   );
 
   const { t } = useTranslation();
@@ -42,7 +47,7 @@ function DiscussionEditor({ id }: Props) {
     if (state.readme.length > 100000) return;
 
     setState({ ...state, loading: true, status: undefined });
-    const res = await queryCreateDiscussion(state.title, state.readme);
+    const res = await useWait(() => queryCreateDiscussion(state.title, state.readme))();
     setState({ ...state, loading: false, status: res.status });
     if (res.id) navigate(`/discussion/${res.id}`);
   }
@@ -57,7 +62,7 @@ function DiscussionEditor({ id }: Props) {
     if (state.readme.length > 100000) return;
 
     setState({ ...state, loading: true, status: undefined });
-    const status = await queryEditDiscussion(id, state.title, state.readme);
+    const status = await useWait(() => queryEditDiscussion(id, state.title, state.readme))();
     setState({ ...state, loading: false, status: status });
     navigate(`/discussion/${id}`);
   }
@@ -65,7 +70,7 @@ function DiscussionEditor({ id }: Props) {
   const fetchDiscussion = async (id: string) => {
     const res = await sage.get(
       { a: sage.query("getDiscussion", { discussionId: id }), },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
 
     const status = !(!res?.a.data || res.a.error);
@@ -85,16 +90,18 @@ function DiscussionEditor({ id }: Props) {
 
       if (!id) return;
       setState({ ...state, loading: true, status: undefined });
-      const out = await fetchDiscussion(id);
-      setState({ ...state, ...out, loading: false });
+      const out = await useWait(() => fetchDiscussion(id))();
+      setState({ ...state, ...out, loading: false, initial: false });
     })();
   }, []);
 
   if (!currentUserId) return (<></>)
 
+  if (id && state.initial && state.loading) return <CardLoader />
+
   return (
     <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
-      <LoadingOverlay visible={state.loading} overlayBlur={2} />
+      {state.loading && <OverlayLoader />}
 
       <TextInput
         radius="md"
