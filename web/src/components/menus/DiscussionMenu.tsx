@@ -32,7 +32,10 @@ function DiscussionMenu({ user, discussion }: Props) {
     ev.preventDefault();
   }
 
-  const share = () => {
+  const share = (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
     util.share(
       `Discussion`,
       `${discussion.title}`,
@@ -40,17 +43,23 @@ function DiscussionMenu({ user, discussion }: Props) {
     )
   }
 
-  const copyToClipboard = () => {
+  const copyToClipboard = (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
     util.copyToClipboard(`https://forum.dorkodu.com/discussion/${discussion.id}`);
   }
 
   const gotoDiscussionEditor = (ev: MouseEvent) => {
     ev.stopPropagation();
+    ev.preventDefault();
+
     navigate(`/discussion-editor/${discussion.id}`);
   }
 
   const deleteDiscussion = async (ev: MouseEvent) => {
     ev.stopPropagation();
+    ev.preventDefault();
 
     if (state.loading) return;
 

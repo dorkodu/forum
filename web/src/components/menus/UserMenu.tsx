@@ -28,7 +28,10 @@ function UserMenu({ user }: Props) {
     ev.preventDefault();
   }
 
-  const share = () => {
+  const share = (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
     util.share(
       `Profile`,
       `${user.name} @${user.username}`,
@@ -36,11 +39,17 @@ function UserMenu({ user }: Props) {
     )
   }
 
-  const copyToClipboard = () => {
+  const copyToClipboard = (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
     util.copyToClipboard(`https://forum.dorkodu.com/profile/${user.username}`);
   }
 
-  const blockUser = async () => {
+  const blockUser = async (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
     if (state.loading) return;
 
     setState({ ...state, loading: true, status: undefined });

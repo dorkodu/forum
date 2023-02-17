@@ -2,7 +2,7 @@ import { IComment } from "@api/types/comment";
 import { IUser } from "@api/types/user";
 import { ActionIcon, Menu } from "@mantine/core"
 import { IconDots, IconTrash } from "@tabler/icons"
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../../stores/authStore";
 import { useDiscussionStore } from "../../stores/discussionStore";
@@ -24,7 +24,10 @@ function CommentMenu({ user, comment }: Props) {
   const queryDeleteComment = useDiscussionStore(state => state.queryDeleteComment);
   const currentUserId = useAuthStore(state => state.userId);
 
-  const deleteComment = async () => {
+  const deleteComment = async (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
     if (!comment) return;
     if (state.loading) return;
 

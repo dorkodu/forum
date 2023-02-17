@@ -2,7 +2,7 @@ import { IArgument } from "@api/types/argument";
 import { IUser } from "@api/types/user";
 import { ActionIcon, Menu } from "@mantine/core"
 import { IconDots, IconTrash } from "@tabler/icons"
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../../stores/authStore";
 import { useDiscussionStore } from "../../stores/discussionStore";
@@ -24,7 +24,10 @@ function ArgumentMenu({ user, argument }: Props) {
   const queryDeleteArgument = useDiscussionStore(state => state.queryDeleteArgument);
   const currentUserId = useAuthStore(state => state.userId);
 
-  const deleteArgument = async () => {
+  const deleteArgument = async (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
     if (!argument) return;
     if (state.loading) return;
 
