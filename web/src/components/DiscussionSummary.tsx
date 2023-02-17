@@ -47,6 +47,12 @@ function DiscussionSummary({ discussionId }: Props) {
     if (location.pathname !== target) navigate(target);
   }
 
+  const gotoDiscussionMouseUp = (ev: MouseEvent) => {
+    if (ev.button !== 1) return;
+    if (!discussion) return;
+    window.open(`/discussion/${discussion.id}`, '_blank');
+  }
+
   const gotoUser = (ev: MouseEvent) => {
     ev.stopPropagation();
     ev.preventDefault();
@@ -73,57 +79,55 @@ function DiscussionSummary({ discussionId }: Props) {
   if (!discussion || !user) return (<></>)
 
   return (
-    <Card css={css`overflow: visible;`} shadow="sm" p={0} m="md" radius="md" withBorder>
+    <Card css={css`overflow: visible; cursor: pointer;`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoDiscussion} onMouseUp={gotoDiscussionMouseUp}>
       <Flex direction="column">
-        <Anchor href={`/discussion/${discussion.id}`} variant="text" onClick={gotoDiscussion} p="lg">
-          <Flex align="center" justify="space-between">
-            <Flex miw={0}>
-              <Anchor href={`/profile/${user.username}`} variant="text" onClick={gotoUser}>
-                <Flex miw={0} css={autoGrid}>
-                  <Text truncate pr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
-                  <Text>@</Text>
-                  <Text truncate>{user.username}</Text>
-                </Flex>
-              </Anchor>
-              <Text mx={4}>·</Text>
-              <Text css={nowrap} mr={4} title={date(discussion.date).format('lll')}>
-                {date(discussion.date).fromNow()}
-              </Text>
-            </Flex>
-
-            <DiscussionMenu user={user} discussion={discussion} />
+        <Flex align="center" justify="space-between">
+          <Flex miw={0}>
+            <Anchor href={`/profile/${user.username}`} variant="text" onClick={gotoUser}>
+              <Flex miw={0} css={autoGrid}>
+                <Text truncate pr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
+                <Text>@</Text>
+                <Text truncate>{user.username}</Text>
+              </Flex>
+            </Anchor>
+            <Text mx={4}>·</Text>
+            <Text css={nowrap} mr={4} title={date(discussion.date).format('lll')}>
+              {date(discussion.date).fromNow()}
+            </Text>
           </Flex>
 
-          <Text css={wrapContent}>
-            <TextParser text={discussion.title} />
-          </Text>
+          <DiscussionMenu user={user} discussion={discussion} />
+        </Flex>
 
-          <Flex align="center" gap="xs">
-            <Flex align="center">
-              <ActionIcon color="dark" onClick={favouriteDiscussion}>
-                <IconStar fill={discussion.favourited ? "currentColor" : "none"} />
-              </ActionIcon>
-              <span>{discussion.favouriteCount}</span>
-            </Flex>
-            <Flex align="center">
-              <IconMessages />
-              <span>{discussion.argumentCount}</span>
-            </Flex>
-            <Flex align="center">
-              <IconMessage />
-              <span>{discussion.commentCount}</span>
-            </Flex>
-            <Flex align="center">
-              <IconActivity />
-              <span>
-                {discussion.lastUpdateDate === -1 ?
-                  t("discussion.never") :
-                  date(discussion.lastUpdateDate).fromNow()
-                }
-              </span>
-            </Flex>
+        <Text css={wrapContent}>
+          <TextParser text={discussion.title} />
+        </Text>
+
+        <Flex align="center" gap="xs">
+          <Flex align="center">
+            <ActionIcon color="dark" onClick={favouriteDiscussion}>
+              <IconStar fill={discussion.favourited ? "currentColor" : "none"} />
+            </ActionIcon>
+            <span>{discussion.favouriteCount}</span>
           </Flex>
-        </Anchor>
+          <Flex align="center">
+            <IconMessages />
+            <span>{discussion.argumentCount}</span>
+          </Flex>
+          <Flex align="center">
+            <IconMessage />
+            <span>{discussion.commentCount}</span>
+          </Flex>
+          <Flex align="center">
+            <IconActivity />
+            <span>
+              {discussion.lastUpdateDate === -1 ?
+                t("discussion.never") :
+                date(discussion.lastUpdateDate).fromNow()
+              }
+            </span>
+          </Flex>
+        </Flex>
       </Flex>
     </Card>
   )
