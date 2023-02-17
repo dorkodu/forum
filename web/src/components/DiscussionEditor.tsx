@@ -1,5 +1,5 @@
 import { Button, Card, LoadingOverlay, Textarea, TextInput } from "@mantine/core";
-import { useEffect, useReducer } from "react"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { request, sage } from "../stores/api";
@@ -20,17 +20,9 @@ interface State {
 }
 
 function DiscussionEditor({ id }: Props) {
-  const [state, setState] = useReducer((prev: State, next: State) => {
-    const newState = { ...prev, ...next };
-
-    if (newState.title.length > 100)
-      newState.title = newState.title.substring(0, 100);
-
-    if (newState.readme.length > 100000)
-      newState.title = newState.title.substring(0, 100000);
-
-    return newState;
-  }, { title: "", readme: "", loading: false, status: undefined });
+  const [state, setState] = useState<State>(
+    { title: "", readme: "", loading: false, status: undefined }
+  );
 
   const { t } = useTranslation();
 

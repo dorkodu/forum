@@ -2,7 +2,7 @@ import { IUser } from "@api/types/user";
 import { css } from "@emotion/react";
 import { Anchor, Button, Card, Flex, Text } from "@mantine/core";
 import { IconHandOff, IconUsers } from "@tabler/icons";
-import { MouseEvent, useReducer } from "react";
+import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "../stores/authStore";
@@ -21,10 +21,7 @@ interface State {
 }
 
 function ProfileSummary({ user }: Props) {
-  const [state, setState] = useReducer(
-    (prev: State, next: State) => ({ ...prev, ...next }),
-    { loading: false, status: undefined }
-  )
+  const [state, setState] = useState<State>({ loading: false, status: undefined });
 
   const { t } = useTranslation();
   const navigate = useNavigate();

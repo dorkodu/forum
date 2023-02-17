@@ -1,4 +1,4 @@
-import { MouseEvent, useReducer } from "react";
+import { MouseEvent, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
@@ -26,10 +26,7 @@ interface State {
 }
 
 function DiscussionSummary({ discussionId }: Props) {
-  const [state, setState] = useReducer(
-    (prev: State, next: State) => ({ ...prev, ...next }),
-    { loading: false, status: undefined }
-  )
+  const [state, setState] = useState<State>({ loading: false, status: undefined });
 
   const { t } = useTranslation();
   const navigate = useNavigate();
