@@ -43,7 +43,7 @@ function DiscussionSummary({ discussionId }: Props) {
   const currentUserId = useAuthStore(state => state.userId);
 
   const gotoDiscussion = (ev: MouseEvent) => {
-    ev.preventDefault()
+    ev.preventDefault();
 
     if (!discussion) return;
     const target = `/discussion/${discussion.id}`;
@@ -76,55 +76,57 @@ function DiscussionSummary({ discussionId }: Props) {
   if (!discussion || !user) return (<></>)
 
   return (
-    <Anchor href={`/discussion/${discussion.id}`} variant="text" underline={false} onClick={gotoDiscussion}>
-      <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
-        <Flex align="center" justify="space-between">
-          <Flex miw={0}>
-            <Flex miw={0} onClick={gotoUser} css={autoGrid}>
-              <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
-              <Text>@</Text>
-              <Text truncate>{user.username}</Text>
+    <Card css={css`overflow: visible;`} shadow="sm" p={0} m="md" radius="md" withBorder>
+      <Flex direction="column">
+        <Anchor href={`/discussion/${discussion.id}`} variant="text" underline={false} onClick={gotoDiscussion} p="lg">
+          <Flex align="center" justify="space-between">
+            <Flex miw={0}>
+              <Flex miw={0} onClick={gotoUser} css={autoGrid}>
+                <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
+                <Text>@</Text>
+                <Text truncate>{user.username}</Text>
+              </Flex>
+              <Text mx={4}>·</Text>
+              <Text css={nowrap} mr={4} title={date(discussion.date).format('lll')}>
+                {date(discussion.date).fromNow()}
+              </Text>
             </Flex>
-            <Text mx={4}>·</Text>
-            <Text css={nowrap} mr={4} title={date(discussion.date).format('lll')}>
-              {date(discussion.date).fromNow()}
-            </Text>
+
+            <DiscussionMenu user={user} discussion={discussion} />
           </Flex>
 
-          <DiscussionMenu user={user} discussion={discussion} />
-        </Flex>
+          <Text css={wrapContent}>
+            <TextParser text={discussion.title} />
+          </Text>
 
-        <Text css={wrapContent}>
-          <TextParser text={discussion.title} />
-        </Text>
-
-        <Flex align="center" gap="xs">
-          <Flex align="center">
-            <ActionIcon color="dark" onClick={favouriteDiscussion}>
-              <IconStar fill={discussion.favourited ? "currentColor" : "none"} />
-            </ActionIcon>
-            <span>{discussion.favouriteCount}</span>
+          <Flex align="center" gap="xs">
+            <Flex align="center">
+              <ActionIcon color="dark" onClick={favouriteDiscussion}>
+                <IconStar fill={discussion.favourited ? "currentColor" : "none"} />
+              </ActionIcon>
+              <span>{discussion.favouriteCount}</span>
+            </Flex>
+            <Flex align="center">
+              <IconMessages />
+              <span>{discussion.argumentCount}</span>
+            </Flex>
+            <Flex align="center">
+              <IconMessage />
+              <span>{discussion.commentCount}</span>
+            </Flex>
+            <Flex align="center">
+              <IconActivity />
+              <span>
+                {discussion.lastUpdateDate === -1 ?
+                  t("discussion.never") :
+                  date(discussion.lastUpdateDate).fromNow()
+                }
+              </span>
+            </Flex>
           </Flex>
-          <Flex align="center">
-            <IconMessages />
-            <span>{discussion.argumentCount}</span>
-          </Flex>
-          <Flex align="center">
-            <IconMessage />
-            <span>{discussion.commentCount}</span>
-          </Flex>
-          <Flex align="center">
-            <IconActivity />
-            <span>
-              {discussion.lastUpdateDate === -1 ?
-                t("discussion.never") :
-                date(discussion.lastUpdateDate).fromNow()
-              }
-            </span>
-          </Flex>
-        </Flex>
-      </Card>
-    </Anchor>
+        </Anchor>
+      </Flex>
+    </Card>
   )
 }
 

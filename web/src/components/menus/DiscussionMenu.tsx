@@ -27,6 +27,11 @@ function DiscussionMenu({ user, discussion }: Props) {
   const queryDeleteDiscussion = useDiscussionStore(state => state.queryDeleteDiscussion);
   const currentUserId = useAuthStore(state => state.userId);
 
+  const onClick = (ev: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+  }
+
   const share = () => {
     util.share(
       `Discussion`,
@@ -60,7 +65,7 @@ function DiscussionMenu({ user, discussion }: Props) {
   return (
     <Menu shadow="md" radius="md" position="bottom-end">
       <Menu.Target>
-        <ActionIcon color="dark" onClick={(ev) => { ev.stopPropagation() }}>
+        <ActionIcon color="dark" onClick={onClick}>
           <IconDots />
         </ActionIcon>
       </Menu.Target>

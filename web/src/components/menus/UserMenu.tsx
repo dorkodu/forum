@@ -1,7 +1,7 @@
 import { IUser } from "@api/types/user";
 import { ActionIcon, Menu } from "@mantine/core"
 import { IconClipboardText, IconDots, IconHandOff, IconHandStop, IconShare } from "@tabler/icons"
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { util } from "../../lib/util";
 import { useAuthStore } from "../../stores/authStore";
@@ -22,6 +22,11 @@ function UserMenu({ user }: Props) {
   const { t } = useTranslation();
   const queryBlockUser = useUserStore(state => state.queryBlockUser);
   const currentUserId = useAuthStore(state => state.userId);
+
+  const onClick = (ev: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+  }
 
   const share = () => {
     util.share(
@@ -46,7 +51,7 @@ function UserMenu({ user }: Props) {
   return (
     <Menu shadow="md" radius="md" position="bottom-end">
       <Menu.Target>
-        <ActionIcon color="dark" onClick={(ev) => { ev.stopPropagation() }}>
+        <ActionIcon color="dark" onClick={onClick}>
           <IconDots />
         </ActionIcon>
       </Menu.Target>
