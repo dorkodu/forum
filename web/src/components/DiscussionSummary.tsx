@@ -78,14 +78,16 @@ function DiscussionSummary({ discussionId }: Props) {
   return (
     <Card css={css`overflow: visible;`} shadow="sm" p={0} m="md" radius="md" withBorder>
       <Flex direction="column">
-        <Anchor href={`/discussion/${discussion.id}`} variant="text" underline={false} onClick={gotoDiscussion} p="lg">
+        <Anchor href={`/discussion/${discussion.id}`} variant="text" onClick={gotoDiscussion} p="lg">
           <Flex align="center" justify="space-between">
             <Flex miw={0}>
-              <Flex miw={0} onClick={gotoUser} css={autoGrid}>
-                <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
-                <Text>@</Text>
-                <Text truncate>{user.username}</Text>
-              </Flex>
+              <Anchor href={`/profile/${user.username}`} variant="text" onClick={gotoUser}>
+                <Flex miw={0} css={autoGrid}>
+                  <Text truncate pr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
+                  <Text>@</Text>
+                  <Text truncate>{user.username}</Text>
+                </Flex>
+              </Anchor>
               <Text mx={4}>·</Text>
               <Text css={nowrap} mr={4} title={date(discussion.date).format('lll')}>
                 {date(discussion.date).fromNow()}
