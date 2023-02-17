@@ -27,7 +27,7 @@ function DiscussionMenu({ user, discussion }: Props) {
   const queryDeleteDiscussion = useDiscussionStore(state => state.queryDeleteDiscussion);
   const currentUserId = useAuthStore(state => state.userId);
 
-  const onClick = (ev: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
+  const onClick = (ev: MouseEvent) => {
     ev.stopPropagation();
     ev.preventDefault();
   }

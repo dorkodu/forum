@@ -23,7 +23,7 @@ function UserMenu({ user }: Props) {
   const queryBlockUser = useUserStore(state => state.queryBlockUser);
   const currentUserId = useAuthStore(state => state.userId);
 
-  const onClick = (ev: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
+  const onClick = (ev: MouseEvent) => {
     ev.stopPropagation();
     ev.preventDefault();
   }

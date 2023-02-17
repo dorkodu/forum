@@ -1,7 +1,7 @@
 import { css } from "@emotion/react";
-import { ActionIcon, Card, Flex, Text } from "@mantine/core";
+import { ActionIcon, Anchor, Card, Flex, Text } from "@mantine/core";
 import { IconArrowBigTop, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons";
-import { useState } from "react"
+import { MouseEvent, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { date } from "../lib/date";
 import { useAppStore } from "../stores/appStore";
@@ -31,7 +31,10 @@ function Argument({ argumentId }: Props) {
   const user = useUserStore(state => state.getUserById(argument?.userId));
   const currentUserId = useAuthStore(state => state.userId);
 
-  const gotoUser = () => {
+  const gotoUser = (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
     if (!user) return;
     navigate(`/profile/${user.username}`);
   }
@@ -54,11 +57,13 @@ function Argument({ argumentId }: Props) {
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
-          <Flex miw={0} onClick={gotoUser} css={autoGrid}>
-            <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
-            <Text>@</Text>
-            <Text truncate>{user.username}</Text>
-          </Flex>
+          <Anchor href={`/profile/${user.username}`} variant="text" onClick={gotoUser}>
+            <Flex miw={0} css={autoGrid}>
+              <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
+              <Text>@</Text>
+              <Text truncate>{user.username}</Text>
+            </Flex>
+          </Anchor>
           <Text mx={4}>·</Text>
           <Text css={nowrap} mr={4} title={date(argument.date).format('lll')}>
             {date(argument.date).fromNow()}
