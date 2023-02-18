@@ -50,9 +50,9 @@ function ProfileSummary({ user }: Props) {
         <Anchor href={`/profile/${user.username}`} variant="text" underline={false} onClick={gotoUser} p="lg">
           <Flex align="center" justify="space-between">
             <Flex miw={0} onClick={gotoUser} css={autoGrid}>
-              <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
-              <Text>@</Text>
-              <Text truncate>{user.username}</Text>
+              <Text color="blue" truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
+              <Text color="blue">@</Text>
+              <Text color="blue" truncate>{user.username}</Text>
             </Flex>
 
             <UserMenu user={user} />
