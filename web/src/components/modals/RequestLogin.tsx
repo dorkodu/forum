@@ -1,7 +1,7 @@
 import { Button, Flex, Modal, Title } from "@mantine/core";
 import { useAppStore } from "../../stores/appStore";
 import ForumIcon from "@assets/forum.svg";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 function RequestLogin() {
   const { t } = useTranslation();
@@ -21,8 +21,12 @@ function RequestLogin() {
       centered
     >
       <Flex direction="column" gap="md">
-        <img src={ForumIcon} width={100} height={100} alt="Forum" />
-        <Title order={5}><Trans t={t} i18nKey="pleaseLogin" /></Title>
+        <Flex justify="center">
+          <img src={ForumIcon} width={100} height={100} alt="Forum" />
+        </Flex>
+
+        <Title order={5} align="center">{t("pleaseLogin")}</Title>
+
         <Flex direction="column">
           <Button radius="md" onClick={login}>{t("login")}</Button>
         </Flex>
