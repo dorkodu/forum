@@ -32,7 +32,7 @@ function Comment({ commentId }: Props) {
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
-          <Anchor href={`/profile/${user.username}`} variant="text" onClick={gotoUser}>
+          <Anchor href={`/profile/${user.username}`} color="blue" onClick={gotoUser}>
             <Flex miw={0} css={autoGrid}>
               <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
               <Text>@</Text>

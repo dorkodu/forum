@@ -39,18 +39,10 @@ function DiscussionSummary({ discussionId }: Props) {
   const user = useUserStore(state => state.getUserById(discussion?.userId));
   const currentUserId = useAuthStore(state => state.userId);
 
-  const gotoDiscussion = (ev: MouseEvent) => {
-    ev.preventDefault();
-
+  const gotoDiscussion = () => {
     if (!discussion) return;
     const target = `/discussion/${discussion.id}`;
     if (location.pathname !== target) navigate(target);
-  }
-
-  const gotoDiscussionMouseUp = (ev: MouseEvent) => {
-    if (ev.button !== 1) return;
-    if (!discussion) return;
-    window.open(`/discussion/${discussion.id}`, '_blank');
   }
 
   const gotoUser = (ev: MouseEvent) => {
@@ -79,11 +71,11 @@ function DiscussionSummary({ discussionId }: Props) {
   if (!discussion || !user) return (<></>)
 
   return (
-    <Card css={css`overflow: visible; cursor: pointer;`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoDiscussion} onMouseUp={gotoDiscussionMouseUp}>
+    <Card css={css`overflow: visible; cursor: pointer;`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoDiscussion}>
       <Flex direction="column">
         <Flex align="center" justify="space-between">
           <Flex miw={0}>
-            <Anchor href={`/profile/${user.username}`} variant="text" onClick={gotoUser}>
+            <Anchor href={`/profile/${user.username}`} color="blue" onClick={gotoUser}>
               <Flex miw={0} css={autoGrid}>
                 <Text truncate pr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
                 <Text>@</Text>
