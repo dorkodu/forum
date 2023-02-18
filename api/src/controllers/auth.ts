@@ -45,8 +45,11 @@ const logout = sage.resource(
   {} as SchemaContext,
   undefined,
   async (_arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    // TODO: Send a request to Dorkodu ID api to also revoke the access
+    const tkn = token.get(ctx.req);
+    if (!tkn) return { error: ErrorCode.Default };
+    if (!(await queryExpireAccessToken(tkn))) return { error: ErrorCode.Default };
     token.detach(ctx.res);
+
     return { data: {} };
   }
 )
@@ -191,6 +194,30 @@ async function queryGetAccessToken(code: string): Promise<{ token: string } | un
         axios.post(
           "https://id.dorkodu.com/api",
           { a: { res: "getAccessToken", arg: { code } } }
+        )
+          .then((value) => { resolve(value.data.a.data) })
+          .catch((_reason) => { resolve(undefined) })
+        break;
+      default: resolve(undefined);
+    }
+  })
+}
+
+async function queryExpireAccessToken(token: string): Promise<{} | undefined> {
+  return new Promise((resolve) => {
+    switch (config.env) {
+      case "development":
+        axios.post(
+          "http://id_api:8001/api",
+          { a: { res: "expireAccessToken", arg: { token } } }
+        )
+          .then((value) => { resolve(value.data.a.data) })
+          .catch((_reason) => { resolve(undefined) })
+        break;
+      case "production":
+        axios.post(
+          "https://id.dorkodu.com/api",
+          { a: { res: "expireAccessToken", arg: { token } } }
         )
           .then((value) => { resolve(value.data.a.data) })
           .catch((_reason) => { resolve(undefined) })
