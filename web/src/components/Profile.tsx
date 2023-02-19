@@ -69,7 +69,6 @@ function Profile({ user }: Props) {
           <Text css={wrapContent}>@{user.username}</Text>
         </Flex>
 
-
         {user.bio.length !== 0 &&
           <Text css={wrapContent}><TextParser text={user.bio} /></Text>
         }
@@ -79,8 +78,8 @@ function Profile({ user }: Props) {
           {date(user.joinDate).format('ll')}
         </Flex>
 
-        <Flex direction="column" align="flex-start">
-          <Anchor href={`/profile/${user.username}/followers`} css={colorBW(theme)} onClick={gotoFollowers}>
+        <Flex direction="row" wrap="wrap">
+          <Anchor href={`/profile/${user.username}/followers`} css={colorBW(theme)} onClick={gotoFollowers} mr="xs">
             {t("user.followers", { count: user.followerCount })}
           </Anchor>
 

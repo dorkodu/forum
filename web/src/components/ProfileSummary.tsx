@@ -65,8 +65,8 @@ function ProfileSummary({ user }: Props) {
             }
           </Flex>
 
-          <Flex direction="column" align="flex-start">
-            <Text>
+          <Flex direction="row" wrap="wrap">
+            <Text mr="xs">
               {t("user.followers", { count: user.followerCount })}
             </Text>
 
