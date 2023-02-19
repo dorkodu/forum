@@ -1,14 +1,14 @@
 import { IUser } from "@api/types/user";
 import { css } from "@emotion/react";
-import { Button, Card, Flex, Text, } from "@mantine/core";
+import { Anchor, Button, Card, Flex, Text, useMantineTheme, } from "@mantine/core";
 import { IconCalendar, IconHandOff, IconUsers } from "@tabler/icons";
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
 import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
-import { wrapContent } from "../styles/css";
+import { colorBW, wrapContent } from "../styles/css";
 import TextParser, { PieceType } from "./TextParser";
 import UserMenu from "./menus/UserMenu";
 
@@ -24,17 +24,22 @@ interface State {
 function Profile({ user }: Props) {
   const [state, setState] = useState<State>({ loading: false, status: undefined });
 
+  const theme = useMantineTheme();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryFollowUser = useUserStore(state => state.queryFollowUser);
   const currentUserId = useAuthStore(state => state.userId);
 
-  const gotoFollowers = () => {
+  const gotoFollowers = (ev: MouseEvent) => {
+    ev.preventDefault();
+
     const target = `/profile/${user.username}/followers`;
     if (location.pathname !== target) navigate(target);
   }
 
-  const gotoFollowing = () => {
+  const gotoFollowing = (ev: MouseEvent) => {
+    ev.preventDefault();
+
     const target = `/profile/${user.username}/following`;
     if (location.pathname !== target) navigate(target);
   }
@@ -75,13 +80,13 @@ function Profile({ user }: Props) {
         </Flex>
 
         <Flex direction="column" align="flex-start">
-          <Text onClick={gotoFollowers}>
+          <Anchor href={`/profile/${user.username}/followers`} css={colorBW(theme)} onClick={gotoFollowers}>
             {t("user.followers", { count: user.followerCount })}
-          </Text>
+          </Anchor>
 
-          <Text onClick={gotoFollowing}>
+          <Anchor href={`/profile/${user.username}/following`} css={colorBW(theme)} onClick={gotoFollowing}>
             {t("user.following", { count: user.followingCount })}
-          </Text>
+          </Anchor>
         </Flex>
 
         {user.following &&
