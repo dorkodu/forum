@@ -74,7 +74,7 @@ function Argument({ argumentId }: Props) {
         <ArgumentMenu user={user} argument={argument} />
       </Flex>
 
-      <Text css={wrapContent}>
+      <Text css={wrapContent} my="xs">
         <TextParser text={argument.content} />
       </Text>
 

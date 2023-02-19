@@ -70,7 +70,7 @@ function DiscussionSummary({ discussionId }: Props) {
   }
 
   if (!discussion || !user) return (<></>)
-console.log(theme.primaryShade)
+
   return (
     <Card css={css`overflow: visible; cursor: pointer;`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoDiscussion}>
       <Flex direction="column">
@@ -92,7 +92,7 @@ console.log(theme.primaryShade)
           <DiscussionMenu user={user} discussion={discussion} />
         </Flex>
 
-        <Text css={wrapContent}>
+        <Text css={wrapContent} my="xs">
           <TextParser text={discussion.title} />
         </Text>
 

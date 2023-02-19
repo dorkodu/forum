@@ -46,27 +46,33 @@ function ProfileSummary({ user }: Props) {
 
   return (
     <Card css={css`overflow: visible;`} shadow="sm" p={0} m="md" radius="md" withBorder>
-      <Flex direction="column">
-        <Anchor href={`/profile/${user.username}`} variant="text" onClick={gotoUser} p="lg">
-          <Flex align="center" justify="space-between">
-            <Flex miw={0} onClick={gotoUser} css={autoGrid}>
-              <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
-              <Text>@</Text>
-              <Text truncate>{user.username}</Text>
+      <Anchor href={`/profile/${user.username}`} variant="text" onClick={gotoUser} >
+        <Flex direction="column" p="lg" gap={4}>
+          <Flex direction="column">
+            <Flex align="center" justify="space-between">
+              <Flex miw={0} onClick={gotoUser} css={autoGrid}>
+                <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
+                <Text>@</Text>
+                <Text truncate>{user.username}</Text>
+              </Flex>
+
+              <UserMenu user={user} />
             </Flex>
 
-            <UserMenu user={user} />
+            {user.bio.length !== 0 &&
+              <Text css={wrapContent}><TextParser text={user.bio} /></Text>
+            }
           </Flex>
 
-          <Text css={wrapContent}><TextParser text={user.bio} /></Text>
+          <Flex direction="column" align="flex-start">
+            <Text>
+              {t("user.followers", { count: user.followerCount })}
+            </Text>
 
-          <Text>
-            {t("user.followers", { count: user.followerCount })}
-          </Text>
-
-          <Text >
-            {t("user.following", { count: user.followingCount })}
-          </Text>
+            <Text>
+              {t("user.following", { count: user.followingCount })}
+            </Text>
+          </Flex>
 
           {user.following &&
             <Flex align="center" gap="xs">
@@ -90,8 +96,8 @@ function ProfileSummary({ user }: Props) {
               </Button>
             </Flex>
           }
-        </Anchor>
-      </Flex>
+        </Flex>
+      </Anchor>
     </Card >
   )
 }

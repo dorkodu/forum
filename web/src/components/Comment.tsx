@@ -49,7 +49,7 @@ function Comment({ commentId }: Props) {
         <CommentMenu user={user} comment={comment} />
       </Flex>
 
-      <Text css={wrapContent}>
+      <Text css={wrapContent} mt="xs">
         <TextParser text={comment.content} />
       </Text>
     </Card>
