@@ -51,7 +51,7 @@ function Profile({ user }: Props) {
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex justify="space-between" gap="xs">
         <Flex align="center">
-          <Text css={wrapContent} color="blue">
+          <Text css={wrapContent}>
             <TextParser text={user.name} types={[PieceType.Emoji]} />
           </Text>
         </Flex>
@@ -59,7 +59,7 @@ function Profile({ user }: Props) {
         <Flex align="flex-start"><UserMenu user={user} /></Flex>
       </Flex>
 
-      <Text css={wrapContent} color="blue">@{user.username}</Text>
+      <Text css={wrapContent}>@{user.username}</Text>
 
       <Text css={wrapContent}>
         <TextParser text={user.bio} />

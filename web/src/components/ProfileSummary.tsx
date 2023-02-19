@@ -47,12 +47,12 @@ function ProfileSummary({ user }: Props) {
   return (
     <Card css={css`overflow: visible;`} shadow="sm" p={0} m="md" radius="md" withBorder>
       <Flex direction="column">
-        <Anchor href={`/profile/${user.username}`} variant="text" underline={false} onClick={gotoUser} p="lg">
+        <Anchor href={`/profile/${user.username}`} variant="text" onClick={gotoUser} p="lg">
           <Flex align="center" justify="space-between">
             <Flex miw={0} onClick={gotoUser} css={autoGrid}>
-              <Text color="blue" truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
-              <Text color="blue">@</Text>
-              <Text color="blue" truncate>{user.username}</Text>
+              <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
+              <Text>@</Text>
+              <Text truncate>{user.username}</Text>
             </Flex>
 
             <UserMenu user={user} />

@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { ActionIcon, Anchor, Card, Flex, Text } from "@mantine/core";
+import { ActionIcon, Anchor, Card, Flex, Text, useMantineTheme } from "@mantine/core";
 import { IconArrowBigTop, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons";
 import { MouseEvent, useState } from "react"
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,7 @@ import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
-import { autoGrid, nowrap, wrapContent } from "../styles/css";
+import { autoGrid, colorBW, nowrap, wrapContent } from "../styles/css";
 import ArgumentMenu from "./menus/ArgumentMenu";
 import TextParser, { PieceType } from "./TextParser";
 
@@ -24,6 +24,7 @@ interface State {
 function Argument({ argumentId }: Props) {
   const [state, setState] = useState<State>({ loading: false, status: undefined });
 
+  const theme = useMantineTheme();
   const navigate = useNavigate();
   const setRequestLogin = useAppStore(state => state.setRequestLogin);
   const queryVoteArgument = useDiscussionStore(state => state.queryVoteArgument);
@@ -57,7 +58,7 @@ function Argument({ argumentId }: Props) {
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
-          <Anchor href={`/profile/${user.username}`} color="blue" onClick={gotoUser}>
+          <Anchor href={`/profile/${user.username}`} css={colorBW(theme)} onClick={gotoUser}>
             <Flex miw={0} css={autoGrid}>
               <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
               <Text>@</Text>

@@ -1,11 +1,11 @@
 import { css } from "@emotion/react";
-import { Anchor, Card, Flex, Text } from "@mantine/core";
+import { Anchor, Card, Flex, Text, useMantineTheme } from "@mantine/core";
 import { MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { date } from "../lib/date";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
-import { autoGrid, nowrap, wrapContent } from "../styles/css";
+import { autoGrid, colorBW, nowrap, wrapContent } from "../styles/css";
 import CommentMenu from "./menus/CommentMenu";
 import TextParser, { PieceType } from "./TextParser";
 
@@ -14,6 +14,7 @@ interface Props {
 }
 
 function Comment({ commentId }: Props) {
+  const theme = useMantineTheme();
   const navigate = useNavigate();
   const comment = useDiscussionStore(state => state.getComment(commentId));
   const user = useUserStore(state => state.getUserById(comment?.userId));
@@ -32,7 +33,7 @@ function Comment({ commentId }: Props) {
     <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
-          <Anchor href={`/profile/${user.username}`} color="blue" onClick={gotoUser}>
+          <Anchor href={`/profile/${user.username}`} css={colorBW(theme)} onClick={gotoUser}>
             <Flex miw={0} css={autoGrid}>
               <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
               <Text>@</Text>

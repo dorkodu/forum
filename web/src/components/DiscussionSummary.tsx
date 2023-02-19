@@ -7,11 +7,11 @@ import {
   IconStar, IconMessage, IconMessages, IconActivity
 } from "@tabler/icons";
 
-import { ActionIcon, Anchor, Card, Flex, Text } from "@mantine/core"
+import { ActionIcon, Anchor, Card, Flex, Text, useMantineTheme } from "@mantine/core"
 import { date } from "../lib/date";
 import { css } from "@emotion/react";
 import { useTranslation } from "react-i18next";
-import { autoGrid, nowrap, wrapContent } from "../styles/css";
+import { autoGrid, colorBW, nowrap, wrapContent } from "../styles/css";
 import { useAppStore } from "../stores/appStore";
 import TextParser, { PieceType } from "./TextParser";
 import DiscussionMenu from "./menus/DiscussionMenu";
@@ -28,6 +28,7 @@ interface State {
 function DiscussionSummary({ discussionId }: Props) {
   const [state, setState] = useState<State>({ loading: false, status: undefined });
 
+  const theme = useMantineTheme();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -69,13 +70,13 @@ function DiscussionSummary({ discussionId }: Props) {
   }
 
   if (!discussion || !user) return (<></>)
-
+console.log(theme.primaryShade)
   return (
     <Card css={css`overflow: visible; cursor: pointer;`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoDiscussion}>
       <Flex direction="column">
         <Flex align="center" justify="space-between">
           <Flex miw={0}>
-            <Anchor href={`/profile/${user.username}`} color="blue" onClick={gotoUser}>
+            <Anchor href={`/profile/${user.username}`} css={colorBW(theme)} onClick={gotoUser}>
               <Flex miw={0} css={autoGrid}>
                 <Text truncate pr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
                 <Text>@</Text>
