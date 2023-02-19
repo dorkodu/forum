@@ -1,13 +1,13 @@
 import { IUser } from "@api/types/user";
 import { css } from "@emotion/react";
-import { Anchor, Button, Card, Flex, Text } from "@mantine/core";
+import { Anchor, Button, Card, Flex, Text, useMantineTheme } from "@mantine/core";
 import { IconHandOff, IconUsers } from "@tabler/icons";
 import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
-import { autoGrid, wrapContent } from "../styles/css";
+import { autoGrid, bgColorHover, wrapContent } from "../styles/css";
 import UserMenu from "./menus/UserMenu";
 import TextParser, { PieceType } from "./TextParser";
 
@@ -23,6 +23,7 @@ interface State {
 function ProfileSummary({ user }: Props) {
   const [state, setState] = useState<State>({ loading: false, status: undefined });
 
+  const theme = useMantineTheme();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryFollowUser = useUserStore(state => state.queryFollowUser);
@@ -45,7 +46,7 @@ function ProfileSummary({ user }: Props) {
   }
 
   return (
-    <Card css={css`overflow: visible;`} shadow="sm" p={0} m="md" radius="md" withBorder>
+    <Card css={css`overflow: visible; ${bgColorHover(theme)}`} shadow="sm" p={0} m="md" radius="md" withBorder>
       <Anchor href={`/profile/${user.username}`} variant="text" onClick={gotoUser} >
         <Flex direction="column" p="lg" gap={4}>
           <Flex direction="column">

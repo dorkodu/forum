@@ -11,7 +11,7 @@ import { ActionIcon, Anchor, Card, Flex, Text, useMantineTheme } from "@mantine/
 import { date } from "../lib/date";
 import { css } from "@emotion/react";
 import { useTranslation } from "react-i18next";
-import { autoGrid, colorBW, nowrap, wrapContent } from "../styles/css";
+import { autoGrid, bgColorHover, colorBW, nowrap, wrapContent } from "../styles/css";
 import { useAppStore } from "../stores/appStore";
 import TextParser, { PieceType } from "./TextParser";
 import DiscussionMenu from "./menus/DiscussionMenu";
@@ -72,7 +72,7 @@ function DiscussionSummary({ discussionId }: Props) {
   if (!discussion || !user) return (<></>)
 
   return (
-    <Card css={css`overflow: visible; cursor: pointer;`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoDiscussion}>
+    <Card css={css`overflow: visible; ${bgColorHover(theme)}`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoDiscussion}>
       <Flex direction="column">
         <Flex align="center" justify="space-between">
           <Flex miw={0}>

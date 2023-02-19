@@ -17,3 +17,11 @@ export const emoji = css`
 export const colorBW = (theme: MantineTheme) => css`
   color: ${theme.colorScheme === "light" ? theme.colors.dark[8] : theme.colors.dark[0]};
 `
+export const bgColorHover = (theme: MantineTheme) => css`
+  cursor: pointer;
+  background-color: ${theme.colorScheme === "light" ? theme.white : theme.colors.dark[6]};
+  
+  &:hover {
+    background-color: ${theme.colorScheme === "light" ? theme.colors.gray[0] : theme.colors.dark[5]};
+  }
+`
