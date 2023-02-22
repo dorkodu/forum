@@ -1,5 +1,11 @@
-import { Button, Card, Flex, NativeSelect } from "@mantine/core"
-import React from "react";
+import { Button, Card, createStyles, Flex, SegmentedControl, Tooltip } from "@mantine/core"
+import { useClickOutside } from "@mantine/hooks";
+import React, { useState } from "react";
+
+const useStyles = createStyles((_theme) => ({
+  root: { flexWrap: "wrap", },
+  control: { minWidth: 0, },
+}));
 
 interface IButton {
   onClick: () => any;
@@ -11,7 +17,7 @@ interface ISegment {
   value: string;
   setValue: (value: string) => any;
   data: { label: string, value: string }[];
-  label?: string;
+  label: string;
 }
 
 interface Props {
@@ -33,18 +39,44 @@ function _CardPanel({ segments, buttons }: Props) {
 function Segments({ segments }: { segments?: ISegment[] }) {
   return (
     <>
-      {segments?.map((segment, index) =>
-        <NativeSelect
-          label={segment.label}
-          radius="md"
-          variant="default"
-          value={segment.value}
-          onChange={(ev) => segment.setValue(ev.currentTarget.value)}
-          data={segment.data}
-          key={index}
-        />
-      )}
+      {segments?.map((segment, index) => <SingleSegment segment={segment} key={index} />)}
     </>
+  )
+}
+
+function SingleSegment({ segment }: { segment: ISegment }) {
+  const { classes } = useStyles();
+  const [opened, setOpened] = useState(false);
+  const ref = useClickOutside(() => setOpened(false));
+
+  const findLabel = (segment: ISegment) => {
+    for (let i = 0; i < segment.data.length; ++i) {
+      const data = segment.data[i];
+      if (data && segment.value === data.value) return data.label;
+    }
+
+    return "";
+  }
+
+  return (
+    <Flex direction="column">
+      <Tooltip
+        label={`${segment.label}: ${findLabel(segment)}`}
+        position="top"
+        withinPortal
+        opened={opened}
+      >
+        <SegmentedControl
+          radius="md"
+          value={segment.value}
+          onChange={segment.setValue}
+          data={segment.data}
+          classNames={{ root: classes.root, control: classes.control }}
+          onClick={() => setOpened(true)}
+          ref={ref}
+        />
+      </Tooltip>
+    </Flex>
   )
 }
 
