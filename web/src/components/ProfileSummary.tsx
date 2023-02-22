@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
-import { autoGrid, bgColorHover, wrapContent } from "../styles/css";
+import { autoGrid, bgColorHover, colorBW, wrapContent } from "../styles/css";
 import UserMenu from "./menus/UserMenu";
 import TextParser, { PieceType } from "./TextParser";
 
@@ -30,6 +30,7 @@ function ProfileSummary({ user }: Props) {
   const currentUserId = useAuthStore(state => state.userId);
 
   const gotoUser = (ev: MouseEvent) => {
+    ev.stopPropagation();
     ev.preventDefault();
     navigate(`/profile/${user.username}`);
   }
@@ -46,59 +47,59 @@ function ProfileSummary({ user }: Props) {
   }
 
   return (
-    <Card css={css`overflow: visible; ${bgColorHover(theme)}`} shadow="sm" p={0} m="md" radius="md" withBorder>
-      <Anchor href={`/profile/${user.username}`} variant="text" onClick={gotoUser}>
-        <Flex direction="column" p="lg" gap={4}>
-          <Flex direction="column">
-            <Flex align="center" justify="space-between">
-              <Flex miw={0} onClick={gotoUser} css={autoGrid}>
+    <Card css={css`overflow: visible; ${bgColorHover(theme)}`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoUser}>
+      <Flex direction="column" gap={4}>
+        <Flex direction="column">
+          <Flex align="center" justify="space-between">
+            <Anchor href={`/profile/${user.username}`} css={colorBW(theme)} onClick={gotoUser}>
+              <Flex miw={0} css={autoGrid}>
                 <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
                 <Text>@</Text>
                 <Text truncate>{user.username}</Text>
               </Flex>
+            </Anchor>
 
-              <UserMenu user={user} />
-            </Flex>
-
-            {user.bio.length !== 0 &&
-              <Text css={wrapContent}><TextParser text={user.bio} /></Text>
-            }
+            <UserMenu user={user} />
           </Flex>
 
-          <Flex direction="row" wrap="wrap">
-            <Text mr="xs">
-              {t("user.followers", { count: user.followerCount })}
-            </Text>
-
-            <Text>
-              {t("user.following", { count: user.followingCount })}
-            </Text>
-          </Flex>
-
-          {user.following &&
-            <Flex align="center" gap="xs">
-              <IconUsers />{t("user.followsYou")}
-            </Flex>
-          }
-
-          {(user.blocking || user.blocker) &&
-            <Flex align="center" gap="xs">
-              <IconHandOff />
-              {user.blocking && user.blocker && t("user.blockBoth")}
-              {!user.blocking && user.blocker && t("user.blocker")}
-              {user.blocking && !user.blocker && t("user.blocking")}
-            </Flex>
-          }
-
-          {user.id !== currentUserId &&
-            <Flex justify="flex-end">
-              <Button onClick={followUser} color="dark" radius="md">
-                {user.follower ? t("user.unfollow") : t("user.follow")}
-              </Button>
-            </Flex>
+          {user.bio.length !== 0 &&
+            <Text css={wrapContent}><TextParser text={user.bio} /></Text>
           }
         </Flex>
-      </Anchor>
+
+        <Flex direction="row" wrap="wrap">
+          <Text mr="xs">
+            {t("user.followers", { count: user.followerCount })}
+          </Text>
+
+          <Text>
+            {t("user.following", { count: user.followingCount })}
+          </Text>
+        </Flex>
+
+        {user.following &&
+          <Flex align="center" gap="xs">
+            <IconUsers />{t("user.followsYou")}
+          </Flex>
+        }
+
+        {(user.blocking || user.blocker) &&
+          <Flex align="center" gap="xs">
+            <IconHandOff />
+            {user.blocking && user.blocker && t("user.blockBoth")}
+            {!user.blocking && user.blocker && t("user.blocker")}
+            {user.blocking && !user.blocker && t("user.blocking")}
+          </Flex>
+        }
+
+        {user.id !== currentUserId &&
+          <Flex justify="flex-end">
+            <Button onClick={followUser} color="dark" radius="md">
+              {user.follower ? t("user.unfollow") : t("user.follow")}
+            </Button>
+          </Flex>
+        }
+      </Flex>
     </Card >
   )
 }
