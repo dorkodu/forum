@@ -173,7 +173,8 @@ function Home() {
     }
   }
 
-  useEffect(() => { fetchGuestFeed("newer", true) }, []);
+  // Don't fetch guest feed if there are already discussions fetched
+  useEffect(() => { guestFeed.length === 0 && fetchGuestFeed("newer", true) }, []);
 
   return (
     <>

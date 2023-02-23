@@ -14,6 +14,7 @@ import CenterLoader from "./components/cards/CenterLoader";
 import OverlayLoader from "./components/cards/OverlayLoader";
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import UpdateSW from "./components/modals/UpdateSW";
+import { ScrollRestoration } from "react-router-dom"
 
 const width = css`
   max-width: 768px;
@@ -138,7 +139,9 @@ function App() {
           </AppShell>
         </MantineProvider>
       </ColorSchemeProvider>
+
       <Global styles={global} />
+      <ScrollRestoration />
     </>
   );
 }
