@@ -15,6 +15,7 @@ interface State {
 }
 
 function Search() {
+  // By default, order is older to give advantage to older users
   const [state, setState] = useState<State>({ search: "", order: "older" });
 
   const { t } = useTranslation();
