@@ -9,7 +9,7 @@ function getAnchor<
   refresh?: boolean
 ): TDefault | T[number][TKey] {
   if (!arr.length || refresh) return def;
-  const output = type === "newer" ? arr[0] : arr[arr.length - 1];
+  const output = type === "newer" ? arr[arr.length - 1] : arr[0];
   if (output === undefined) return def;
   return output[key];
 }

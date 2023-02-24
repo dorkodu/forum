@@ -177,8 +177,8 @@ const getUserDiscussionFeed = sage.resource(
       INNER JOIN user_follows uf
       ON d.user_id=uf.following_id AND uf.follower_id=${info.userId}
       ${anchorId === "-1" ? pg`` :
-        type === "newer" ? pg`WHERE d.id>${anchorId}` : pg`WHERE d.id<${anchorId}`}
-      ORDER BY d.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+        type === "newer" ? pg`WHERE d.id<${anchorId}` : pg`WHERE d.id>${anchorId}`}
+      ORDER BY d.id ${type === "newer" ? pg`DESC` : pg`ASC`}
       LIMIT 20
     `;
 
@@ -217,7 +217,7 @@ const getFavouriteDiscussionFeed = sage.resource(
       INNER JOIN discussion_favourites df
       ON d.id=df.discussion_id AND df.user_id=${info.userId}
       ${anchorId === "-1" ? pg`` :
-        type === "newer" ? pg`WHERE d.id>${anchorId}` : pg`WHERE d.id<${anchorId}`}
+        type === "newer" ? pg`WHERE d.id<${anchorId}` : pg`WHERE d.id>${anchorId}`}
       ${info ?
         pg`
           ${anchorId === "-1" ? pg`WHERE` : pg`AND`} (
@@ -229,7 +229,7 @@ const getFavouriteDiscussionFeed = sage.resource(
             )
           )
         ` : pg``}
-      ORDER BY d.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      ORDER BY d.id ${type === "newer" ? pg`DESC` : pg`ASC`}
       LIMIT 20
     `;
 
@@ -268,7 +268,7 @@ const getGuestDiscussionFeed = sage.resource(
       }
       FROM discussions d
       ${anchorId === "-1" ? pg`` :
-        type === "newer" ? pg`WHERE d.id>${anchorId}` : pg`WHERE d.id<${anchorId}`}
+        type === "newer" ? pg`WHERE d.id<${anchorId}` : pg`WHERE d.id>${anchorId}`}
       ${info ?
         pg`
           ${anchorId === "-1" ? pg`WHERE` : pg`AND`} (
@@ -280,7 +280,7 @@ const getGuestDiscussionFeed = sage.resource(
             )
           )
         ` : pg``}
-      ORDER BY d.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      ORDER BY d.id ${type === "newer" ? pg`DESC` : pg`ASC`}
       LIMIT 20
     `;
 
@@ -497,7 +497,7 @@ const getArguments = sage.resource(
           pg``
         }
         WHERE da.discussion_id=${discussionId}
-        ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND da.id>${anchorId}` : pg`AND da.id<${anchorId}`}
+        ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND da.id<${anchorId}` : pg`AND da.id>${anchorId}`}
         ${info ?
           pg`
             AND (
@@ -509,7 +509,7 @@ const getArguments = sage.resource(
               )
             )
           ` : pg``}
-        ORDER BY da.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+        ORDER BY da.id ${type === "newer" ? pg`DESC` : pg`ASC`}
         LIMIT 20
       `;
     }
@@ -773,7 +773,7 @@ const getComments = sage.resource(
     const result = await pg<ICommentRaw[]>`
       SELECT id, user_id, discussion_id, date, content FROM discussion_comments dc
       WHERE dc.discussion_id=${discussionId}
-      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND dc.id>${anchorId}` : pg`AND dc.id<${anchorId}`}
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND dc.id<${anchorId}` : pg`AND dc.id>${anchorId}`}
       ${info ?
         pg`
           AND (
@@ -785,7 +785,7 @@ const getComments = sage.resource(
             )
           )
         ` : pg``}
-      ORDER BY dc.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      ORDER BY dc.id ${type === "newer" ? pg`DESC` : pg`ASC`}
       LIMIT 20
     `;
 

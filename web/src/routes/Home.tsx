@@ -1,4 +1,3 @@
-import { IconArrowBigDownLine, IconArrowBigUpLine, IconRefresh } from "@tabler/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CardPanel from "../components/cards/CardPanel";
@@ -102,31 +101,15 @@ function Home() {
     }));
   }
 
-  const refresh = async (feed: typeof state.feed) => {
+  const fetcher = async (feed: typeof state.feed, refresh?: boolean) => {
     switch (feed) {
-      case "user": await fetchUserFeed("newer", true); break;
-      case "favourite": await fetchFavouriteFeed("newer", true); break;
-      case "guest": await fetchGuestFeed("newer", true); break;
+      case "user": await fetchUserFeed(state.order, refresh); break;
+      case "favourite": await fetchFavouriteFeed(state.order, refresh); break;
+      case "guest": await fetchGuestFeed(state.order, refresh); break;
     }
   }
 
-  const loadNewer = async () => {
-    switch (state.feed) {
-      case "user": await fetchUserFeed("newer"); break;
-      case "favourite": await fetchFavouriteFeed("newer"); break;
-      case "guest": await fetchGuestFeed("newer"); break;
-    }
-  }
-
-  const loadOlder = async () => {
-    switch (state.feed) {
-      case "user": await fetchUserFeed("older"); break;
-      case "favourite": await fetchFavouriteFeed("older"); break;
-      case "guest": await fetchGuestFeed("older"); break;
-    }
-  }
-
-  const feed = (feed: typeof state.feed) => {
+  const getFeed = (feed: typeof state.feed) => {
     switch (feed) {
       case "user": return userFeed;
       case "favourite": return favouriteFeed;
@@ -137,13 +120,21 @@ function Home() {
   const changeFeed = (value: string) => {
     if (value === "user" || value === "favourite" || value === "guest") {
       setState(s => ({ ...s, feed: value }));
-      if (feed(value).length === 0) refresh(value);
     }
   }
 
   const changeOrder = (value: string) => {
     if (value === "newer" || value === "older") {
       setState(s => ({ ...s, order: value }));
+
+      // Clear feed when changing the order
+      useDiscussionStore.setState(_state => {
+        switch (state.feed) {
+          case "user": _state.userFeed = {}; break;
+          case "favourite": _state.favouriteFeed = {}; break;
+          case "guest": _state.guestFeed = {}; break;
+        }
+      });
     }
   }
 
@@ -155,17 +146,33 @@ function Home() {
     }
   }
 
-  // Don't fetch guest feed if there are already discussions fetched
-  useEffect(() => { guestFeed.length === 0 && fetchGuestFeed("newer", true) }, []);
+  // Fetch if no discussions when changing feed or order
+  // TODO: Fetch after sometime has passed
+  useEffect(() => {
+    getFeed(state.feed).length === 0 && fetcher(state.feed, false);
+  }, [state.feed, state.order]);
 
   return (
     <>
       <InfiniteScroll
-        next={loadOlder}
-        hasMore={getHasMore(state.feed)}
+        next={() => fetcher(state.feed, false)}
+        hasMore={true}
         loader={<CardLoader />}
-        dataLength={feed(state.feed).length}
-
+        dataLength={getFeed(state.feed).length}
+        endMessage={
+          <p style={{ textAlign: 'center' }}>
+            <b>Yay! You have seen it all</b>
+          </p>
+        }
+        refreshFunction={() => fetcher(state.feed, true)}
+        pullDownToRefresh
+        pullDownToRefreshThreshold={50}
+        pullDownToRefreshContent={
+          <h3 style={{ textAlign: 'center' }}>&#8595; Pull down to refresh</h3>
+        }
+        releaseToRefreshContent={
+          <h3 style={{ textAlign: 'center' }}>&#8593; Release to refresh</h3>
+        }
       >
         <CardPanel
           segments={[
@@ -189,26 +196,10 @@ function Home() {
               ]
             },
           ]}
-
-          buttons={[
-            { onClick: () => refresh(state.feed), text: <IconRefresh /> },
-            { onClick: loadOlder, text: <IconArrowBigDownLine /> },
-            { onClick: loadNewer, text: <IconArrowBigUpLine /> },
-          ]}
         />
 
-        {feed(state.feed).map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+        {getFeed(state.feed).map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
       </InfiniteScroll>
-
-      {/*
-      <InfiniteScroll
-        onTop={loadNewer}
-        onBottom={loadOlder}
-        loaders={{ top: state.loader === "top", bottom: state.loader === "bottom", mid: state.loader === "mid", }}
-      >
-        {feed(state.feed).map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
-      </InfiniteScroll>
-      */}
     </>
   )
 }

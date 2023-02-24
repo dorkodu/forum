@@ -122,8 +122,8 @@ const searchUser = sage.resource(
       WHERE 
         ${name ? pg`u.name_ci LIKE ${`${name.toLowerCase()}%`}` : pg``} 
         ${username ? pg`u.username_ci LIKE ${`${username.toLowerCase()}%`}` : pg``}
-      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id>${anchorId}` : pg`AND u.id<${anchorId}`}
-      ORDER BY u.id ${anchorId === "-1" ? pg`ASC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id<${anchorId}` : pg`AND u.id>${anchorId}`}
+      ORDER BY u.id ${type === "newer" ? pg`DESC` : pg`ASC`}
       LIMIT 20
     `;
 
@@ -351,8 +351,8 @@ const getUserDiscussions = sage.resource(
         pg``
       }
       WHERE d.user_id=${userId}
-      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND d.id>${anchorId}` : pg`AND d.id<${anchorId}`}
-      ORDER BY d.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND d.id<${anchorId}` : pg`AND d.id>${anchorId}`}
+      ORDER BY d.id ${type === "newer" ? pg`DESC` : pg`ASC`}
       LIMIT 20
     `;
 
@@ -409,8 +409,8 @@ const getUserFollowers = sage.resource(
       }
       FROM users u
       WHERE u.id IN (SELECT follower_id FROM user_follows WHERE following_id=${userId})
-      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id>${anchorId}` : pg`AND u.id<${anchorId}`}
-      ORDER BY u.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id<${anchorId}` : pg`AND u.id>${anchorId}`}
+      ORDER BY u.id ${type === "newer" ? pg`DESC` : pg`ASC`}
       LIMIT 20
     `;
 
@@ -467,8 +467,8 @@ const getUserFollowing = sage.resource(
       }
       FROM users u
       WHERE u.id IN (SELECT following_id FROM user_follows WHERE follower_id=${userId})
-      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id>${anchorId}` : pg`AND u.id<${anchorId}`}
-      ORDER BY u.id ${anchorId === "-1" ? pg`DESC` : type === "newer" ? pg`ASC` : pg`DESC`}
+      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id<${anchorId}` : pg`AND u.id>${anchorId}`}
+      ORDER BY u.id ${type === "newer" ? pg`DESC` : pg`ASC`}
       LIMIT 20
     `;
 
