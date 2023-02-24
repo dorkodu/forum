@@ -1,9 +1,8 @@
 import { Card, TextInput } from "@mantine/core";
-import { IconArrowBigDownLine, IconArrowBigUpLine, IconRefresh } from "@tabler/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CardPanel } from "../components/cards/CardPanel";
-import { useWait } from "../components/hooks";
+import { useFeedProps, useWait } from "../components/hooks";
 import InfiniteScroll from "../components/InfiniteScroll";
 import ProfileSummary from "../components/ProfileSummary";
 import { array } from "../lib/array";
@@ -11,35 +10,35 @@ import { request, sage } from "../stores/api";
 import { useUserStore } from "../stores/userStore";
 
 interface State {
-  loading: boolean;
-  status: boolean | undefined;
-
   search: string;
-  loader: "top" | "bottom" | "mid" | undefined;
+  order: "newer" | "older";
 }
 
 function Search() {
+  const [state, setState] = useState<State>({ search: "", order: "older" });
+
   const { t } = useTranslation();
   const users = useUserStore(state => state.getSearchUsers());
 
-  const getSorted = () => {
-    return array.sort(users, "joinDate", ((a, b) => a - b));
+  const [searchFeedProps, setSearchFeedProps] = useFeedProps();
+
+  const getSorted = (type: "newer" | "older") => {
+    return array.sort(
+      users,
+      "joinDate",
+      type === "newer" ? ((a, b) => a - b) : ((a, b) => b - a)
+    );
   }
 
   const getAnchor = (type: "newer" | "older", refresh?: boolean) => {
-    return array.getAnchor(getSorted(), "id", "-1", type, refresh);
+    return array.getAnchor(getSorted(type), "id", "-1", type, refresh);
   }
 
-  const [state, setState] = useState<State>({
-    loading: false, status: undefined, search: "", loader: undefined,
-  });
-
   const fetchUsers = async (type: "newer" | "older", refresh?: boolean) => {
-    if (state.loading) return;
+    if (searchFeedProps.loader) return;
 
-    setState(s => ({
-      ...s, loading: true, status: undefined,
-      loader: refresh ? "mid" : type === "newer" ? "top" : "bottom",
+    setSearchFeedProps(s => ({
+      ...s, loader: refresh ? "top" : "bottom", status: undefined
     }));
 
     const name = state.search.startsWith("@") ? undefined : state.search;
@@ -53,9 +52,20 @@ function Search() {
     const status = !(!res?.a.data || res.a.error);
     const users = res?.a.data;
 
+    if (refresh) useUserStore.getState().setSearchUsers([], true);
     if (users) useUserStore.getState().setSearchUsers(users, refresh);
 
-    setState(s => ({ ...s, loading: false, status: status, loader: undefined }));
+    setSearchFeedProps(s => ({ ...s, loader: undefined, status: status }));
+  }
+
+  const changeOrder = (value: string) => {
+    if (value === "newer" || value === "older") {
+      setState(s => ({ ...s, order: value }));
+
+      // Clear feed when changing the order
+      useUserStore.getState().setSearchUsers([], true);
+      fetchUsers(state.order, true);
+    }
   }
 
   useEffect(() => {
@@ -64,7 +74,7 @@ function Search() {
       return;
     }
 
-    const timeout = setTimeout(() => { fetchUsers("newer", true) }, 1000);
+    const timeout = setTimeout(() => { fetchUsers(state.order, true) }, 1000);
     return () => { clearTimeout(timeout) };
   }, [state.search])
 
@@ -81,21 +91,27 @@ function Search() {
           pb="md"
         />
 
-        <CardPanel.Buttons
-          buttons={[
-            { onClick: () => fetchUsers("newer", true), text: <IconRefresh /> },
-            { onClick: () => fetchUsers("newer"), text: <IconArrowBigDownLine /> },
-            { onClick: () => fetchUsers("older"), text: <IconArrowBigUpLine /> },
-          ]}
+        <CardPanel.Segments
+          segments={
+            [{
+              value: state.order,
+              setValue: changeOrder,
+              label: t("order"),
+              data: [
+                { label: t("newer"), value: "newer" },
+                { label: t("older"), value: "older" },
+              ]
+            }]
+          }
         />
       </Card>
 
       <InfiniteScroll
-        onTop={() => fetchUsers("newer")}
-        onBottom={() => fetchUsers("older")}
-        loaders={{ top: state.loader === "top", bottom: state.loader === "bottom", mid: state.loader === "mid", }}
+        onTop={() => fetchUsers(state.order, true)}
+        onBottom={() => fetchUsers(state.order, false)}
+        loader={searchFeedProps.loader}
       >
-        {users.map((user) => <ProfileSummary key={user.id} user={user} />)}
+        {getSorted(state.order).map((user) => <ProfileSummary key={user.id} user={user} />)}
       </InfiniteScroll>
     </>
   )
