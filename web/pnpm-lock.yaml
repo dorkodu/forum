@@ -23,6 +23,7 @@ specifiers:
   react: ^18.2.0
   react-dom: ^18.2.0
   react-i18next: ^12.0.0
+  react-infinite-scroll-component: ^6.1.0
   react-router-dom: ^6.4.3
   twemoji: ^14.0.2
   typescript: ^4.6.4
@@ -52,6 +53,7 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-i18next: 12.1.4_iakk3dtjhjpukdoa4oua5khgci
+  react-infinite-scroll-component: 6.1.0_react@18.2.0
   react-router-dom: 6.6.2_biqbaboplfbrettd7655fr4n2y
   twemoji: 14.0.2
   url-regex: 5.0.0
@@ -3316,6 +3318,15 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
+  /react-infinite-scroll-component/6.1.0_react@18.2.0:
+    resolution: {integrity: sha512-SQu5nCqy8DxQWpnUVLx7V7b7LcA37aM7tvoWjTLZp1dk6EJibM5/4EJKzOnl07/BsM1Y40sKLuqjCwwH/xV0TQ==}
+    peerDependencies:
+      react: '>=16.0.0'
+    dependencies:
+      react: 18.2.0
+      throttle-debounce: 2.3.0
+    dev: false
+
   /react-is/16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
     dev: false
@@ -3640,6 +3651,11 @@ packages:
       commander: 2.20.3
       source-map-support: 0.5.21
     dev: true
+
+  /throttle-debounce/2.3.0:
+    resolution: {integrity: sha512-H7oLPV0P7+jgvrk+6mwwwBDmxTaxnu9HMXmloNLXwnNO0ZxZ31Orah2n8lU1eMPvsaowP2CX+USCgyovXfdOFQ==}
+    engines: {node: '>=8'}
+    dev: false
 
   /tlds/1.236.0:
     resolution: {integrity: sha512-oP2PZ3KeGlgpHgsEfrtva3/K9kzsJUNliQSbCfrJ7JMCWFoCdtG+9YMq/g2AnADQ1v5tVlbtvKJZ4KLpy/P6MA==}

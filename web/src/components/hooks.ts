@@ -37,3 +37,15 @@ export function useDelay() {
 
   return state;
 }
+
+export function useFeedProps() {
+  return useState<{
+    loading: boolean;
+    status: boolean | undefined;
+    hasMore: boolean;
+  }>({
+    loading: false,
+    status: undefined,
+    hasMore: true,
+  })
+}
