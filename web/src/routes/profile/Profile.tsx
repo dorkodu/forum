@@ -1,4 +1,3 @@
-import { IconArrowBigDownLine, IconArrowBigUpLine, IconRefresh } from "@tabler/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -6,7 +5,7 @@ import CardAlert from "../../components/cards/CardAlert";
 import CardLoader from "../../components/cards/CardLoader";
 import CardPanel from "../../components/cards/CardPanel";
 import DiscussionSummary from "../../components/DiscussionSummary";
-import { useWait } from "../../components/hooks";
+import { useFeedProps, useWait } from "../../components/hooks";
 import InfiniteScroll from "../../components/InfiniteScroll";
 import Profile from "../../components/Profile"
 import { request, sage } from "../../stores/api";
@@ -14,41 +13,26 @@ import { useDiscussionStore } from "../../stores/discussionStore";
 import { useUserStore } from "../../stores/userStore";
 
 interface State {
-  user: {
-    loading: boolean;
-    status: boolean | undefined;
-
-  }
-  discussion: {
-    loading: boolean;
-    status: boolean | undefined;
-  }
-
   order: "newer" | "older";
-  loader: "top" | "bottom" | "mid" | undefined;
 }
 
 function ProfileRoute() {
-  const [state, setState] = useState<State>({
-    user: { loading: true, status: undefined },
-    discussion: { loading: false, status: undefined },
-
-    order: "newer",
-    loader: undefined,
-  });
+  const [state, setState] = useState<State>({ order: "newer" });
 
   const { t } = useTranslation();
   const username = useParams<{ username: string }>().username;
   const user = useUserStore(state => state.getUserByUsername(username));
   const discussions = useDiscussionStore(_state => _state.getUserDiscussions(user?.id, state.order));
 
+  const [userProps, setUserProps] = useFeedProps({ loader: "top" });
+  const [discussionProps, setDiscussionProps] = useFeedProps();
+
   const fetchDiscussions = async (type: "newer" | "older", refresh?: boolean) => {
     if (!user) return;
-    if (state.discussion.loading) return;
+    if (discussionProps.loader) return;
 
-    setState(s => ({
-      ...s, discussion: { ...s.discussion, loading: true, status: undefined },
-      loader: refresh ? "mid" : type === "newer" ? "top" : "bottom",
+    setDiscussionProps(s => ({
+      ...s, loader: refresh ? "top" : "bottom", status: undefined
     }));
 
     const anchorId = useDiscussionStore.getState().getUserDiscussionAnchor(user.id, type, refresh)
@@ -59,24 +43,19 @@ function ProfileRoute() {
     const status = !(!res?.a.data || res.a.error);
     const discussions = res?.a.data;
 
+    if (refresh) useDiscussionStore.setState(state => { user && delete state.discussion.users[user.id] });
     if (discussions) useDiscussionStore.getState().setUserDiscussions(user.id, discussions);
 
-    setState(s => ({
-      ...s, discussion: { ...s.discussion, loading: false, status: status },
-      loader: undefined,
-    }));
+    setDiscussionProps(s => ({ ...s, loader: undefined, status: status }));
   }
 
   const fetchRoute = async () => {
-    setState(s => ({
-      ...s, user: { ...s.user, loading: true, status: undefined },
-      loader: "mid"
-    }));
+    setUserProps(s => ({ ...s, loader: "top", status: undefined }));
 
     const res = await sage.get(
       {
         a: sage.query("getUser", { username }, { ctx: "a" }),
-        b: sage.query("getUserDiscussions", { type: "newer", anchorId: "-1" }, { ctx: "a", wait: "a" }),
+        b: sage.query("getUserDiscussions", { type: state.order, anchorId: "-1" }, { ctx: "a", wait: "a" }),
       },
       (query) => useWait(() => request(query))()
     )
@@ -88,25 +67,26 @@ function ProfileRoute() {
     if (user) useUserStore.getState().setUsers([user]);
     if (user && discussions) useDiscussionStore.getState().setUserDiscussions(user.id, discussions);
 
-    setState(s => ({
-      ...s, user: { ...s.user, loading: false, status: status },
-      loader: undefined
-    }));
+    setUserProps(s => ({ ...s, loader: undefined, status: status }));
   }
 
   const changeOrder = (value: string) => {
     if (value === "newer" || value === "older") {
       setState(s => ({ ...s, order: value }));
+
+      // Clear feed when changing the order
+      useDiscussionStore.setState(state => { user && delete state.discussion.users[user.id] });
+      fetchDiscussions(value, true);
     }
   }
 
   useEffect(() => { fetchRoute() }, []);
 
-  if (!user || state.user.loading) {
+  if (!user || userProps.loader) {
     return (
       <>
-        {state.user.loading && <CardLoader />}
-        {state.user.status === false &&
+        {userProps.loader && <CardLoader />}
+        {userProps.status === false &&
           <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
         }
       </>
@@ -129,18 +109,12 @@ function ProfileRoute() {
             ]
           },
         ]}
-
-        buttons={[
-          { onClick: () => fetchDiscussions("newer", true), text: <IconRefresh /> },
-          { onClick: () => fetchDiscussions("newer"), text: <IconArrowBigDownLine /> },
-          { onClick: () => fetchDiscussions("older"), text: <IconArrowBigUpLine /> },
-        ]}
       />
 
       <InfiniteScroll
-        onTop={() => fetchDiscussions("newer")}
-        onBottom={() => fetchDiscussions("older")}
-        loaders={{ top: state.loader === "top", bottom: state.loader === "bottom", mid: state.loader === "mid" }}
+        onTop={() => fetchRoute()}
+        onBottom={() => fetchDiscussions(state.order, false)}
+        loader={discussionProps.loader}
       >
         {discussions.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
       </InfiniteScroll>

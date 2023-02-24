@@ -38,12 +38,17 @@ export function useDelay() {
   return state;
 }
 
-export function useFeedProps() {
+interface IUseFeedProps {
+  status?: boolean;
+  loader?: "top" | "bottom";
+}
+
+export function useFeedProps(props?: IUseFeedProps) {
   return useState<{
     status: boolean | undefined;
     loader: "top" | "bottom" | undefined;
   }>({
-    status: undefined,
-    loader: undefined,
+    status: props?.status,
+    loader: props?.loader,
   })
 }
