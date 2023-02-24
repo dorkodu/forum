@@ -181,8 +181,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
   addUserFeedDiscussions: (discussions) => {
     set(state => {
       discussions.forEach(discussion => {
-        if (!state.discussion.entities[discussion.id])
-          state.discussion.entities[discussion.id] = discussion;
+        state.discussion.entities[discussion.id] = discussion;
         state.userFeed[discussion.id] = true;
       })
     })
@@ -216,8 +215,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
   addFavouriteFeedDiscussions: (discussions) => {
     set(state => {
       discussions.forEach(discussion => {
-        if (!state.discussion.entities[discussion.id])
-          state.discussion.entities[discussion.id] = discussion;
+        state.discussion.entities[discussion.id] = discussion;
         state.favouriteFeed[discussion.id] = true;
       })
     })
@@ -251,8 +249,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
   addGuestFeedDiscussions: (discussions) => {
     set(state => {
       discussions.forEach(discussion => {
-        if (!state.discussion.entities[discussion.id])
-          state.discussion.entities[discussion.id] = discussion;
+        state.discussion.entities[discussion.id] = discussion;
         state.guestFeed[discussion.id] = true;
       })
     })

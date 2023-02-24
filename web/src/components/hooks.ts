@@ -40,12 +40,10 @@ export function useDelay() {
 
 export function useFeedProps() {
   return useState<{
-    loading: boolean;
     status: boolean | undefined;
-    hasMore: boolean;
+    loader: "top" | "bottom" | undefined;
   }>({
-    loading: false,
     status: undefined,
-    hasMore: true,
+    loader: undefined,
   })
 }
