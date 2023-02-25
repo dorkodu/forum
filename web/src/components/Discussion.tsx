@@ -20,27 +20,13 @@ interface Props {
   discussionId: string | undefined;
 }
 
-interface State {
-  show: "comments" | "arguments";
-  commentType: "newer" | "older";
-  argumentType: "newer" | "older" | "top" | "bottom";
-
-  argument: { text: string, type: boolean };
-  comment: { text: string };
-}
-
 function Discussion({ discussionId }: Props) {
-  const [state, setState] = useState<State>({
-    show: "arguments",
-    argumentType: "newer",
-    commentType: "newer",
-
-    argument: { text: "", type: true },
-    comment: { text: "" },
-  });
+  const [argument, setArgument] = useState<{ text: string, type: boolean }>({ text: "", type: true });
+  const [comment, setComment] = useState<{ text: string }>({ text: "" });
 
   const { t } = useTranslation();
 
+  const state = useAppStore(state => state.options.discussion);
   const setRequestLogin = useAppStore(state => state.setRequestLogin);
   const currentUserId = useAuthStore(state => state.userId);
 
@@ -75,38 +61,38 @@ function Discussion({ discussionId }: Props) {
     // If user is trying to create argument while not being logged in
     if (!currentUserId) return setRequestLogin(true);
 
-    if (state.argument.text.length === 0) return;
-    if (state.argument.text.length > 500) return;
+    if (argument.text.length === 0) return;
+    if (argument.text.length > 500) return;
     if (!discussion) return;
     if (actionArgumentProps.loader) return;
 
     setActionArgumentProps(s => ({ ...s, loader: "top", status: undefined }));
-    const status = await useWait(() => queryCreateArgument(discussion.id, state.argument.text, state.argument.type))();
+    const status = await useWait(() => queryCreateArgument(discussion.id, argument.text, argument.type))();
     setActionArgumentProps(s => ({ ...s, loader: undefined, status: status }));
 
     // Since it's a controlled component, it's value can't be changed
-    // directly with a setState call, instead it's html property must be changed
+    // directly with a setArgument call, instead it's html property must be changed
     if (argumentInputRef.current) argumentInputRef.current.value = "";
-    setState(s => ({ ...s, argument: { ...s.argument, text: "" } }));
+    setArgument(a => ({ ...a, text: "" }));
   }
 
   const createComment = async () => {
     // If user is trying to create comment while not being logged in
     if (!currentUserId) return setRequestLogin(true);
 
-    if (state.comment.text.length === 0) return;
-    if (state.comment.text.length > 500) return;
+    if (comment.text.length === 0) return;
+    if (comment.text.length > 500) return;
     if (!discussion) return;
     if (actionCommentProps.loader) return;
 
     setActionCommentProps(s => ({ ...s, loader: "top", status: undefined }));
-    const status = await useWait(() => queryCreateComment(discussion.id, state.comment.text))();
+    const status = await useWait(() => queryCreateComment(discussion.id, comment.text))();
     setActionCommentProps(s => ({ ...s, loader: undefined, status: status }));
 
     // Since it's a controlled component, it's value can't be changed
-    // directly with a setState call, instead it's html property must be changed
+    // directly with a setComment call, instead it's html property must be changed
     if (commentInputRef.current) commentInputRef.current.value = "";
-    setState(s => ({ ...s, comment: { ...s.comment, text: "" } }));
+    setComment(a => ({ ...a, text: "" }));
   }
 
   const getArguments = async (type: "newer" | "older" | "top" | "bottom", refresh?: boolean) => {
@@ -142,7 +128,7 @@ function Discussion({ discussionId }: Props) {
 
   const changeShow = (value: string) => {
     if (value === "arguments" || value === "comments") {
-      setState(s => ({ ...s, show: value }));
+      useAppStore.setState(s => { s.options.discussion.show = value });
     }
   }
 
@@ -154,7 +140,7 @@ function Discussion({ discussionId }: Props) {
         value !== "top" &&
         value !== "bottom"
       ) return;
-      setState(s => ({ ...s, argumentType: value }));
+      useAppStore.setState(s => { s.options.discussion.argumentType = value });
       useDiscussionStore.setState(state => { discussionId && delete state.discussion.arguments[discussionId] });
     }
     else if (state.show === "comments") {
@@ -162,7 +148,7 @@ function Discussion({ discussionId }: Props) {
         value !== "newer" &&
         value !== "older"
       ) return;
-      setState(s => ({ ...s, commentType: value }));
+      useAppStore.setState(s => { s.options.discussion.commentType = value });
       useDiscussionStore.setState(state => { discussionId && delete state.discussion.comments[discussionId] });
     }
   }
@@ -273,12 +259,12 @@ function Discussion({ discussionId }: Props) {
           <>
             <Textarea
               radius="md"
-              label={`${t("argument.title")} (${state.argument.text.length} / 500)`}
+              label={`${t("argument.title")} (${argument.text.length} / 500)`}
               description={t("argument.description")}
               placeholder={t("argument.write")}
               ref={argumentInputRef}
-              defaultValue={state.argument.text}
-              onChange={(ev) => setState(s => ({ ...s, argument: { ...s.argument, text: ev.target.value } }))}
+              defaultValue={argument.text}
+              onChange={ev => setArgument(s => ({ ...s, text: ev.target.value }))}
               autosize
               pb="md"
             />
@@ -286,8 +272,8 @@ function Discussion({ discussionId }: Props) {
             <Button onClick={createArgument} color="dark" radius="md" mr="md">{t("argument.create")}</Button>
 
             <SegmentedControl radius="md"
-              value={state.argument.type ? "+" : "-"}
-              onChange={(type: "+" | "-") => setState(s => ({ ...s, argument: { ...s.argument, type: type === "+" } }))}
+              value={argument.type ? "+" : "-"}
+              onChange={(type: "+" | "-") => setArgument(s => ({ ...s, type: type === "+" }))}
               data={[
                 { label: "+", value: "+" },
                 { label: "-", value: "-" },
@@ -299,12 +285,12 @@ function Discussion({ discussionId }: Props) {
           <>
             <Textarea
               radius="md"
-              label={`${t("comment.title")} (${state.comment.text.length} / 500)`}
+              label={`${t("comment.title")} (${comment.text.length} / 500)`}
               description={t("comment.description")}
               placeholder={t("comment.write")}
               ref={commentInputRef}
-              defaultValue={state.comment.text}
-              onChange={(ev) => setState(s => ({ ...s, comment: { ...s.comment, text: ev.target.value } }))}
+              defaultValue={comment.text}
+              onChange={ev => setComment(s => ({ ...s, text: ev.target.value }))}
               autosize
               pb="md"
             />

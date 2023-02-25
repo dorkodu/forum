@@ -26,6 +26,12 @@ interface State {
     profile: { order: "newer" | "older" }
     followers: { order: "newer" | "older" }
     following: { order: "newer" | "older" }
+
+    discussion: {
+      show: "comments" | "arguments";
+      commentType: "newer" | "older";
+      argumentType: "newer" | "older" | "top" | "bottom";
+    }
   }
 }
 
@@ -51,6 +57,7 @@ const initialState: State = {
     profile: { order: "newer" },
     followers: { order: "newer" },
     following: { order: "newer" },
+    discussion: { show: "arguments", commentType: "newer", argumentType: "newer" },
   },
 }
 
