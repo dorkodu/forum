@@ -13,9 +13,9 @@ function Home() {
   const { t } = useTranslation();
 
   const state = useAppStore(state => state.options.home);
-  const userFeed = useDiscussionStore(_state => _state.getUserFeedDiscussions(state.order));
-  const favouriteFeed = useDiscussionStore(_state => _state.getFavouriteFeedDiscussions(state.order));
-  const guestFeed = useDiscussionStore(_state => _state.getGuestFeedDiscussions(state.order));
+  const userFeed = useDiscussionStore(_state => _state.getUserFeedDiscussions(state.userOrder));
+  const favouriteFeed = useDiscussionStore(_state => _state.getFavouriteFeedDiscussions(state.favouriteOrder));
+  const guestFeed = useDiscussionStore(_state => _state.getGuestFeedDiscussions(state.guestOrder));
 
   const [userFeedProps, setUserFeedProps] = useFeedProps();
   const [favouriteFeedProps, setFavouriteFeedProps] = useFeedProps();
@@ -101,9 +101,9 @@ function Home() {
 
   const fetcher = async (feed: typeof state.feed, refresh?: boolean) => {
     switch (feed) {
-      case "user": await fetchUserFeed(state.order, refresh); break;
-      case "favourite": await fetchFavouriteFeed(state.order, refresh); break;
-      case "guest": await fetchGuestFeed(state.order, refresh); break;
+      case "user": await fetchUserFeed(state.userOrder, refresh); break;
+      case "favourite": await fetchFavouriteFeed(state.favouriteOrder, refresh); break;
+      case "guest": await fetchGuestFeed(state.guestOrder, refresh); break;
     }
   }
 
@@ -121,9 +121,23 @@ function Home() {
     }
   }
 
+  const getOrder = () => {
+    switch (state.feed) {
+      case "user": return state.userOrder;
+      case "favourite": return state.favouriteOrder;
+      case "guest": return state.guestOrder;
+    }
+  }
+
   const changeOrder = (value: string) => {
     if (value === "newer" || value === "older") {
-      useAppStore.setState(s => { s.options.home.order = value });
+      useAppStore.setState(s => {
+        switch (state.feed) {
+          case "user": s.options.home.userOrder = value; break;
+          case "favourite": s.options.home.favouriteOrder = value; break;
+          case "guest": s.options.home.guestOrder = value; break;
+        }
+      });
 
       // Clear feed when changing the order
       useDiscussionStore.setState(_state => {
@@ -148,7 +162,7 @@ function Home() {
   // TODO: Fetch after sometime has passed
   useEffect(() => {
     getFeed(state.feed).length === 0 && fetcher(state.feed, false);
-  }, [state.feed, state.order]);
+  }, [state.feed, state.userOrder, state.favouriteOrder, state.guestOrder]);
 
   return (
     <>
@@ -165,7 +179,7 @@ function Home() {
             ]
           },
           {
-            value: state.order,
+            value: getOrder(),
             setValue: changeOrder,
             label: t("order"),
             data: [

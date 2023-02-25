@@ -15,7 +15,9 @@ interface State {
   options: {
     home: {
       feed: "user" | "favourite" | "guest";
-      order: "newer" | "older";
+      userOrder: "newer" | "older";
+      favouriteOrder: "newer" | "older";
+      guestOrder: "newer" | "older";
     }
 
     search: {
@@ -52,12 +54,21 @@ const initialState: State = {
   requestLogin: false,
 
   options: {
-    home: { feed: "guest", order: "newer" },
+    home: {
+      feed: "guest",
+      userOrder: "newer",
+      favouriteOrder: "newer",
+      guestOrder: "newer",
+    },
     search: { search: "", order: "older" },
     profile: { order: "newer" },
     followers: { order: "newer" },
     following: { order: "newer" },
-    discussion: { show: "arguments", commentType: "newer", argumentType: "newer" },
+    discussion: {
+      show: "arguments",
+      commentType: "newer",
+      argumentType: "newer",
+    },
   },
 }
 
