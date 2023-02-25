@@ -1,5 +1,5 @@
 import { Card, TextInput } from "@mantine/core";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { CardPanel } from "../components/cards/CardPanel";
@@ -15,6 +15,7 @@ function Search() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const [initial, setInitial] = useState(true);
   const state = useAppStore(state => state.options.search);
   const users = useUserStore(state => state.getSearchUsers());
 
@@ -69,6 +70,13 @@ function Search() {
 
   useEffect(() => {
     const u = searchParams.get("u");
+
+    if (u !== "" && initial) {
+      setSearchParams({ u: state.search });
+      setInitial(false);
+      return;
+    }
+
     if (state.search === "" && u && u !== "") {
       useAppStore.setState(s => { s.options.search.search = u });
     }
