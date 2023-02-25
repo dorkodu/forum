@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import CardPanel from "../components/cards/CardPanel";
 import DiscussionSummary from "../components/DiscussionSummary";
@@ -7,16 +7,12 @@ import { request, sage } from "../stores/api";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import InfiniteScroll from '../components/InfiniteScroll';
-
-interface State {
-  order: "newer" | "older";
-  feed: "user" | "favourite" | "guest";
-}
+import { useAppStore } from "../stores/appStore";
 
 function Home() {
-  const [state, setState] = useState<State>({ order: "newer", feed: "guest" });
   const { t } = useTranslation();
 
+  const state = useAppStore(state => state.options.home);
   const userFeed = useDiscussionStore(_state => _state.getUserFeedDiscussions(state.order));
   const favouriteFeed = useDiscussionStore(_state => _state.getFavouriteFeedDiscussions(state.order));
   const guestFeed = useDiscussionStore(_state => _state.getGuestFeedDiscussions(state.order));
@@ -121,13 +117,13 @@ function Home() {
 
   const changeFeed = (value: string) => {
     if (value === "user" || value === "favourite" || value === "guest") {
-      setState(s => ({ ...s, feed: value }));
+      useAppStore.setState(s => { s.options.home.feed = value });
     }
   }
 
   const changeOrder = (value: string) => {
     if (value === "newer" || value === "older") {
-      setState(s => ({ ...s, order: value }));
+      useAppStore.setState(s => { s.options.home.order = value });
 
       // Clear feed when changing the order
       useDiscussionStore.setState(_state => {

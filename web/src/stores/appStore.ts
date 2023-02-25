@@ -11,6 +11,22 @@ interface State {
   }
 
   requestLogin: boolean
+
+  options: {
+    home: {
+      feed: "user" | "favourite" | "guest";
+      order: "newer" | "older";
+    }
+
+    search: {
+      search: string;
+      order: "newer" | "older";
+    }
+
+    profile: {
+      order: "newer" | "older";
+    }
+  }
 }
 
 interface Action {
@@ -28,6 +44,12 @@ const initialState: State = {
   },
 
   requestLogin: false,
+
+  options: {
+    home: { feed: "guest", order: "newer" },
+    search: { search: "", order: "older" },
+    profile: { order: "newer" },
+  },
 }
 
 export const useAppStore = create(immer<State & Action>((set, _get) => ({

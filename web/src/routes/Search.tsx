@@ -1,5 +1,5 @@
 import { Card, TextInput } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { CardPanel } from "../components/cards/CardPanel";
 import { useFeedProps, useWait } from "../components/hooks";
@@ -7,18 +7,12 @@ import InfiniteScroll from "../components/InfiniteScroll";
 import ProfileSummary from "../components/ProfileSummary";
 import { array } from "../lib/array";
 import { request, sage } from "../stores/api";
+import { useAppStore } from "../stores/appStore";
 import { useUserStore } from "../stores/userStore";
 
-interface State {
-  search: string;
-  order: "newer" | "older";
-}
-
 function Search() {
-  // By default, order is older to give advantage to older users
-  const [state, setState] = useState<State>({ search: "", order: "older" });
-
   const { t } = useTranslation();
+  const state = useAppStore(state => state.options.search);
   const users = useUserStore(state => state.getSearchUsers());
 
   const [searchFeedProps, setSearchFeedProps] = useFeedProps();
@@ -32,18 +26,19 @@ function Search() {
   }
 
   const getAnchor = (type: "newer" | "older", refresh?: boolean) => {
-    return array.getAnchor(getSorted(type), "id", "-1", type, refresh);
+    return array.getAnchor(getSorted("newer"), "id", "-1", type, refresh);
   }
 
   const fetchUsers = async (type: "newer" | "older", refresh?: boolean) => {
     if (searchFeedProps.loader) return;
 
+    const name = state.search.startsWith("@") ? undefined : state.search;
+    const username = state.search.startsWith("@") ? state.search.substring(1) : undefined;
+    if (!name && !username) return;
+
     setSearchFeedProps(s => ({
       ...s, loader: refresh ? "top" : "bottom", status: undefined
     }));
-
-    const name = state.search.startsWith("@") ? undefined : state.search;
-    const username = state.search.startsWith("@") ? state.search.substring(1) : undefined;
 
     const anchorId = getAnchor(type, refresh);
     const res = await sage.get(
@@ -61,7 +56,7 @@ function Search() {
 
   const changeOrder = (value: string) => {
     if (value === "newer" || value === "older") {
-      setState(s => ({ ...s, order: value }));
+      useAppStore.setState(s => { s.options.search.order = value });
 
       // Clear feed when changing the order
       useUserStore.getState().setSearchUsers([], true);
@@ -88,7 +83,7 @@ function Search() {
           description={t("user.searchDescription")}
           placeholder={t("user.search")}
           defaultValue={state.search}
-          onChange={(ev) => { setState(s => ({ ...s, search: ev.target.value })) }}
+          onChange={ev => useAppStore.setState(s => { s.options.search.search = ev.target.value })}
           pb="md"
         />
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import CardAlert from "../../components/cards/CardAlert";
@@ -9,22 +9,19 @@ import { useFeedProps, useWait } from "../../components/hooks";
 import InfiniteScroll from "../../components/InfiniteScroll";
 import Profile from "../../components/Profile"
 import { request, sage } from "../../stores/api";
+import { useAppStore } from "../../stores/appStore";
 import { useDiscussionStore } from "../../stores/discussionStore";
 import { useUserStore } from "../../stores/userStore";
 
-interface State {
-  order: "newer" | "older";
-}
 
 function ProfileRoute() {
-  const [state, setState] = useState<State>({ order: "newer" });
-
   const { t } = useTranslation();
+  const state = useAppStore(state => state.options.profile);
   const username = useParams<{ username: string }>().username;
   const user = useUserStore(state => state.getUserByUsername(username));
   const discussions = useDiscussionStore(_state => _state.getUserDiscussions(user?.id, state.order));
 
-  const [userProps, setUserProps] = useFeedProps({ loader: "top" });
+  const [userProps, setUserProps] = useFeedProps({ loader: user ? undefined : "top" });
   const [discussionProps, setDiscussionProps] = useFeedProps();
 
   const fetchDiscussions = async (type: "newer" | "older", refresh?: boolean) => {
@@ -72,15 +69,17 @@ function ProfileRoute() {
 
   const changeOrder = (value: string) => {
     if (value === "newer" || value === "older") {
-      setState(s => ({ ...s, order: value }));
+      useAppStore.setState(s => { s.options.profile.order = value });
 
       // Clear feed when changing the order
       useDiscussionStore.setState(state => { user && delete state.discussion.users[user.id] });
-      fetchDiscussions(value, true);
     }
   }
 
-  useEffect(() => { fetchRoute() }, []);
+  useEffect(() => {
+    !user && fetchRoute();
+    discussions.length === 0 && fetchDiscussions(state.order, false);
+  }, [state.order]);
 
   if (!user || userProps.loader) {
     return (
@@ -112,7 +111,6 @@ function ProfileRoute() {
       />
 
       <InfiniteScroll
-        onTop={() => fetchRoute()}
         onBottom={() => fetchDiscussions(state.order, false)}
         loader={discussionProps.loader}
       >
