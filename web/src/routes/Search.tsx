@@ -1,6 +1,7 @@
 import { Card, TextInput } from "@mantine/core";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { CardPanel } from "../components/cards/CardPanel";
 import { useFeedProps, useWait } from "../components/hooks";
 import InfiniteScroll from "../components/InfiniteScroll";
@@ -12,6 +13,8 @@ import { useUserStore } from "../stores/userStore";
 
 function Search() {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const state = useAppStore(state => state.options.search);
   const users = useUserStore(state => state.getSearchUsers());
 
@@ -65,12 +68,20 @@ function Search() {
   }
 
   useEffect(() => {
+    const u = searchParams.get("u");
+    if (state.search === "" && u && u !== "") {
+      useAppStore.setState(s => { s.options.search.search = u });
+    }
+
     if (state.search === "" || state.search === "@") {
       useUserStore.getState().setSearchUsers([], true);
       return;
     }
 
-    const timeout = setTimeout(() => { fetchUsers(state.order, true) }, 1000);
+    const timeout = setTimeout(() => {
+      setSearchParams({ u: state.search });
+      fetchUsers(state.order, true);
+    }, 1000);
     return () => { clearTimeout(timeout) };
   }, [state.search])
 
