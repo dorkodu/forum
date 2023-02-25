@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import CardAlert from "../../components/cards/CardAlert";
@@ -9,21 +9,17 @@ import InfiniteScroll from "../../components/InfiniteScroll";
 import Profile from "../../components/Profile"
 import ProfileSummary from "../../components/ProfileSummary"
 import { request, sage } from "../../stores/api";
+import { useAppStore } from "../../stores/appStore";
 import { useUserStore } from "../../stores/userStore";
 
-interface State {
-  order: "newer" | "older";
-}
-
 function Following() {
-  const [state, setState] = useState<State>({ order: "newer" });
-
   const { t } = useTranslation();
+  const state = useAppStore(state => state.options.following);
   const username = useParams<{ username: string }>().username;
   const user = useUserStore(state => state.getUserByUsername(username));
   const following = useUserStore(state => state.getUserFollowing(user));
 
-  const [userProps, setUserProps] = useFeedProps({ loader: "top" });
+  const [userProps, setUserProps] = useFeedProps({ loader: user ? undefined : "top" });
   const [followingProps, setFollowingProps] = useFeedProps();
 
   const fetchFollowing = async (type: "newer" | "older", refresh?: boolean) => {
@@ -72,15 +68,17 @@ function Following() {
 
   const changeOrder = (value: string) => {
     if (value === "newer" || value === "older") {
-      setState(s => ({ ...s, order: value }));
+      useAppStore.setState(s => { s.options.following.order = value });
 
       // Clear following when changing the order
       useUserStore.setState(state => { user && delete state.user.following[user.id] });
-      fetchFollowing(value, true);
     }
   }
 
-  useEffect(() => { fetchRoute() }, []);
+  useEffect(() => {
+    !user && fetchRoute();
+    following.length === 0 && fetchFollowing(state.order, false);
+  }, [state.order]);
 
   if (!user || userProps.loader) {
     return (
@@ -112,7 +110,6 @@ function Following() {
       />
 
       <InfiniteScroll
-        onTop={() => fetchRoute()}
         onBottom={() => fetchFollowing(state.order, false)}
         loader={followingProps.loader}
       >

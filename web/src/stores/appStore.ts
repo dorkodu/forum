@@ -23,9 +23,9 @@ interface State {
       order: "newer" | "older";
     }
 
-    profile: {
-      order: "newer" | "older";
-    }
+    profile: { order: "newer" | "older" }
+    followers: { order: "newer" | "older" }
+    following: { order: "newer" | "older" }
   }
 }
 
@@ -49,6 +49,8 @@ const initialState: State = {
     home: { feed: "guest", order: "newer" },
     search: { search: "", order: "older" },
     profile: { order: "newer" },
+    followers: { order: "newer" },
+    following: { order: "newer" },
   },
 }
 

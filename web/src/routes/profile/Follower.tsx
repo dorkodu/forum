@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import CardAlert from "../../components/cards/CardAlert";
@@ -9,21 +9,17 @@ import InfiniteScroll from "../../components/InfiniteScroll";
 import Profile from "../../components/Profile"
 import ProfileSummary from "../../components/ProfileSummary"
 import { request, sage } from "../../stores/api";
+import { useAppStore } from "../../stores/appStore";
 import { useUserStore } from "../../stores/userStore";
 
-interface State {
-  order: "newer" | "older";
-}
-
 function Follower() {
-  const [state, setState] = useState<State>({ order: "newer" });
-
   const { t } = useTranslation();
+  const state = useAppStore(state => state.options.followers);
   const username = useParams<{ username: string }>().username;
   const user = useUserStore(state => state.getUserByUsername(username));
   const followers = useUserStore(state => state.getUserFollowers(user));
 
-  const [userProps, setUserProps] = useFeedProps({ loader: "top" });
+  const [userProps, setUserProps] = useFeedProps({ loader: user ? undefined : "top" });
   const [followerProps, setFollowerProps] = useFeedProps();
 
   const fetchFollowers = async (type: "newer" | "older", refresh?: boolean) => {
@@ -72,15 +68,17 @@ function Follower() {
 
   const changeOrder = (value: string) => {
     if (value === "newer" || value === "older") {
-      setState(s => ({ ...s, order: value }));
+      useAppStore.setState(s => { s.options.followers.order = value });
 
       // Clear followers when changing the order
       useUserStore.setState(state => { user && delete state.user.followers[user.id] });
-      fetchFollowers(value, true);
     }
   }
 
-  useEffect(() => { fetchRoute() }, []);
+  useEffect(() => {
+    !user && fetchRoute();
+    followers.length === 0 && fetchFollowers(state.order, false);
+  }, [state.order]);
 
   if (!user || userProps.loader) {
     return (
@@ -112,7 +110,6 @@ function Follower() {
       />
 
       <InfiniteScroll
-        onTop={() => fetchRoute()}
         onBottom={() => fetchFollowers(state.order, false)}
         loader={followerProps.loader}
       >
