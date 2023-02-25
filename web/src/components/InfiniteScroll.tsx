@@ -43,7 +43,7 @@ function InfiniteScroll({ children, onTop, onBottom, loader }: Props) {
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
-  }, [])
+  }, [onTop, onBottom])
 
   return (
     <>
