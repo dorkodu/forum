@@ -1,11 +1,10 @@
-import { IconArrowBigDownLine, IconArrowBigUpLine, IconRefresh } from "@tabler/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import CardAlert from "../../components/cards/CardAlert";
 import CardLoader from "../../components/cards/CardLoader";
 import CardPanel from "../../components/cards/CardPanel";
-import { useWait } from "../../components/hooks";
+import { useFeedProps, useWait } from "../../components/hooks";
 import InfiniteScroll from "../../components/InfiniteScroll";
 import Profile from "../../components/Profile"
 import ProfileSummary from "../../components/ProfileSummary"
@@ -13,42 +12,26 @@ import { request, sage } from "../../stores/api";
 import { useUserStore } from "../../stores/userStore";
 
 interface State {
-  user: {
-    loading: boolean;
-    status: boolean | undefined;
-
-  }
-
-  following: {
-    loading: boolean;
-    status: boolean | undefined;
-  }
-
   order: "newer" | "older";
-  loader: "top" | "bottom" | "mid" | undefined;
 }
 
 function Following() {
-  const [state, setState] = useState<State>({
-    user: { loading: true, status: undefined },
-    following: { loading: false, status: undefined },
-
-    order: "newer",
-    loader: undefined,
-  });
+  const [state, setState] = useState<State>({ order: "newer" });
 
   const { t } = useTranslation();
   const username = useParams<{ username: string }>().username;
   const user = useUserStore(state => state.getUserByUsername(username));
   const following = useUserStore(state => state.getUserFollowing(user));
 
+  const [userProps, setUserProps] = useFeedProps({ loader: "top" });
+  const [followingProps, setFollowingProps] = useFeedProps();
+
   const fetchFollowing = async (type: "newer" | "older", refresh?: boolean) => {
     if (!user) return;
-    if (state.following.loading) return;
+    if (followingProps.loader) return;
 
-    setState(s => ({
-      ...s, following: { ...s.following, loading: true, status: undefined },
-      loader: refresh ? "mid" : type === "newer" ? "top" : "bottom",
+    setFollowingProps(s => ({
+      ...s, loader: refresh ? "top" : "bottom", status: undefined
     }));
 
     const anchorId = useUserStore.getState().getUserFollowingAnchor(user, type, refresh)
@@ -59,24 +42,19 @@ function Following() {
     const status = !(!res?.a.data || res.a.error);
     const following = res?.a.data;
 
+    if (refresh) useUserStore.setState(state => { user && delete state.user.following[user.id] });
     if (following) useUserStore.getState().addUserFollowing(user, following);
 
-    setState(s => ({
-      ...s, following: { ...s.following, loading: false, status: status },
-      loader: undefined,
-    }));
+    setFollowingProps(s => ({ ...s, loader: undefined, status: status }));
   }
 
   const fetchRoute = async () => {
-    setState(s => ({
-      ...s, user: { ...s.user, loading: true, status: undefined },
-      loader: "mid"
-    }));
+    setUserProps(s => ({ ...s, loader: "top", status: undefined }));
 
     const res = await sage.get(
       {
         a: sage.query("getUser", { username }, { ctx: "a" }),
-        b: sage.query("getUserFollowing", { type: "newer", anchorId: "-1" }, { ctx: "a", wait: "a" }),
+        b: sage.query("getUserFollowing", { type: state.order, anchorId: "-1" }, { ctx: "a", wait: "a" }),
       },
       (query) => useWait(() => request(query))()
     )
@@ -89,25 +67,26 @@ function Following() {
     if (following) useUserStore.getState().setUsers(following);
     if (user && following) useUserStore.getState().addUserFollowing(user, following);
 
-    setState(s => ({
-      ...s, user: { ...s.user, loading: false, status: status },
-      loader: undefined
-    }));
+    setUserProps(s => ({ ...s, loader: undefined, status: status }));
   }
 
   const changeOrder = (value: string) => {
     if (value === "newer" || value === "older") {
       setState(s => ({ ...s, order: value }));
+
+      // Clear following when changing the order
+      useUserStore.setState(state => { user && delete state.user.following[user.id] });
+      fetchFollowing(value, true);
     }
   }
 
   useEffect(() => { fetchRoute() }, []);
 
-  if (!user || state.user.loading) {
+  if (!user || userProps.loader) {
     return (
       <>
-        {state.user.loading && <CardLoader />}
-        {state.user.status === false &&
+        {userProps.loader && <CardLoader />}
+        {userProps.status === false &&
           <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
         }
       </>
@@ -130,18 +109,12 @@ function Following() {
             ]
           },
         ]}
-
-        buttons={[
-          { onClick: () => fetchFollowing("newer", true), text: <IconRefresh /> },
-          { onClick: () => fetchFollowing("newer"), text: <IconArrowBigDownLine /> },
-          { onClick: () => fetchFollowing("older"), text: <IconArrowBigUpLine /> },
-        ]}
       />
 
       <InfiniteScroll
-        onTop={() => fetchFollowing("newer")}
-        onBottom={() => fetchFollowing("older")}
-        loaders={{ top: state.loader === "top", bottom: state.loader === "bottom", mid: state.loader === "mid" }}
+        onTop={() => fetchRoute()}
+        onBottom={() => fetchFollowing(state.order, false)}
+        loader={followingProps.loader}
       >
         {following.map((_following) => <ProfileSummary key={_following.id} user={_following} />)}
       </InfiniteScroll>
