@@ -71,8 +71,9 @@ function Search() {
   useEffect(() => {
     const u = searchParams.get("u");
 
-    if (u !== "" && initial) {
-      setSearchParams({ u: state.search });
+    if (u && u !== "" && initial) {
+      useAppStore.setState(s => { s.options.search.search = u });
+      fetchUsers(state.order, true);
       setInitial(false);
       return;
     }
