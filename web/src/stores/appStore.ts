@@ -34,6 +34,8 @@ interface State {
       commentType: "newer" | "older";
       argumentType: "newer" | "older" | "top" | "bottom";
     }
+
+    notifications: { order: "newer" | "older" };
   }
 }
 
@@ -69,6 +71,7 @@ const initialState: State = {
       commentType: "newer",
       argumentType: "newer",
     },
+    notifications: { order: "newer" },
   },
 }
 

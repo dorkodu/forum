@@ -11,6 +11,7 @@ const Following = React.lazy(useWait(() => import("./profile/Following")));
 const Discussion = React.lazy(useWait(() => import("./Discussion")));
 const DiscussionEditor = React.lazy(useWait(() => import("./DiscussionEditor")));
 const Search = React.lazy(useWait(() => import("./Search")));
+const Notifications = React.lazy(useWait(() => import("./Notifications")));
 const Menu = React.lazy(useWait(() => import("./Menu")));
 const DorkoduID = React.lazy(useWait(() => import("./DorkoduID")));
 const NotFound = React.lazy(useWait(() => import("./NotFound")));
@@ -30,6 +31,7 @@ export const router = createBrowserRouter(
       <Route path="/discussion-editor" element={<DiscussionEditor />} />
       <Route path="/discussion-editor/:id" element={<DiscussionEditor />} />
       <Route path="/search" element={<Search />} />
+      <Route path="/notifications" element={<Notifications />} />
       <Route path="/menu" element={<Menu />} />
       <Route path="/dorkodu-id" element={<DorkoduID />} />
 

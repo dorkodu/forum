@@ -41,6 +41,7 @@ export const schema = sage.schema(
     getUserDiscussions: user.getUserDiscussions,
     getUserFollowers: user.getUserFollowers,
     getUserFollowing: user.getUserFollowing,
+    getUserNotifications: user.getUserNotifications,
 
     /* discussion */
     createDiscussion: discussion.createDiscussion,

@@ -1,6 +1,6 @@
 import { css, Global } from "@emotion/react";
 import { ActionIcon, AppShell, Card, ColorScheme, ColorSchemeProvider, Flex, Footer, Header, MantineProvider } from "@mantine/core";
-import { IconArrowLeft, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons";
+import { IconArrowLeft, IconBell, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons";
 import { Suspense, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAppStore } from "./stores/appStore";
@@ -56,6 +56,10 @@ function App() {
   const routeProfile = () => {
     if (!currentUser) setRequestLogin(true);
     else navigate(`/profile/${currentUser.username}`)
+  }
+  const routeNotifications = () => {
+    if (!currentUser) setRequestLogin(true);
+    else navigate("/notifications")
   }
   const routeDiscussionEditor = () => {
     if (!currentUser) setRequestLogin(true);
@@ -119,6 +123,7 @@ function App() {
           <ActionIcon color="dark" onClick={routeHome}><IconHome /></ActionIcon>
           <ActionIcon color="dark" onClick={routeSearch}><IconSearch /></ActionIcon>
           <ActionIcon color="dark" onClick={routeProfile}><IconUser /></ActionIcon>
+          <ActionIcon color="dark" onClick={routeNotifications}><IconBell /></ActionIcon>
           <ActionIcon color="dark" onClick={routeDiscussionEditor}><IconPencilPlus /></ActionIcon>
         </Flex>
       </Card>

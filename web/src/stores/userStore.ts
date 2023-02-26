@@ -1,4 +1,5 @@
 import { IUser } from "@api/types/user";
+import { INotification } from "@api/types/notification";
 import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
 import { array } from "../lib/array";
@@ -17,6 +18,8 @@ interface State {
 
     // Search results
     search: string[]
+
+    notifications: { [key: string]: INotification }
   }
 }
 
@@ -38,6 +41,10 @@ interface Action {
   getUserFollowersAnchor: (user: IUser, type: "newer" | "older", refresh?: boolean) => string;
   getUserFollowingAnchor: (user: IUser, type: "newer" | "older", refresh?: boolean) => string;
 
+  getNotifications: (type: "newer" | "older") => INotification[];
+  setNotifications: (notifications: INotification[]) => void;
+  getNotificationsAnchor: (type: "newer" | "older", refresh?: boolean) => string;
+
   queryGetUser: () => Promise<boolean>;
   querySearchUser: () => Promise<boolean>;
 
@@ -52,7 +59,9 @@ interface Action {
 }
 
 const initialState: State = {
-  user: { entities: {}, followers: {}, following: {}, search: [] },
+  user: {
+    entities: {}, followers: {}, following: {}, search: [], notifications: {}
+  },
 }
 
 export const useUserStore = create(immer<State & Action>((set, get) => ({
@@ -175,6 +184,33 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
 
   getUserFollowingAnchor: (user, type, refresh) => {
     return array.getAnchor(get().getUserFollowing(user, "newer"), "id", "-1", type, refresh);
+  },
+
+
+  getNotifications: (type) => {
+    const object = get().user.notifications;
+    if (!object) return [];
+
+    const out: INotification[] = [];
+    const keys = Object.keys(object);
+    keys.forEach(key => {
+      const notification = get().user.notifications[key];
+      if (notification) out.push(notification);
+    })
+
+    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+  },
+
+  setNotifications: (notifications) => {
+    set(state => {
+      notifications.forEach(notification => {
+        state.user.notifications[notification.id] = notification;
+      })
+    })
+  },
+
+  getNotificationsAnchor: (type, refresh) => {
+    return array.getAnchor(get().getNotifications("newer"), "id", "-1", type, refresh);
   },
 
 

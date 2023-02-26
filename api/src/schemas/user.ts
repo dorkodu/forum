@@ -40,3 +40,8 @@ export const getUserFollowingSchema = z.object({
   anchorId: z.string(),
   type: z.enum(["newer", "older"]),
 }).strict();
+
+export const getUserNotificationsSchema = z.object({
+  anchorId: z.string(),
+  type: z.enum(["newer", "older"]),
+}).strict();

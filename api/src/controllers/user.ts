@@ -1,13 +1,14 @@
 import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
-import { blockUserSchema, followUserSchema, getUserDiscussionsSchema, getUserFollowersSchema, getUserFollowingSchema, getUserSchema, searchUserSchema } from "../schemas/user";
+import { blockUserSchema, followUserSchema, getUserDiscussionsSchema, getUserFollowersSchema, getUserFollowingSchema, getUserNotificationsSchema, getUserSchema, searchUserSchema } from "../schemas/user";
 import { z } from "zod";
 import auth from "./auth";
 import pg from "../pg";
 import { IUser, IUserParsed, IUserRaw, iUserSchema } from "../types/user";
 import { IDiscussion, IDiscussionParsed, IDiscussionRaw, iDiscussionSchema } from "../types/discussion";
 import { snowflake } from "../lib/snowflake";
+import { INotification } from "../types/notification";
 
 const getUser = sage.resource(
   {} as SchemaContext,
@@ -482,6 +483,20 @@ const getUserFollowing = sage.resource(
   }
 )
 
+const getUserNotifications = sage.resource(
+  {} as SchemaContext,
+  {} as z.infer<typeof getUserNotificationsSchema>,
+  async (arg, ctx): Promise<{ data?: INotification[], error?: ErrorCode }> => {
+    const parsed = getUserNotificationsSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+    if (!info) return { error: ErrorCode.Default };
+
+    return { data: [] };
+  }
+)
+
 export default {
   getUser,
   searchUser,
@@ -492,4 +507,5 @@ export default {
   getUserDiscussions,
   getUserFollowers,
   getUserFollowing,
+  getUserNotifications,
 }

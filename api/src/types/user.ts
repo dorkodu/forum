@@ -15,4 +15,5 @@ export const iUserSchema = z.object({
   following: z.boolean(),
   blocker: z.boolean().optional().nullable().transform((arg) => arg === null ? undefined : arg),
   blocking: z.boolean().optional().nullable().transform((arg) => arg === null ? undefined : arg),
+  hasNotification: z.boolean().optional().nullable().transform((arg) => arg === null ? undefined : arg),
 }).strict();
