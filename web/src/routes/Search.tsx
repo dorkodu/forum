@@ -25,7 +25,7 @@ function Search() {
     return array.sort(
       users,
       "joinDate",
-      type === "newer" ? ((a, b) => a - b) : ((a, b) => b - a)
+      type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b)
     );
   }
 
