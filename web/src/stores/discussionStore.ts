@@ -87,11 +87,7 @@ interface Action {
 
   queryCreateArgument: (discussionId: string, content: string, type: boolean) => Promise<boolean>;
   queryDeleteArgument: (argument: IArgument) => Promise<boolean>;
-  queryGetArguments: (
-    discussionId: string,
-    type: "newer" | "older" | "top" | "bottom",
-    refresh?: boolean
-  ) => Promise<boolean>;
+  queryGetArguments: (discussionId: string, type: "newer" | "older" | "top" | "bottom", refresh?: boolean) => Promise<boolean>;
   queryVoteArgument: (argument: IArgument, type: boolean) => Promise<boolean>;
 
   queryCreateComment: (discussionId: string, content: string) => Promise<boolean>;

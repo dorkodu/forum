@@ -70,6 +70,8 @@ function Discussion({ discussionId }: Props) {
     const status = await useWait(() => queryCreateArgument(discussion.id, argument.text, argument.type))();
     setActionArgumentProps(s => ({ ...s, loader: undefined, status: status }));
 
+    // TODO: If status is not true (failed), don't reset input, instead show error message
+
     // Since it's a controlled component, it's value can't be changed
     // directly with a setArgument call, instead it's html property must be changed
     if (argumentInputRef.current) argumentInputRef.current.value = "";
@@ -89,6 +91,8 @@ function Discussion({ discussionId }: Props) {
     const status = await useWait(() => queryCreateComment(discussion.id, comment.text))();
     setActionCommentProps(s => ({ ...s, loader: undefined, status: status }));
 
+    // TODO: If status is not true (failed), don't reset input, instead show error message
+    
     // Since it's a controlled component, it's value can't be changed
     // directly with a setComment call, instead it's html property must be changed
     if (commentInputRef.current) commentInputRef.current.value = "";
