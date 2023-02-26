@@ -30,7 +30,7 @@ const auth = sage.resource(
 
     const [result] = await pg`
       SELECT id, name, username, bio, join_date, follower_count, following_count,
-      FALSE AS follower, FALSE AS following
+      FALSE AS follower, FALSE AS following, has_notification
       FROM users WHERE id=${info.userId}
     `
     if (!result) return { error: ErrorCode.Default };
@@ -103,6 +103,7 @@ const getAccessToken = sage.resource(
         joinDate: date.utc(),
         followerCount: 0,
         followingCount: 0,
+        hasNotification: false,
       }
 
       const result = await pg`INSERT INTO users ${pg(row)}`;
@@ -131,7 +132,7 @@ const getAccessToken = sage.resource(
 
       const [result1] = await pg`
         SELECT id, name, username, bio, join_date, follower_count, following_count,
-        FALSE AS follower, FALSE AS following
+        FALSE AS follower, FALSE AS following, has_notification
         FROM users WHERE id=${userData.id}
       `;
       if (!result1) return { error: ErrorCode.Default };

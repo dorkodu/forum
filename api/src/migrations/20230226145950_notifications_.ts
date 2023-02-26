@@ -11,7 +11,7 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("current_id").notNullable()
       table.bigint("entity_id").notNullable()
       table.smallint("type").notNullable()
-      table.bigint("date")
+      table.bigint("date").notNullable()
 
       table.index("target_id", undefined, "hash")
       table.unique(["current_id", "entity_id"])

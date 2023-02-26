@@ -8,7 +8,7 @@ import pg from "../pg";
 import { IUser, IUserParsed, IUserRaw, iUserSchema } from "../types/user";
 import { IDiscussion, IDiscussionParsed, IDiscussionRaw, iDiscussionSchema } from "../types/discussion";
 import { snowflake } from "../lib/snowflake";
-import { INotification } from "../types/notification";
+import { INotification, INotificationParsed, iNotificationSchema } from "../types/notification";
 
 const getUser = sage.resource(
   {} as SchemaContext,
@@ -493,9 +493,41 @@ const getUserNotifications = sage.resource(
     const info = await auth.getAuthInfo(ctx);
     if (!info) return { error: ErrorCode.Default };
 
-    return { data: [] };
+    const { anchorId, type } = parsed.data;
+
+    const result = await pg`
+      SELECT 
+        un.id, un.target_id, un.current_id, un.entity_id,
+        un.type, un.date
+      FROM user_notifications un
+      ${anchorId === "-1" ? pg`` :
+        type === "newer" ? pg`WHERE un.id<${anchorId}` : pg`WHERE un.id>${anchorId}`}
+      ${info ?
+        pg`
+          ${anchorId === "-1" ? pg`WHERE` : pg`AND`} (
+            NOT EXISTS (
+              SELECT * FROM user_blocks ub
+              WHERE 
+                (ub.blocker_id=${info.userId} AND un.current_id=ub.blocking_id) OR
+                (ub.blocking_id=${info.userId} AND un.current_id=ub.blocker_id)
+            )
+          )
+        ` : pg``}
+      ORDER BY un.id ${type === "newer" ? pg`DESC` : pg`ASC`}
+      LIMIT 20
+    `;
+
+    const res: INotificationParsed[] = [];
+    result.forEach(notification => {
+      const parsed = iNotificationSchema.safeParse(notification);
+      if (parsed.success) res.push(parsed.data);
+    })
+
+    return { data: res };
   }
 )
+
+// TODO: Add setUserNotificationsRead, which will set has notification to false
 
 export default {
   getUser,
