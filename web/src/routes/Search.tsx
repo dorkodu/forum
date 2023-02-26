@@ -17,7 +17,7 @@ function Search() {
 
   const [initial, setInitial] = useState(true);
   const state = useAppStore(state => state.options.search);
-  const users = useUserStore(state => state.getSearchUsers());
+  const users = useUserStore(_state => _state.getSearchUsers(state.order));
 
   const [searchFeedProps, setSearchFeedProps] = useFeedProps();
 
@@ -52,8 +52,11 @@ function Search() {
     const status = !(!res?.a.data || res.a.error);
     const users = res?.a.data;
 
-    if (refresh) useUserStore.getState().setSearchUsers([], true);
-    if (users) useUserStore.getState().setSearchUsers(users, refresh);
+    if (refresh) useUserStore.getState().addSearchUsers([], true);
+    if (users) {
+      useUserStore.getState().setUsers(users);
+      useUserStore.getState().addSearchUsers(users, refresh);
+    }
 
     setSearchFeedProps(s => ({ ...s, loader: undefined, status: status }));
   }
@@ -63,7 +66,7 @@ function Search() {
       useAppStore.setState(s => { s.options.search.order = value });
 
       // Clear feed when changing the order
-      useUserStore.getState().setSearchUsers([], true);
+      useUserStore.getState().addSearchUsers([], true);
       fetchUsers(state.order, true);
     }
   }
@@ -83,7 +86,7 @@ function Search() {
     }
 
     if (state.search === "" || state.search === "@") {
-      useUserStore.getState().setSearchUsers([], true);
+      useUserStore.getState().addSearchUsers([], true);
       return;
     }
 

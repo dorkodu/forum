@@ -26,11 +26,11 @@ interface Action {
 
   setUsers: (users: IUser[]) => void;
 
-  getSearchUsers: () => IUser[];
-  setSearchUsers: (users: IUser[], refresh?: boolean) => void;
+  getSearchUsers: (type: "newer" | "older") => IUser[];
+  addSearchUsers: (users: IUser[], refresh?: boolean) => void;
 
-  getUserFollowers: (user: IUser | undefined) => IUser[];
-  getUserFollowing: (user: IUser | undefined) => IUser[];
+  getUserFollowers: (user: IUser | undefined, type: "newer" | "older") => IUser[];
+  getUserFollowing: (user: IUser | undefined, type: "newer" | "older") => IUser[];
   addUserFollowers: (user: IUser, followers: IUser[]) => void;
   addUserFollowing: (user: IUser, following: IUser[]) => void;
   removeUserFollowers: (user: IUser, followers: IUser[]) => void;
@@ -79,14 +79,12 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
 
   setUsers: (users) => {
     set(state => {
-      users.forEach((user) => {
-        if (!state.user.entities[user.id]) state.user.entities[user.id] = user;
-      })
+      users.forEach((user) => { state.user.entities[user.id] = user });
     })
   },
 
 
-  getSearchUsers: () => {
+  getSearchUsers: (type) => {
     const out: IUser[] = [];
     const keys = get().user.search;
     keys.forEach(key => {
@@ -94,22 +92,18 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
       if (user) out.push(user);
     })
 
-    return out;
+    return array.sort(out, "joinDate", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
   },
 
-  setSearchUsers: (users, refresh) => {
+  addSearchUsers: (users, refresh) => {
     set(state => {
       if (refresh) state.user.search = [];
-
-      users.forEach((user) => {
-        state.user.search.push(user.id);
-        if (!state.user.entities[user.id]) state.user.entities[user.id] = user;
-      })
+      users.forEach((user) => { state.user.search.push(user.id) });
     })
   },
 
 
-  getUserFollowers: (user) => {
+  getUserFollowers: (user, type) => {
     if (!user) return [];
     const followers = get().user.followers[user.id];
     if (!followers) return [];
@@ -121,10 +115,10 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
       if (user) out.push(user);
     })
 
-    return out;
+    return array.sort(out, "joinDate", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
   },
 
-  getUserFollowing: (user) => {
+  getUserFollowing: (user, type) => {
     if (!user) return [];
     const following = get().user.following[user.id];
     if (!following) return [];
@@ -136,20 +130,26 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
       if (user) out.push(user);
     })
 
-    return out;
+    return array.sort(out, "joinDate", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
   },
 
   addUserFollowers: (user, followers) => {
     set(state => {
       if (!state.user.followers[user.id]) state.user.followers[user.id] = {};
-      followers.forEach(follower => { state.user.followers[user.id]![follower.id] = true })
+
+      followers.forEach(follower => {
+        state.user.followers[user.id]![follower.id] = true;
+      });
     })
   },
 
   addUserFollowing: (user, following) => {
     set(state => {
       if (!state.user.following[user.id]) state.user.following[user.id] = {};
-      following.forEach(_following => { state.user.following[user.id]![_following.id] = true })
+
+      following.forEach(_following => {
+        state.user.following[user.id]![_following.id] = true;
+      });
     })
   },
 
@@ -157,7 +157,7 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
     set(state => {
       followers.forEach(follower => {
         delete state.user.followers[user.id]?.[follower.id];
-      })
+      });
     })
   },
 
@@ -165,16 +165,16 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
     set(state => {
       following.forEach(_following => {
         delete state.user.following[user.id]?.[_following.id];
-      })
+      });
     })
   },
 
   getUserFollowersAnchor: (user, type, refresh) => {
-    return array.getAnchor(get().getUserFollowers(user), "id", "-1", type, refresh);
+    return array.getAnchor(get().getUserFollowers(user, "newer"), "id", "-1", type, refresh);
   },
 
   getUserFollowingAnchor: (user, type, refresh) => {
-    return array.getAnchor(get().getUserFollowing(user), "id", "-1", type, refresh);
+    return array.getAnchor(get().getUserFollowing(user, "newer"), "id", "-1", type, refresh);
   },
 
 

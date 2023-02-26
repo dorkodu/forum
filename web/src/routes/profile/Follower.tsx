@@ -17,7 +17,7 @@ function Follower() {
   const state = useAppStore(state => state.options.followers);
   const username = useParams<{ username: string }>().username;
   const user = useUserStore(state => state.getUserByUsername(username));
-  const followers = useUserStore(state => state.getUserFollowers(user));
+  const followers = useUserStore(_state => _state.getUserFollowers(user, state.order));
 
   const [userProps, setUserProps] = useFeedProps({ loader: user ? undefined : "top" });
   const [followerProps, setFollowerProps] = useFeedProps();
@@ -39,7 +39,10 @@ function Follower() {
     const followers = res?.a.data;
 
     if (refresh) useUserStore.setState(state => { user && delete state.user.followers[user.id] });
-    if (followers) useUserStore.getState().addUserFollowers(user, followers);
+    if (followers) {
+      useUserStore.getState().setUsers(followers);
+      useUserStore.getState().addUserFollowers(user, followers);
+    }
 
     setFollowerProps(s => ({ ...s, loader: undefined, status: status }));
   }
