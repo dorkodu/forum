@@ -329,28 +329,27 @@ const favouriteDiscussion = sage.resource(
         discussionId: discussionId,
       }
 
-      const result1 = await pg`INSERT INTO discussion_favourites ${pg(row)}`;
+      const [result1, result2] = await pg.begin(pg => [
+        pg`INSERT INTO discussion_favourites ${pg(row)}`,
+        pg`
+          UPDATE discussions
+          SET favourite_count=favourite_count+1
+          WHERE id=${discussionId}`,
+      ]);
       if (result1.count === 0) return { error: ErrorCode.Default };
-
-      const result2 = await pg`
-        UPDATE discussions
-        SET favourite_count=favourite_count+1
-        WHERE id=${discussionId}
-      `;
       if (result2.count === 0) return { error: ErrorCode.Default };
     }
     else {
-      const result1 = await pg`
-        DELETE FROM discussion_favourites 
-        WHERE user_id=${info.userId} AND discussion_id=${discussionId}
-      `;
+      const [result1, result2] = await pg.begin(pg => [
+        pg`
+          DELETE FROM discussion_favourites 
+          WHERE user_id=${info.userId} AND discussion_id=${discussionId}`,
+        pg`
+          UPDATE discussions 
+          SET favourite_count=favourite_count-1 
+          WHERE id=${discussionId}`,
+      ]);
       if (result1.count === 0) return { error: ErrorCode.Default };
-
-      const result2 = await pg`
-        UPDATE discussions 
-        SET favourite_count=favourite_count-1 
-        WHERE id=${discussionId}
-      `;
       if (result2.count === 0) return { error: ErrorCode.Default };
     }
 
