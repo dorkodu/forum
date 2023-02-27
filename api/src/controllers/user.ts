@@ -511,19 +511,17 @@ const getUserNotifications = sage.resource(
           un.id, un.target_id, un.current_id, un.entity_id,
           un.type, un.date
         FROM user_notifications un
+        WHERE un.target_id=${info.userId}
         ${anchorId === "-1" ? pg`` :
-          type === "newer" ? pg`WHERE un.id<${anchorId}` : pg`WHERE un.id>${anchorId}`}
-        ${info ?
-          pg`
-            ${anchorId === "-1" ? pg`WHERE` : pg`AND`} (
-              NOT EXISTS (
-                SELECT * FROM user_blocks ub
-                WHERE 
-                  (ub.blocker_id=${info.userId} AND un.current_id=ub.blocking_id) OR
-                  (ub.blocking_id=${info.userId} AND un.current_id=ub.blocker_id)
-              )
-            )
-          ` : pg``}
+          type === "newer" ? pg`AND un.id<${anchorId}` : pg`AND un.id>${anchorId}`}
+          AND (
+          NOT EXISTS (
+            SELECT * FROM user_blocks ub
+            WHERE 
+              (ub.blocker_id=${info.userId} AND un.current_id=ub.blocking_id) OR
+              (ub.blocking_id=${info.userId} AND un.current_id=ub.blocker_id)
+          )
+        )
         ORDER BY un.id ${type === "newer" ? pg`DESC` : pg`ASC`}
         LIMIT 20`,
       pg`UPDATE users SET has_notification=false WHERE id=${info.userId}`,
