@@ -1,7 +1,5 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import CardAlert from "../components/cards/CardAlert";
-import CardLoader from "../components/cards/CardLoader";
 import CardPanel from "../components/cards/CardPanel";
 import { useFeedProps, useWait } from "../components/hooks";
 import InfiniteScroll from "../components/InfiniteScroll";
@@ -45,7 +43,7 @@ function NotificationsRoute() {
 
   const changeOrder = (value: string) => {
     if (value === "newer" || value === "older") {
-      useAppStore.setState(s => { s.options.profile.order = value });
+      useAppStore.setState(s => { s.options.notifications.order = value });
 
       // Clear notifications when changing the order
       useUserStore.setState(state => { state.user.notifications = {} });
@@ -56,17 +54,6 @@ function NotificationsRoute() {
     notifications.length === 0 && fetchNotifications(state.order, false);
   }, [state.order]);
 
-  if (notificationProps.loader) {
-    return (
-      <>
-        {notificationProps.loader && <CardLoader />}
-        {notificationProps.status === false &&
-          <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
-        }
-      </>
-    )
-  }
-
   return (
     <>
       <CardPanel
@@ -74,7 +61,7 @@ function NotificationsRoute() {
           {
             value: state.order,
             setValue: changeOrder,
-            label: t("discussionOrder"),
+            label: t("notificationsOrder"),
             data: [
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },
