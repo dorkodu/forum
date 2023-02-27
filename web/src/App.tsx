@@ -1,5 +1,5 @@
 import { css, Global } from "@emotion/react";
-import { ActionIcon, AppShell, Card, ColorScheme, ColorSchemeProvider, Flex, Footer, Header, MantineProvider } from "@mantine/core";
+import { ActionIcon, AppShell, Card, ColorScheme, ColorSchemeProvider, Flex, Footer, Header, Indicator, MantineProvider } from "@mantine/core";
 import { IconArrowLeft, IconBell, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons";
 import { Suspense, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -123,7 +123,9 @@ function App() {
           <ActionIcon color="dark" onClick={routeHome}><IconHome /></ActionIcon>
           <ActionIcon color="dark" onClick={routeSearch}><IconSearch /></ActionIcon>
           <ActionIcon color="dark" onClick={routeProfile}><IconUser /></ActionIcon>
-          <ActionIcon color="dark" onClick={routeNotifications}><IconBell /></ActionIcon>
+          <Indicator color="red" disabled={!currentUser?.hasNotification}>
+            <ActionIcon color="dark" onClick={routeNotifications}><IconBell /></ActionIcon>
+          </Indicator>
           <ActionIcon color="dark" onClick={routeDiscussionEditor}><IconPencilPlus /></ActionIcon>
         </Flex>
       </Card>
