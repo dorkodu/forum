@@ -526,7 +526,7 @@ const getUserNotifications = sage.resource(
           ` : pg``}
         ORDER BY un.id ${type === "newer" ? pg`DESC` : pg`ASC`}
         LIMIT 20`,
-      pg`UPDATE users SET has_notification=false WHERE user_id=${info.userId}`,
+      pg`UPDATE users SET has_notification=false WHERE id=${info.userId}`,
     ]);
 
     const res: INotificationParsed[] = [];
@@ -534,6 +534,9 @@ const getUserNotifications = sage.resource(
       const parsed = iNotificationSchema.safeParse(notification);
       if (parsed.success) res.push(parsed.data);
     })
+
+    if (ctx.userIds === undefined) ctx.userIds = new Set();
+    res.forEach((notification) => { ctx.userIds?.add(notification.currentId) });
 
     return { data: res };
   }
@@ -565,7 +568,7 @@ async function queryCreateNotification(
     targetId,
     currentId,
     entityId,
-    type,
+    type: notificationTypes[type],
     date: date.utc(),
   }
 

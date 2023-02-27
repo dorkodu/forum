@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { notificationTypes } from "./types";
 
 export type INotification = INotificationParsed;
 export type INotificationRaw = z.input<typeof iNotificationSchema>
@@ -8,6 +9,6 @@ export const iNotificationSchema = z.object({
   targetId: z.string(),
   currentId: z.string(),
   entityId: z.string(),
-  type: z.number(),
+  type: z.nativeEnum(notificationTypes),
   date: z.string().transform((arg) => parseInt(arg)),
 }).strict();
