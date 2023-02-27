@@ -514,7 +514,7 @@ const getUserNotifications = sage.resource(
         WHERE un.target_id=${info.userId}
         ${anchorId === "-1" ? pg`` :
           type === "newer" ? pg`AND un.id<${anchorId}` : pg`AND un.id>${anchorId}`}
-          AND (
+        AND (
           NOT EXISTS (
             SELECT * FROM user_blocks ub
             WHERE 
