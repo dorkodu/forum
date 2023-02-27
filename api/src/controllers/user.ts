@@ -572,8 +572,12 @@ async function queryCreateNotification(
     date: date.utc(),
   }
 
-  const result = await pg`INSERT INTO user_notifications ${pg(row)}`;
-  return !!result.count;
+  const [result0, _result1] = await pg.begin(pg => [
+    pg`INSERT INTO user_notifications ${pg(row)}`,
+    pg`UPDATE users SET has_notification=true WHERE id=${targetId}`
+  ]);
+
+  return !!result0.count;
 }
 
 export default {
