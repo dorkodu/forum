@@ -15,8 +15,11 @@ export async function up(knex: Knex): Promise<void> {
       table.bigint("date").notNullable()
 
       table.index("target_id", undefined, "hash")
-      table.unique(["current_id", "parent_id", "child_id"])
     })
+    .raw(`
+      ALTER TABLE user_notifications
+      ADD UNIQUE NULLS NOT DISTINCT (current_id, parent_id, child_id);
+    `)
 }
 
 export async function down(knex: Knex): Promise<void> {
