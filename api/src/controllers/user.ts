@@ -305,6 +305,7 @@ const followUser = sage.resource(
         row.followingId,
         row.followerId,
         row.followerId,
+        null,
         "userFollow",
       );
     }
@@ -549,16 +550,22 @@ const getUserNotifications = sage.resource(
  * only delete old notifications using a cron-jobs.
  * @param targetId User that will see the notification.
  * @param currentId User that triggered the notification.
- * @param entityId 
- *  To what entity the notification was created.
- *  ex. user follow -> currentId, discussion favourite -> discussionId
+ * @param parentId Non-nullable entity value. For ex.
+ *  userFollow -> userId, discussionFavourite -> discussionId,
+ *  discussionArgument/discussionComment -> discussionId,
+ *  argumentVote -> discussionId
+ * @param childId Nullable entity value. For ex.
+ *  userFollow -> null, discussionFavourite -> null,
+ *  discussionArgument/discussionComment -> argumentId/commentId,
+ *  argumentVote -> argumentId
  * @param type Type of the notification (smallint, signed 2 bytes).
  * @returns Notification creation status.
  */
 async function queryCreateNotification(
   targetId: string,
   currentId: string,
-  entityId: string,
+  parentId: string,
+  childId: string | null,
   type: keyof typeof notificationTypes
 ): Promise<boolean> {
   // Don't allow user to trigger notification for themselves
@@ -568,7 +575,8 @@ async function queryCreateNotification(
     id: snowflake.id("user_notifications"),
     targetId,
     currentId,
-    entityId,
+    parentId,
+    childId,
     type: notificationTypes[type],
     date: date.utc(),
   }

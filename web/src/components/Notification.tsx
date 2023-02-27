@@ -67,14 +67,14 @@ function Notification({ notification }: Props) {
         return gotoUser;
 
       case notificationTypes.discussionFavourite:
-        return (ev: MouseEvent) => gotoDiscussion(ev, notification.entityId);
+        return (ev: MouseEvent) => gotoDiscussion(ev, notification.parentId);
       case notificationTypes.discussionArgument:
-        return (ev: MouseEvent) => gotoDiscussion(ev, notification.entityId);
+        return (ev: MouseEvent) => gotoDiscussion(ev, notification.parentId);
       case notificationTypes.discussionComment:
-        return (ev: MouseEvent) => gotoDiscussion(ev, notification.entityId);
+        return (ev: MouseEvent) => gotoDiscussion(ev, notification.parentId);
 
       case notificationTypes.argumentVote:
-        return () => { };
+        return (ev: MouseEvent) => gotoDiscussion(ev, notification.parentId);
     }
   }
 

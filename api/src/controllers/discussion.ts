@@ -351,6 +351,7 @@ const favouriteDiscussion = sage.resource(
           discussionOwnerId,
           row.userId,
           row.discussionId,
+          null,
           "discussionFavourite",
         );
       }
@@ -429,6 +430,7 @@ const createArgument = sage.resource(
         discussionOwnerId,
         row.userId,
         row.discussionId,
+        row.id,
         "discussionArgument",
       );
     }
@@ -689,6 +691,7 @@ const voteArgument = sage.resource(
         user.queryCreateNotification(
           discussionOwnerId,
           row.userId,
+          row.discussionId,
           row.argumentId,
           "argumentVote",
         );
@@ -753,6 +756,7 @@ const createComment = sage.resource(
         discussionOwnerId,
         row.userId,
         row.discussionId,
+        row.id,
         "discussionComment",
       );
     }
