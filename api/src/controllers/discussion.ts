@@ -665,7 +665,7 @@ const voteArgument = sage.resource(
       else if (voted === undefined && type === "down") count = -1;
       else return { error: ErrorCode.Default };
 
-      const [result4, result5] = await pg.begin(pg => [
+      const [result4, result5, result6] = await pg.begin(pg => [
         (voted === undefined ?
           pg`INSERT INTO argument_votes ${pg(row)}` :
           pg`
@@ -675,9 +675,24 @@ const voteArgument = sage.resource(
         pg`
           UPDATE discussion_arguments SET vote_count=vote_count+${count} 
           WHERE id=${argumentId}`,
+        pg`SELECT user_id FROM discussions WHERE id=${result2.discussionId}`,
       ]);
       if (result4.count === 0) return { error: ErrorCode.Default };
       if (result5.count === 0) return { error: ErrorCode.Default };
+
+      // Get the discussion's owner id, which is needed to create notification
+      const discussionOwnerRow = result6[0];
+      const discussionOwnerId: string | undefined = discussionOwnerRow?.userId;
+
+      // Once discussion is successfully favourited, try to create a notification
+      if (discussionOwnerId) {
+        user.queryCreateNotification(
+          discussionOwnerId,
+          row.userId,
+          row.argumentId,
+          "argumentVote",
+        );
+      }
     }
 
     return { data: {} };
