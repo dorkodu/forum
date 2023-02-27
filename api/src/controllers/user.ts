@@ -563,6 +563,9 @@ async function queryCreateNotification(
   entityId: string,
   type: keyof typeof notificationTypes
 ): Promise<boolean> {
+  // Don't allow user to trigger notification for themselves
+  if (targetId === currentId) return false;
+
   const row = {
     id: snowflake.id("user_notifications"),
     targetId,
