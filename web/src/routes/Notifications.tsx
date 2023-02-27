@@ -6,6 +6,7 @@ import InfiniteScroll from "../components/InfiniteScroll";
 import Notification from "../components/Notification";
 import { request, sage } from "../stores/api";
 import { useAppStore } from "../stores/appStore";
+import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 
 function NotificationsRoute() {
@@ -37,6 +38,14 @@ function NotificationsRoute() {
     if (refresh) useUserStore.setState(state => { state.user.notifications = {} });
     if (notifications) useUserStore.getState().setNotifications(notifications);
     if (users) useUserStore.getState().setUsers(users);
+
+    // Set user.hasNotification to false since notifications are viewed
+    const currentUserId = useAuthStore.getState().userId;
+    useUserStore.setState(s => {
+      if (!currentUserId) return;
+      const currentUser = s.user.entities[currentUserId]
+      if (currentUser) currentUser.hasNotification = false;
+    });
 
     setNotificationProps(s => ({ ...s, loader: undefined, status: status }));
   }
