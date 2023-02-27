@@ -90,5 +90,16 @@
   "error": {
     "text": "Hata",
     "default": "Bir hata oluştu."
+  },
+
+
+  "notification": {
+    "userFollow": "Seni takip etti.",
+
+    "discussionFavourite": "Tartışmanızı favoriledi.",
+    "discussionArgument": "Tartışmanıza argüman yolladı.",
+    "discussionComment": "Tartışmanıza yorum yolladı.",
+
+    "argumentVote": "Argümanınızı oyladı."
   }
 }

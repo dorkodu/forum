@@ -91,5 +91,16 @@
   "error": {
     "text": "Error",
     "default": "An error occured."
+  },
+
+
+  "notification": {
+    "userFollow": "Followed you.",
+
+    "discussionFavourite": "Favourited your discussion.",
+    "discussionArgument": "Created an argument in your discussion.",
+    "discussionComment": "Created a comment in your discussion.",
+
+    "argumentVote": "Voted your argument."
   }
 }

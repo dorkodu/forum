@@ -26,14 +26,19 @@ function NotificationsRoute() {
 
     const anchorId = useUserStore.getState().getNotificationsAnchor(type, refresh)
     const res = await sage.get(
-      { a: sage.query("getUserNotifications", { type, anchorId }), },
+      {
+        a: sage.query("getUserNotifications", { type, anchorId }, { ctx: "a" }),
+        b: sage.query("getUser", {}, { ctx: "a", wait: "a" })
+      },
       (query) => useWait(() => request(query))()
     )
     const status = !(!res?.a.data || res.a.error);
     const notifications = res?.a.data;
+    const users = res?.b.data;
 
     if (refresh) useUserStore.setState(state => { state.user.notifications = {} });
     if (notifications) useUserStore.getState().setNotifications(notifications);
+    if (users) useUserStore.getState().setUsers(users);
 
     setNotificationProps(s => ({ ...s, loader: undefined, status: status }));
   }
