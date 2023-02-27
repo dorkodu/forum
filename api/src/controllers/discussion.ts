@@ -11,6 +11,7 @@ import { IDiscussion, IDiscussionParsed, IDiscussionRaw, iDiscussionSchema } fro
 import { IComment, ICommentParsed, ICommentRaw, iCommentSchema } from "../types/comment";
 import { IArgument, IArgumentParsed, IArgumentRaw, iArgumentSchema } from "../types/argument";
 import postgres from "postgres";
+import user from "./user";
 
 const createDiscussion = sage.resource(
   {} as SchemaContext,
@@ -329,15 +330,30 @@ const favouriteDiscussion = sage.resource(
         discussionId: discussionId,
       }
 
-      const [result1, result2] = await pg.begin(pg => [
+      const [result1, result2, result3] = await pg.begin(pg => [
         pg`INSERT INTO discussion_favourites ${pg(row)}`,
         pg`
           UPDATE discussions
           SET favourite_count=favourite_count+1
           WHERE id=${discussionId}`,
+        pg`SELECT user_id FROM discussions WHERE id=${discussionId}`,
       ]);
       if (result1.count === 0) return { error: ErrorCode.Default };
       if (result2.count === 0) return { error: ErrorCode.Default };
+
+      // Get the discussion's owner id, which is needed to create notification
+      const discussionOwnerRow = result3[0];
+      const discussionOwnerId: string | undefined = discussionOwnerRow?.userId;
+
+      // Once discussion is successfully favourited, try to create a notification
+      if (discussionOwnerId) {
+        user.queryCreateNotification(
+          discussionOwnerId,
+          row.userId,
+          row.discussionId,
+          "discussionFavourite",
+        );
+      }
     }
     else {
       const [result1, result2] = await pg.begin(pg => [
@@ -392,16 +408,30 @@ const createArgument = sage.resource(
       voteCount: 0,
     }
 
-    const [result1, result2] = await pg.begin(pg => [
+    const [result1, result2, result3] = await pg.begin(pg => [
       pg`INSERT INTO discussion_arguments ${pg(row)}`,
       pg`
         UPDATE discussions
         SET last_update_date=${date.utc()}, argument_count=argument_count+1
-        WHERE id=${discussionId}
-        `,
+        WHERE id=${discussionId}`,
+      pg`SELECT user_id FROM discussions WHERE id=${discussionId}`
     ]);
     if (result1.count === 0) return { error: ErrorCode.Default };
     if (result2.count === 0) return { error: ErrorCode.Default };
+
+    // Get the discussion's owner id, which is needed to create notification
+    const discussionOwnerRow = result3[0];
+    const discussionOwnerId: string | undefined = discussionOwnerRow?.userId;
+
+    // Once argument is successfully created, try to create a notification
+    if (discussionOwnerId) {
+      user.queryCreateNotification(
+        discussionOwnerId,
+        row.userId,
+        row.discussionId,
+        "discussionArgument",
+      );
+    }
 
     return { data: { ...row, voted: false, votedType: true } };
   }
@@ -687,16 +717,30 @@ const createComment = sage.resource(
       content: content,
     }
 
-    const [result1, result2] = await pg.begin(pg => [
+    const [result1, result2, result3] = await pg.begin(pg => [
       pg`INSERT INTO discussion_comments ${pg(row)}`,
       pg`
         UPDATE discussions 
         SET last_update_date=${date.utc()}, comment_count=comment_count+1
-        WHERE id=${discussionId}
-        `,
+        WHERE id=${discussionId}`,
+      pg`SELECT user_id FROM discussions WHERE id=${discussionId}`
     ]);
     if (result1.count === 0) return { error: ErrorCode.Default };
     if (result2.count === 0) return { error: ErrorCode.Default };
+
+    // Get the discussion's owner id, which is needed to create notification
+    const discussionOwnerRow = result3[0];
+    const discussionOwnerId: string | undefined = discussionOwnerRow?.userId;
+
+    // Once comment is successfully created, try to create a notification
+    if (discussionOwnerId) {
+      user.queryCreateNotification(
+        discussionOwnerId,
+        row.userId,
+        row.discussionId,
+        "discussionComment",
+      );
+    }
 
     return { data: row };
   }
