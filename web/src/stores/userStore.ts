@@ -5,6 +5,7 @@ import { immer } from 'zustand/middleware/immer'
 import { array } from "../lib/array";
 import { request, sage } from "./api";
 import { useAuthStore } from "./authStore";
+import { util } from "../lib/util";
 
 interface State {
   user: {
@@ -88,7 +89,12 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
 
   setUsers: (users) => {
     set(state => {
-      users.forEach((user) => { state.user.entities[user.id] = user });
+      users.forEach((user) => {
+        state.user.entities[user.id] = util.tryObjSwap(
+          state.user.entities[user.id],
+          user
+        );
+      });
     })
   },
 
@@ -204,7 +210,10 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
   setNotifications: (notifications) => {
     set(state => {
       notifications.forEach(notification => {
-        state.user.notifications[notification.id] = notification;
+        state.user.notifications[notification.id] = util.tryObjSwap(
+          state.user.notifications[notification.id],
+          notification
+        );
       })
     })
   },
