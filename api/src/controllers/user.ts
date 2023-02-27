@@ -9,6 +9,8 @@ import { IUser, IUserParsed, IUserRaw, iUserSchema } from "../types/user";
 import { IDiscussion, IDiscussionParsed, IDiscussionRaw, iDiscussionSchema } from "../types/discussion";
 import { snowflake } from "../lib/snowflake";
 import { INotification, INotificationParsed, iNotificationSchema } from "../types/notification";
+import { notificationTypes } from "../types/types";
+import { date } from "../lib/date";
 
 const getUser = sage.resource(
   {} as SchemaContext,
@@ -297,6 +299,14 @@ const followUser = sage.resource(
       if (!result1) return { error: ErrorCode.Default };
       if (!result2) return { error: ErrorCode.Default };
       if (!result3) return { error: ErrorCode.Default };
+
+      // Once user is successfully followed, try to create a notification
+      queryCreateNotification(
+        row.followingId,
+        row.followerId,
+        row.followerId,
+        "userFollow",
+      );
     }
     else {
       const [result1, result2, result3] = await pg.begin(pg => [
@@ -495,30 +505,32 @@ const getUserNotifications = sage.resource(
 
     const { anchorId, type } = parsed.data;
 
-    const result = await pg`
-      SELECT 
-        un.id, un.target_id, un.current_id, un.entity_id,
-        un.type, un.date
-      FROM user_notifications un
-      ${anchorId === "-1" ? pg`` :
-        type === "newer" ? pg`WHERE un.id<${anchorId}` : pg`WHERE un.id>${anchorId}`}
-      ${info ?
-        pg`
-          ${anchorId === "-1" ? pg`WHERE` : pg`AND`} (
-            NOT EXISTS (
-              SELECT * FROM user_blocks ub
-              WHERE 
-                (ub.blocker_id=${info.userId} AND un.current_id=ub.blocking_id) OR
-                (ub.blocking_id=${info.userId} AND un.current_id=ub.blocker_id)
+    const [result0, _result1] = await pg.begin(pg => [
+      pg`
+        SELECT 
+          un.id, un.target_id, un.current_id, un.entity_id,
+          un.type, un.date
+        FROM user_notifications un
+        ${anchorId === "-1" ? pg`` :
+          type === "newer" ? pg`WHERE un.id<${anchorId}` : pg`WHERE un.id>${anchorId}`}
+        ${info ?
+          pg`
+            ${anchorId === "-1" ? pg`WHERE` : pg`AND`} (
+              NOT EXISTS (
+                SELECT * FROM user_blocks ub
+                WHERE 
+                  (ub.blocker_id=${info.userId} AND un.current_id=ub.blocking_id) OR
+                  (ub.blocking_id=${info.userId} AND un.current_id=ub.blocker_id)
+              )
             )
-          )
-        ` : pg``}
-      ORDER BY un.id ${type === "newer" ? pg`DESC` : pg`ASC`}
-      LIMIT 20
-    `;
+          ` : pg``}
+        ORDER BY un.id ${type === "newer" ? pg`DESC` : pg`ASC`}
+        LIMIT 20`,
+      pg`UPDATE users SET has_notification=false WHERE user_id=${info.userId}`,
+    ]);
 
     const res: INotificationParsed[] = [];
-    result.forEach(notification => {
+    result0.forEach(notification => {
       const parsed = iNotificationSchema.safeParse(notification);
       if (parsed.success) res.push(parsed.data);
     })
@@ -527,7 +539,39 @@ const getUserNotifications = sage.resource(
   }
 )
 
-// TODO: Add setUserNotificationsRead, which will set has notification to false
+/**
+ * Creates a notification for a given action to a user.
+ * Notification creation is not a high priority action,
+ * so if any error occures, the program can continue without throwing errors
+ * and there is no need to use awaits with this function (if not necessary).
+ * Notifications shouldn't be deleted once created, 
+ * only delete old notifications using a cron-jobs.
+ * @param targetId User that will see the notification.
+ * @param currentId User that triggered the notification.
+ * @param entityId 
+ *  To what entity the notification was created.
+ *  ex. user follow -> currentId, discussion favourite -> discussionId
+ * @param type Type of the notification (smallint, signed 2 bytes).
+ * @returns Notification creation status.
+ */
+async function queryCreateNotification(
+  targetId: string,
+  currentId: string,
+  entityId: string,
+  type: keyof typeof notificationTypes
+): Promise<boolean> {
+  const row = {
+    id: snowflake.id("user_notifications"),
+    targetId,
+    currentId,
+    entityId,
+    type,
+    date: date.utc(),
+  }
+
+  const result = await pg`INSERT INTO user_notifications ${pg(row)}`;
+  return !!result.count;
+}
 
 export default {
   getUser,
@@ -540,4 +584,6 @@ export default {
   getUserFollowers,
   getUserFollowing,
   getUserNotifications,
+
+  queryCreateNotification,
 }

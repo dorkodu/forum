@@ -59,12 +59,14 @@ const generators = {
   "users": new Snowflake(),
   "user_follows": new Snowflake(),
   "user_blocks": new Snowflake(),
-  
+
   "discussions": new Snowflake(),
   "discussion_favourites": new Snowflake(),
   "discussion_comments": new Snowflake(),
   "discussion_arguments": new Snowflake(),
   "argument_votes": new Snowflake(),
+
+  "user_notifications": new Snowflake(),
 }
 
 function id(generator: keyof typeof generators) {
