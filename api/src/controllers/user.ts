@@ -509,8 +509,8 @@ const getUserNotifications = sage.resource(
     const [result0, _result1] = await pg.begin(pg => [
       pg`
         SELECT 
-          un.id, un.target_id, un.current_id, un.entity_id,
-          un.type, un.date
+          un.id, un.target_id, un.current_id,
+          un.parent_id, un.child_id, un.type, un.date
         FROM user_notifications un
         WHERE un.target_id=${info.userId}
         ${anchorId === "-1" ? pg`` :
