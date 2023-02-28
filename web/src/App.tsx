@@ -123,9 +123,15 @@ function App() {
           <ActionIcon color="dark" onClick={routeHome}><IconHome /></ActionIcon>
           <ActionIcon color="dark" onClick={routeSearch}><IconSearch /></ActionIcon>
           <ActionIcon color="dark" onClick={routeProfile}><IconUser /></ActionIcon>
-          <Indicator color="red" disabled={!currentUser?.hasNotification}>
+
+          {/* 
+            Set indicator z-index to 101 (1 higher than appshell's footer).
+            Causes rendering order bug in SM-M236B Android 12 (and other?).
+          */}
+          <Indicator color="red" disabled={!currentUser?.hasNotification} zIndex={101}>
             <ActionIcon color="dark" onClick={routeNotifications}><IconBell /></ActionIcon>
           </Indicator>
+
           <ActionIcon color="dark" onClick={routeDiscussionEditor}><IconPencilPlus /></ActionIcon>
         </Flex>
       </Card>
