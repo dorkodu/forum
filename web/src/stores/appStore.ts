@@ -6,11 +6,19 @@ import i18n from "../lib/i18n"
 
 interface State {
   loading: {
-    auth: boolean
-    locale: boolean
+    auth: boolean;
+    locale: boolean;
   }
 
-  requestLogin: boolean
+  requestLogin: boolean;
+  route:
+  "any" |
+  "home" |
+  "profile" |
+  "search" |
+  "notifications" |
+  "discussion-editor" |
+  "menu";
 
   options: {
     home: {
@@ -54,6 +62,7 @@ const initialState: State = {
   },
 
   requestLogin: false,
+  route: "any",
 
   options: {
     home: {

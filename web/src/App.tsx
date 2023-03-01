@@ -2,7 +2,7 @@ import { css, Global } from "@emotion/react";
 import { ActionIcon, AppShell, Card, ColorScheme, ColorSchemeProvider, Flex, Footer, Header, Indicator, MantineProvider } from "@mantine/core";
 import { IconArrowLeft, IconBell, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons";
 import { Suspense, useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAppStore } from "./stores/appStore";
 import { useAuthStore } from "./stores/authStore";
 import { useUserStore } from "./stores/userStore";
@@ -39,7 +39,10 @@ const global = css`
 `;
 
 function App() {
+  const location = useLocation();
   const navigate = useNavigate();
+
+  const route = useAppStore(state => state.route);
 
   // Loading auth and locale are different,
   // on locale, it's fine to keep current view since it doesn't effect functionality
@@ -91,6 +94,17 @@ function App() {
     setColorScheme(scheme);
   }
 
+  // Check the current route on change & set useAppStore.route accordingly
+  useEffect(() => {
+    if (location.pathname.indexOf("/home") !== -1) useAppStore.setState(s => { s.route = "home" });
+    else if (location.pathname.indexOf("/search") !== -1) useAppStore.setState(s => { s.route = "search" });
+    else if (location.pathname.indexOf("/profile") !== -1) useAppStore.setState(s => { s.route = "profile" });
+    else if (location.pathname.indexOf("/notifications") !== -1) useAppStore.setState(s => { s.route = "notifications" });
+    else if (location.pathname.indexOf("/discussion-editor") !== -1) useAppStore.setState(s => { s.route = "discussion-editor" });
+    else if (location.pathname.indexOf("/menu") !== -1) useAppStore.setState(s => { s.route = "menu" });
+    else useAppStore.setState(s => { s.route = "any" });
+  }, [location.pathname]);
+
   useEffect(() => { queryAuth() }, []);
 
   const AppHeader = () => (
@@ -107,7 +121,7 @@ function App() {
           <img src={ForumIcon} width={28} height={28} alt="Forum" />
 
           <ActionIcon
-            color="dark"
+            color={route === "menu" ? "green" : "dark"}
             onClick={routeMenu}>
             <IconMenu2 />
           </ActionIcon>
@@ -120,19 +134,29 @@ function App() {
     <Footer css={width} px="md" pb="md" height={64} withBorder={false}>
       <Card css={css`height:100%;`} shadow="sm" p="lg" radius="md" withBorder>
         <Flex css={css`height:100%;`} align="center" justify="space-evenly">
-          <ActionIcon color="dark" onClick={routeHome}><IconHome /></ActionIcon>
-          <ActionIcon color="dark" onClick={routeSearch}><IconSearch /></ActionIcon>
-          <ActionIcon color="dark" onClick={routeProfile}><IconUser /></ActionIcon>
+          <ActionIcon color={route === "home" ? "green" : "dark"} onClick={routeHome}>
+            <IconHome />
+          </ActionIcon>
+          <ActionIcon color={route === "search" ? "green" : "dark"} onClick={routeSearch}>
+            <IconSearch />
+          </ActionIcon>
+          <ActionIcon color={route === "profile" ? "green" : "dark"} onClick={routeProfile}>
+            <IconUser />
+          </ActionIcon>
 
           {/* 
             Set indicator z-index to 101 (1 higher than appshell's footer).
             Causes rendering order bug in SM-M236B Android 12 (and other?).
           */}
           <Indicator color="red" disabled={!currentUser?.hasNotification} zIndex={101}>
-            <ActionIcon color="dark" onClick={routeNotifications}><IconBell /></ActionIcon>
+            <ActionIcon color={route === "notifications" ? "green" : "dark"} onClick={routeNotifications}>
+              <IconBell />
+            </ActionIcon>
           </Indicator>
 
-          <ActionIcon color="dark" onClick={routeDiscussionEditor}><IconPencilPlus /></ActionIcon>
+          <ActionIcon color={route === "discussion-editor" ? "green" : "dark"} onClick={routeDiscussionEditor}>
+            <IconPencilPlus />
+          </ActionIcon>
         </Flex>
       </Card>
     </Footer>
