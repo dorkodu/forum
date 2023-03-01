@@ -77,22 +77,25 @@ function Search() {
   useEffect(() => {
     const u = searchParams.get("u");
 
-    if (u && u !== "" && initial) {
-      useAppStore.setState(s => { s.options.search.search = u });
-      fetchUsers(state.order, true);
+    // On initial render, use the query param from url if exists
+    if (initial) {
+      if (u && u !== "") {
+        useAppStore.setState(s => { s.options.search.search = u });
+        fetchUsers(state.order, true);
+      }
+
       setInitial(false);
       return;
     }
 
-    if (state.search === "" && u && u !== "") {
-      useAppStore.setState(s => { s.options.search.search = u });
-    }
-
+    // If search input is empty, clear results & params in url
     if (state.search === "" || state.search === "@") {
       useUserStore.getState().addSearchUsers([], true);
+      setSearchParams();
       return;
     }
 
+    // Wait 1 second, then change url param & fetch users
     const timeout = setTimeout(() => {
       setSearchParams({ u: state.search });
       fetchUsers(state.order, true);
