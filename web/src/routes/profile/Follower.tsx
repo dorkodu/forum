@@ -70,6 +70,9 @@ function Follower() {
   }
 
   const changeOrder = (value: string) => {
+    // See /routes/Home.tsx for explanation
+    if (followerProps.loader) return;
+
     if (value === "newer" || value === "older") {
       useAppStore.setState(s => { s.options.followers.order = value });
 

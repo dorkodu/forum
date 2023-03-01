@@ -130,6 +130,14 @@ function Home() {
   }
 
   const changeOrder = (value: string) => {
+    /**
+     * Can't change feed order if the current feed is loading.
+     * It fixes a bug which occurs when user changed order very fast,
+     * for ex. changes newer -> older -> newer, then the feed will show,
+     * older posts in newer order, which not the desired outcome.
+     */
+    if (getLoader(state.feed)) return;
+
     if (value === "newer" || value === "older") {
       useAppStore.setState(s => {
         switch (state.feed) {

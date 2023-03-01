@@ -62,6 +62,9 @@ function Search() {
   }
 
   const changeOrder = (value: string) => {
+    // See /routes/Home.tsx for explanation
+    if (searchFeedProps.loader) return;
+
     if (value === "newer" || value === "older") {
       useAppStore.setState(s => { s.options.search.order = value });
 

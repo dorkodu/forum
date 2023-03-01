@@ -51,6 +51,9 @@ function NotificationsRoute() {
   }
 
   const changeOrder = (value: string) => {
+    // See /routes/Home.tsx for explanation
+    if (notificationProps.loader) return;
+
     if (value === "newer" || value === "older") {
       useAppStore.setState(s => { s.options.notifications.order = value });
 
