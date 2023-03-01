@@ -6,7 +6,6 @@ import i18n from "../lib/i18n";
 import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 
-
 function Menu() {
   const { t } = useTranslation();
   const changeLocale = useAppStore(state => state.changeLocale);

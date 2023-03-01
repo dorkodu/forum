@@ -16,13 +16,27 @@ i18n
   .use(initReactI18next)
   .init({
     load: "languageOnly",
+    lowerCaseLng: true,
+    cleanCode: true,
     fallbackLng: 'en',
-    interpolation: { escapeValue: false },
     supportedLngs: ["en", "tr"],
+    interpolation: { escapeValue: false },
     ns: ["common"]
   });
 
 export default i18n;
+
+i18n.on("languageChanged", (lng) => {
+  /**
+   * Stripe "-" character from languages since it's not necessary.
+   * Also needed for /routes/Menu.tsx language component to work.
+   * For ex. en-US -> en, tr-TR -> tr
+   */
+  if (lng.indexOf("-") === -1) return;
+
+  const stripped = lng.split("-")[0];
+  if (stripped) i18n.changeLanguage(stripped);
+})
 
 i18n.on("initialized", () => {
   useAppStore.getState().changeLocale(i18n.language);
