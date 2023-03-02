@@ -3,6 +3,7 @@ import InfiniteScrollComponent from "react-infinite-scroll-component";
 import { Flex, Text } from "@mantine/core";
 import { css } from "@emotion/react";
 import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
 
 interface Props {
   children: React.ReactNode;
@@ -33,13 +34,21 @@ function InfiniteScroll({ children, refresh, next, length, hasMore }: Props) {
     </Flex>
   )
 
+  const [scroll, setScroll] = useState(scrollY);
+  const onScroll = () => { setScroll(scrollY) }
+
+  useEffect(() => {
+    window.addEventListener("scroll", onScroll)
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <InfiniteScrollComponent
       next={next ?? (() => { })}
       refreshFunction={refresh}
 
-      dataLength={length}
-      hasMore={hasMore}
+      dataLength={length + (scroll <= 0 ? 1 : 0)}
+      hasMore={scroll <= 0 || hasMore}
 
       loader={<CardLoader />}
 
