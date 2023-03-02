@@ -92,41 +92,37 @@ function Discussion({ discussionId }: Props) {
     setActionCommentProps(s => ({ ...s, loader: undefined, status: status }));
 
     // TODO: If status is not true (failed), don't reset input, instead show error message
-    
+
     // Since it's a controlled component, it's value can't be changed
     // directly with a setComment call, instead it's html property must be changed
     if (commentInputRef.current) commentInputRef.current.value = "";
     setComment(a => ({ ...a, text: "" }));
   }
 
-  const getArguments = async (type: "newer" | "older" | "top" | "bottom", refresh?: boolean) => {
+  const getArguments = async (type: "newer" | "older" | "top" | "bottom", refresh?: boolean, skipWaiting?: boolean) => {
     if (!discussion) return;
-    if (fetchArgumentProps.loader) return;
+    if (!skipWaiting && fetchArgumentProps.loader) return;
 
-    setFetchArgumentProps(s => ({
-      ...s, loader: refresh ? "top" : "bottom", status: undefined
-    }));
-    const status = await useWait(() => queryGetArguments(discussion.id, type, refresh))();
+    setFetchArgumentProps(s => ({ ...s, loader: refresh ? "top" : "bottom", status: undefined }));
+    const res = await useWait(() => queryGetArguments(discussion.id, type, refresh))();
     if (refresh) useDiscussionStore.setState(state => { discussionId && delete state.discussion.arguments[discussionId] });
-    setFetchArgumentProps(s => ({ ...s, loader: undefined, status: status }));
+    setFetchArgumentProps(s => ({ ...s, loader: undefined, status: res.status, hasMore: res.length !== 0 }));
   }
 
-  const getComments = async (type: "newer" | "older", refresh?: boolean) => {
+  const getComments = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
     if (!discussion) return;
-    if (fetchCommentProps.loader) return;
+    if (!skipWaiting && fetchCommentProps.loader) return;
 
-    setFetchCommentProps(s => ({
-      ...s, loader: refresh ? "top" : "bottom", status: undefined
-    }));
-    const status = await useWait(() => queryGetComments(discussion.id, type, refresh))();
+    setFetchCommentProps(s => ({ ...s, loader: refresh ? "top" : "bottom", status: undefined }));
+    const res = await useWait(() => queryGetComments(discussion.id, type, refresh))();
     if (refresh) useDiscussionStore.setState(state => { discussionId && delete state.discussion.comments[discussionId] });
-    setFetchCommentProps(s => ({ ...s, loader: undefined, status: status }));
+    setFetchCommentProps(s => ({ ...s, loader: undefined, status: res.status, hasMore: res.length !== 0 }));
   }
 
-  const fetcher = async (show: typeof state.show, refresh?: boolean) => {
+  const fetcher = async (show: typeof state.show, refresh?: boolean, skipWaiting?: boolean) => {
     switch (show) {
-      case "arguments": await getArguments(state.argumentType, refresh); break;
-      case "comments": await getComments(state.commentType, refresh); break;
+      case "arguments": await getArguments(state.argumentType, refresh, skipWaiting); break;
+      case "comments": await getComments(state.commentType, refresh, skipWaiting); break;
     }
   }
 
@@ -164,17 +160,17 @@ function Discussion({ discussionId }: Props) {
     }
   }
 
-  const getFetchLoader = (show: typeof state.show) => {
-    switch (show) {
-      case "arguments": return fetchArgumentProps.loader;
-      case "comments": return fetchCommentProps.loader;
-    }
-  }
-
   const getFeed = (show: typeof state.show) => {
     switch (show) {
       case "arguments": return _arguments;
       case "comments": return comments;
+    }
+  }
+
+  const getHasMore = (feed: typeof state.show) => {
+    switch (feed) {
+      case "arguments": return fetchArgumentProps.hasMore;
+      case "comments": return fetchCommentProps.hasMore;
     }
   }
 
@@ -196,7 +192,12 @@ function Discussion({ discussionId }: Props) {
   }
 
   return (
-    <>
+    <InfiniteScroll
+      refresh={() => fetcher(state.show, true)}
+      next={() => fetcher(state.show, false, true)}
+      length={getFeed(state.show).length}
+      hasMore={getHasMore(state.show)}
+    >
       <DiscussionSummary discussionId={discussionId} />
 
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder css={wrapContent}>
@@ -304,14 +305,9 @@ function Discussion({ discussionId }: Props) {
         }
       </Card>
 
-      <InfiniteScroll
-        onBottom={() => fetcher(state.show, false)}
-        loader={getFetchLoader(state.show)}
-      >
-        {state.show === "arguments" && _arguments.map((argument) => <Argument key={argument.id} argumentId={argument.id} />)}
-        {state.show === "comments" && comments.map((comment) => <Comment key={comment.id} commentId={comment.id} />)}
-      </InfiniteScroll>
-    </>
+      {state.show === "arguments" && _arguments.map((argument) => <Argument key={argument.id} argumentId={argument.id} />)}
+      {state.show === "comments" && comments.map((comment) => <Comment key={comment.id} commentId={comment.id} />)}
+    </InfiniteScroll>
   )
 }
 

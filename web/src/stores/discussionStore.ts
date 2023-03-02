@@ -87,12 +87,12 @@ interface Action {
 
   queryCreateArgument: (discussionId: string, content: string, type: boolean) => Promise<boolean>;
   queryDeleteArgument: (argument: IArgument) => Promise<boolean>;
-  queryGetArguments: (discussionId: string, type: "newer" | "older" | "top" | "bottom", refresh?: boolean) => Promise<boolean>;
+  queryGetArguments: (discussionId: string, type: "newer" | "older" | "top" | "bottom", refresh?: boolean) => Promise<{ status: boolean, length: number }>;
   queryVoteArgument: (argument: IArgument, type: boolean) => Promise<boolean>;
 
   queryCreateComment: (discussionId: string, content: string) => Promise<boolean>;
   queryDeleteComment: (comment: IComment) => Promise<boolean>;
-  queryGetComments: (discussionId: string, type: "newer" | "older", refresh?: boolean) => Promise<boolean>;
+  queryGetComments: (discussionId: string, type: "newer" | "older", refresh?: boolean) => Promise<{ status: boolean, length: number }>;
 
   reset: () => void;
 }
@@ -562,15 +562,15 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     )
 
     const status = !(!res?.a.data || res.a.error);
-    const argumentsArray = res?.a.data;
+    const _arguments = res?.a.data;
     const users = res?.b.data;
 
-    if (argumentsArray) get().setArguments(discussionId, argumentsArray, type);
+    if (_arguments) get().setArguments(discussionId, _arguments, type);
     useUserStore.setState((store) => {
       if (users) users.forEach((user) => { store.user.entities[user.id] = user; })
     })
 
-    return status;
+    return { status, length: _arguments?.length ?? 0 };
   },
 
   queryVoteArgument: async (argument, type) => {
@@ -662,7 +662,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
       if (users) users.forEach((user) => { store.user.entities[user.id] = user; })
     })
 
-    return status;
+    return { status, length: comments?.length ?? 0 };
   },
 
   reset: () => {
