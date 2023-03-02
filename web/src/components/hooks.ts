@@ -41,14 +41,17 @@ export function useDelay() {
 interface IUseFeedProps {
   status?: boolean;
   loader?: "top" | "bottom";
+  hasMore?: boolean;
 }
 
 export function useFeedProps(props?: IUseFeedProps) {
   return useState<{
     status: boolean | undefined;
     loader: "top" | "bottom" | undefined;
+    hasMore: boolean;
   }>({
     status: props?.status,
     loader: props?.loader,
+    hasMore: props?.hasMore ?? false,
   })
 }

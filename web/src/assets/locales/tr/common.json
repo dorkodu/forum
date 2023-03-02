@@ -27,6 +27,10 @@
   "copyToClipboard": "Panoya Kopyala",
 
 
+  "pulldownToRefresh": "Yenilemek için aşağıya çekin",
+  "releaseToRefresh": "Yenilemek için bırakın",
+
+
   "user": {
     "block": "Engelle",
     "unblock": "Engeli Kaldır",

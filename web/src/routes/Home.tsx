@@ -6,8 +6,8 @@ import { useFeedProps, useWait } from "../components/hooks";
 import { request, sage } from "../stores/api";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
-import InfiniteScroll from '../components/InfiniteScroll';
 import { useAppStore } from "../stores/appStore";
+import InfiniteScroll from "../components/InfiniteScroll";
 
 function Home() {
   const { t } = useTranslation();
@@ -44,7 +44,9 @@ function Home() {
     if (discussions) useDiscussionStore.getState().addUserFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
-    setUserFeedProps(s => ({ ...s, loader: undefined, status: status }));
+    setUserFeedProps(s => ({
+      ...s, loader: undefined, status, hasMore: discussions?.length !== 0
+    }));
   }
 
   const fetchFavouriteFeed = async (type: "newer" | "older", refresh?: boolean) => {
@@ -70,7 +72,9 @@ function Home() {
     if (discussions) useDiscussionStore.getState().addFavouriteFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
-    setFavouriteFeedProps(s => ({ ...s, loader: undefined, status: status }));
+    setFavouriteFeedProps(s => ({
+      ...s, loader: undefined, status, hasMore: discussions?.length !== 0
+    }));
   }
 
   const fetchGuestFeed = async (type: "newer" | "older", refresh?: boolean) => {
@@ -96,7 +100,9 @@ function Home() {
     if (discussions) useDiscussionStore.getState().addGuestFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
-    setGuestFeedProps(s => ({ ...s, loader: undefined, status: status }));
+    setGuestFeedProps(s => ({
+      ...s, loader: undefined, status, hasMore: discussions?.length !== 0
+    }));
   }
 
   const fetcher = async (feed: typeof state.feed, refresh?: boolean) => {
@@ -166,6 +172,14 @@ function Home() {
     }
   }
 
+  const getHasMore = (feed: typeof state.feed) => {
+    switch (feed) {
+      case "user": return userFeedProps.hasMore;
+      case "favourite": return favouriteFeedProps.hasMore;
+      case "guest": return guestFeedProps.hasMore;
+    }
+  }
+
   // Fetch if no discussions when changing feed or order
   // TODO: Fetch after sometime has passed
   useEffect(() => {
@@ -174,35 +188,36 @@ function Home() {
 
   return (
     <>
-      <CardPanel
-        segments={[
-          {
-            value: state.feed,
-            setValue: changeFeed,
-            label: t("feed"),
-            data: [
-              { label: t("userFeed"), value: "user" },
-              { label: t("favouriteFeed"), value: "favourite" },
-              { label: t("guestFeed"), value: "guest" },
-            ]
-          },
-          {
-            value: getOrder(),
-            setValue: changeOrder,
-            label: t("order"),
-            data: [
-              { label: t("newer"), value: "newer" },
-              { label: t("older"), value: "older" },
-            ]
-          },
-        ]}
-      />
-
       <InfiniteScroll
-        onTop={() => fetcher(state.feed, true)}
-        onBottom={() => fetcher(state.feed, false)}
-        loader={getLoader(state.feed)}
+        refresh={() => fetcher(state.feed, true)}
+        next={() => fetcher(state.feed, false)}
+        length={getFeed(state.feed).length}
+        hasMore={getHasMore(state.feed)}
       >
+        <CardPanel
+          segments={[
+            {
+              value: state.feed,
+              setValue: changeFeed,
+              label: t("feed"),
+              data: [
+                { label: t("userFeed"), value: "user" },
+                { label: t("favouriteFeed"), value: "favourite" },
+                { label: t("guestFeed"), value: "guest" },
+              ]
+            },
+            {
+              value: getOrder(),
+              setValue: changeOrder,
+              label: t("order"),
+              data: [
+                { label: t("newer"), value: "newer" },
+                { label: t("older"), value: "older" },
+              ]
+            },
+          ]}
+        />
+
         {getFeed(state.feed).map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
       </InfiniteScroll>
     </>
