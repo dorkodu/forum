@@ -187,40 +187,38 @@ function Home() {
   }, [state.feed, state.userOrder, state.favouriteOrder, state.guestOrder]);
 
   return (
-    <>
-      <InfiniteScroll
-        refresh={() => fetcher(state.feed, true)}
-        next={() => fetcher(state.feed, false, true)}
-        length={getFeed(state.feed).length}
-        hasMore={getHasMore(state.feed)}
-      >
-        <CardPanel
-          segments={[
-            {
-              value: state.feed,
-              setValue: changeFeed,
-              label: t("feed"),
-              data: [
-                { label: t("userFeed"), value: "user" },
-                { label: t("favouriteFeed"), value: "favourite" },
-                { label: t("guestFeed"), value: "guest" },
-              ]
-            },
-            {
-              value: getOrder(),
-              setValue: changeOrder,
-              label: t("order"),
-              data: [
-                { label: t("newer"), value: "newer" },
-                { label: t("older"), value: "older" },
-              ]
-            },
-          ]}
-        />
+    <InfiniteScroll
+      refresh={() => fetcher(state.feed, true)}
+      next={() => fetcher(state.feed, false, true)}
+      length={getFeed(state.feed).length}
+      hasMore={getHasMore(state.feed)}
+    >
+      <CardPanel
+        segments={[
+          {
+            value: state.feed,
+            setValue: changeFeed,
+            label: t("feed"),
+            data: [
+              { label: t("userFeed"), value: "user" },
+              { label: t("favouriteFeed"), value: "favourite" },
+              { label: t("guestFeed"), value: "guest" },
+            ]
+          },
+          {
+            value: getOrder(),
+            setValue: changeOrder,
+            label: t("order"),
+            data: [
+              { label: t("newer"), value: "newer" },
+              { label: t("older"), value: "older" },
+            ]
+          },
+        ]}
+      />
 
-        {getFeed(state.feed).map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
-      </InfiniteScroll>
-    </>
+      {getFeed(state.feed).map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+    </InfiniteScroll>
   )
 }
 
