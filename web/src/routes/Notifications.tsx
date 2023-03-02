@@ -16,8 +16,8 @@ function NotificationsRoute() {
 
   const [notificationProps, setNotificationProps] = useFeedProps();
 
-  const fetchNotifications = async (type: "newer" | "older", refresh?: boolean) => {
-    if (notificationProps.loader) return;
+  const fetchNotifications = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
+    if (!skipWaiting && notificationProps.loader) return;
 
     setNotificationProps(s => ({
       ...s, loader: refresh ? "top" : "bottom", status: undefined
@@ -47,7 +47,9 @@ function NotificationsRoute() {
       if (currentUser) currentUser.hasNotification = false;
     });
 
-    setNotificationProps(s => ({ ...s, loader: undefined, status: status }));
+    setNotificationProps(s => ({
+      ...s, loader: undefined, status, hasMore: notifications?.length !== 0
+    }));
   }
 
   const changeOrder = (value: string) => {
@@ -67,7 +69,12 @@ function NotificationsRoute() {
   }, [state.order]);
 
   return (
-    <>
+    <InfiniteScroll
+      refresh={() => fetchNotifications(state.order, true)}
+      next={() => fetchNotifications(state.order, false, true)}
+      length={notifications.length}
+      hasMore={notificationProps.hasMore}
+    >
       <CardPanel
         segments={[
           {
@@ -82,13 +89,8 @@ function NotificationsRoute() {
         ]}
       />
 
-      <InfiniteScroll
-        onBottom={() => fetchNotifications(state.order, false)}
-        loader={notificationProps.loader}
-      >
-        {notifications.map((notification) => <Notification key={notification.id} notification={notification} />)}
-      </InfiniteScroll>
-    </>
+      {notifications.map((notification) => <Notification key={notification.id} notification={notification} />)}
+    </InfiniteScroll>
   )
 }
 

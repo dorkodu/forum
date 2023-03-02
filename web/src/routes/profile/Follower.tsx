@@ -22,9 +22,9 @@ function Follower() {
   const [userProps, setUserProps] = useFeedProps({ loader: user ? undefined : "top" });
   const [followerProps, setFollowerProps] = useFeedProps();
 
-  const fetchFollowers = async (type: "newer" | "older", refresh?: boolean) => {
+  const fetchFollowers = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
     if (!user) return;
-    if (followerProps.loader) return;
+    if (!skipWaiting && followerProps.loader) return;
 
     setFollowerProps(s => ({
       ...s, loader: refresh ? "top" : "bottom", status: undefined
@@ -44,7 +44,9 @@ function Follower() {
       useUserStore.getState().addUserFollowers(user, followers);
     }
 
-    setFollowerProps(s => ({ ...s, loader: undefined, status: status }));
+    setFollowerProps(s => ({
+      ...s, loader: undefined, status, hasMore: followers?.length !== 0
+    }));
   }
 
   const fetchRoute = async () => {
@@ -98,7 +100,13 @@ function Follower() {
   }
 
   return (
-    <>
+
+    <InfiniteScroll
+      refresh={fetchRoute}
+      next={() => fetchFollowers(state.order, false, true)}
+      length={followers.length}
+      hasMore={followerProps.hasMore}
+    >
       <Profile user={user} />
 
       <CardPanel
@@ -115,13 +123,8 @@ function Follower() {
         ]}
       />
 
-      <InfiniteScroll
-        onBottom={() => fetchFollowers(state.order, false)}
-        loader={followerProps.loader}
-      >
-        {followers.map((follower) => <ProfileSummary key={follower.id} user={follower} />)}
-      </InfiniteScroll>
-    </>
+      {followers.map((follower) => <ProfileSummary key={follower.id} user={follower} />)}
+    </InfiniteScroll>
   )
 }
 

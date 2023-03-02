@@ -22,9 +22,9 @@ function Following() {
   const [userProps, setUserProps] = useFeedProps({ loader: user ? undefined : "top" });
   const [followingProps, setFollowingProps] = useFeedProps();
 
-  const fetchFollowing = async (type: "newer" | "older", refresh?: boolean) => {
+  const fetchFollowing = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
     if (!user) return;
-    if (followingProps.loader) return;
+    if (!skipWaiting && followingProps.loader) return;
 
     setFollowingProps(s => ({
       ...s, loader: refresh ? "top" : "bottom", status: undefined
@@ -44,7 +44,9 @@ function Following() {
       useUserStore.getState().addUserFollowing(user, following);
     }
 
-    setFollowingProps(s => ({ ...s, loader: undefined, status: status }));
+    setFollowingProps(s => ({
+      ...s, loader: undefined, status, hasMore: following?.length !== 0
+    }));
   }
 
   const fetchRoute = async () => {
@@ -98,7 +100,13 @@ function Following() {
   }
 
   return (
-    <>
+
+    <InfiniteScroll
+      refresh={fetchRoute}
+      next={() => fetchFollowing(state.order, false, true)}
+      length={following.length}
+      hasMore={followingProps.hasMore}
+    >
       <Profile user={user} />
 
       <CardPanel
@@ -115,13 +123,8 @@ function Following() {
         ]}
       />
 
-      <InfiniteScroll
-        onBottom={() => fetchFollowing(state.order, false)}
-        loader={followingProps.loader}
-      >
-        {following.map((_following) => <ProfileSummary key={_following.id} user={_following} />)}
-      </InfiniteScroll>
-    </>
+      {following.map((_following) => <ProfileSummary key={_following.id} user={_following} />)}
+    </InfiniteScroll>
   )
 }
 

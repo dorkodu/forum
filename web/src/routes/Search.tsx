@@ -33,8 +33,8 @@ function Search() {
     return array.getAnchor(getSorted("newer"), "id", "-1", type, refresh);
   }
 
-  const fetchUsers = async (type: "newer" | "older", refresh?: boolean) => {
-    if (searchFeedProps.loader) return;
+  const fetchUsers = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
+    if (!skipWaiting && searchFeedProps.loader) return;
 
     const name = state.search.startsWith("@") ? undefined : state.search;
     const username = state.search.startsWith("@") ? state.search.substring(1) : undefined;
@@ -58,7 +58,9 @@ function Search() {
       useUserStore.getState().addSearchUsers(users, refresh);
     }
 
-    setSearchFeedProps(s => ({ ...s, loader: undefined, status: status }));
+    setSearchFeedProps(s => ({
+      ...s, loader: undefined, status, hasMore: users?.length !== 0
+    }));
   }
 
   const changeOrder = (value: string) => {
@@ -104,7 +106,12 @@ function Search() {
   }, [state.search])
 
   return (
-    <>
+    <InfiniteScroll
+      refresh={() => fetchUsers(state.order, true)}
+      next={() => fetchUsers(state.order, false, true)}
+      length={users.length}
+      hasMore={searchFeedProps.hasMore}
+    >
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
         <TextInput
           radius="md"
@@ -131,14 +138,8 @@ function Search() {
         />
       </Card>
 
-      <InfiniteScroll
-        onTop={() => fetchUsers(state.order, true)}
-        onBottom={() => fetchUsers(state.order, false)}
-        loader={searchFeedProps.loader}
-      >
-        {getSorted(state.order).map((user) => <ProfileSummary key={user.id} user={user} />)}
-      </InfiniteScroll>
-    </>
+      {getSorted(state.order).map((user) => <ProfileSummary key={user.id} user={user} />)}
+    </InfiniteScroll>
   )
 }
 

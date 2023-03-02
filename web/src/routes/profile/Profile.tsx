@@ -13,7 +13,6 @@ import { useAppStore } from "../../stores/appStore";
 import { useDiscussionStore } from "../../stores/discussionStore";
 import { useUserStore } from "../../stores/userStore";
 
-
 function ProfileRoute() {
   const { t } = useTranslation();
   const state = useAppStore(state => state.options.profile);
@@ -24,9 +23,9 @@ function ProfileRoute() {
   const [userProps, setUserProps] = useFeedProps({ loader: user ? undefined : "top" });
   const [discussionProps, setDiscussionProps] = useFeedProps();
 
-  const fetchDiscussions = async (type: "newer" | "older", refresh?: boolean) => {
+  const fetchDiscussions = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
     if (!user) return;
-    if (discussionProps.loader) return;
+    if (!skipWaiting && discussionProps.loader) return;
 
     setDiscussionProps(s => ({
       ...s, loader: refresh ? "top" : "bottom", status: undefined
@@ -43,7 +42,9 @@ function ProfileRoute() {
     if (refresh) useDiscussionStore.setState(state => { user && delete state.discussion.users[user.id] });
     if (discussions) useDiscussionStore.getState().setUserDiscussions(user.id, discussions);
 
-    setDiscussionProps(s => ({ ...s, loader: undefined, status: status }));
+    setDiscussionProps(s => ({
+      ...s, loader: undefined, status, hasMore: discussions?.length !== 0
+    }));
   }
 
   const fetchRoute = async () => {
@@ -96,7 +97,12 @@ function ProfileRoute() {
   }
 
   return (
-    <>
+    <InfiniteScroll
+      refresh={fetchRoute}
+      next={() => fetchDiscussions(state.order, false, true)}
+      length={discussions.length}
+      hasMore={discussionProps.hasMore}
+    >
       <Profile user={user} />
 
       <CardPanel
@@ -113,13 +119,8 @@ function ProfileRoute() {
         ]}
       />
 
-      <InfiniteScroll
-        onBottom={() => fetchDiscussions(state.order, false)}
-        loader={discussionProps.loader}
-      >
-        {discussions.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
-      </InfiniteScroll>
-    </>
+      {discussions.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+    </InfiniteScroll>
   )
 }
 
