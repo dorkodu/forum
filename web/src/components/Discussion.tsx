@@ -191,7 +191,7 @@ function Discussion({ discussionId }: Props) {
 
   return (
     <InfiniteScroll
-      refresh={() => fetcher(state.show, true)}
+      refresh={getDiscussion}
       next={() => fetcher(state.show, false, true)}
       length={getFeed(state.show).length}
       hasMore={getHasMore(state.show)}
