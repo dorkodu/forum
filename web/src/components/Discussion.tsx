@@ -105,7 +105,6 @@ function Discussion({ discussionId }: Props) {
 
     setFetchArgumentProps(s => ({ ...s, loader: refresh ? "top" : "bottom", status: undefined }));
     const res = await useWait(() => queryGetArguments(discussion.id, type, refresh))();
-    if (refresh) useDiscussionStore.setState(state => { discussionId && delete state.discussion.arguments[discussionId] });
     setFetchArgumentProps(s => ({ ...s, loader: undefined, status: res.status, hasMore: res.length !== 0 }));
   }
 
@@ -115,7 +114,6 @@ function Discussion({ discussionId }: Props) {
 
     setFetchCommentProps(s => ({ ...s, loader: refresh ? "top" : "bottom", status: undefined }));
     const res = await useWait(() => queryGetComments(discussion.id, type, refresh))();
-    if (refresh) useDiscussionStore.setState(state => { discussionId && delete state.discussion.comments[discussionId] });
     setFetchCommentProps(s => ({ ...s, loader: undefined, status: res.status, hasMore: res.length !== 0 }));
   }
 

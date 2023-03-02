@@ -565,6 +565,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     const _arguments = res?.a.data;
     const users = res?.b.data;
 
+    if (refresh) useDiscussionStore.setState(state => { discussionId && delete state.discussion.arguments[discussionId] });
     if (_arguments) get().setArguments(discussionId, _arguments, type);
     useUserStore.setState((store) => {
       if (users) users.forEach((user) => { store.user.entities[user.id] = user; })
@@ -657,6 +658,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     const comments = res?.a.data;
     const users = res?.b.data;
 
+    if (refresh) useDiscussionStore.setState(state => { discussionId && delete state.discussion.comments[discussionId] });
     if (comments) get().setComments(discussionId, comments);
     useUserStore.setState((store) => {
       if (users) users.forEach((user) => { store.user.entities[user.id] = user; })
