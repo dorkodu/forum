@@ -21,8 +21,8 @@ function Home() {
   const [favouriteFeedProps, setFavouriteFeedProps] = useFeedProps();
   const [guestFeedProps, setGuestFeedProps] = useFeedProps();
 
-  const fetchUserFeed = async (type: "newer" | "older", refresh?: boolean) => {
-    if (userFeedProps.loader) return;
+  const fetchUserFeed = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
+    if (!skipWaiting && userFeedProps.loader) return;
 
     setUserFeedProps(s => ({
       ...s, loader: refresh ? "top" : "bottom", status: undefined
@@ -49,8 +49,8 @@ function Home() {
     }));
   }
 
-  const fetchFavouriteFeed = async (type: "newer" | "older", refresh?: boolean) => {
-    if (favouriteFeedProps.loader) return;
+  const fetchFavouriteFeed = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
+    if (!skipWaiting && favouriteFeedProps.loader) return;
 
     setFavouriteFeedProps(s => ({
       ...s, loader: refresh ? "top" : "bottom", status: undefined
@@ -77,8 +77,8 @@ function Home() {
     }));
   }
 
-  const fetchGuestFeed = async (type: "newer" | "older", refresh?: boolean) => {
-    if (guestFeedProps.loader) return;
+  const fetchGuestFeed = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
+    if (!skipWaiting && guestFeedProps.loader) return;
 
     setGuestFeedProps(s => ({
       ...s, loader: refresh ? "top" : "bottom", status: undefined
@@ -105,11 +105,11 @@ function Home() {
     }));
   }
 
-  const fetcher = async (feed: typeof state.feed, refresh?: boolean) => {
+  const fetcher = async (feed: typeof state.feed, refresh?: boolean, skipWaiting?: boolean) => {
     switch (feed) {
-      case "user": await fetchUserFeed(state.userOrder, refresh); break;
-      case "favourite": await fetchFavouriteFeed(state.favouriteOrder, refresh); break;
-      case "guest": await fetchGuestFeed(state.guestOrder, refresh); break;
+      case "user": await fetchUserFeed(state.userOrder, refresh, skipWaiting); break;
+      case "favourite": await fetchFavouriteFeed(state.favouriteOrder, refresh, skipWaiting); break;
+      case "guest": await fetchGuestFeed(state.guestOrder, refresh, skipWaiting); break;
     }
   }
 
@@ -190,7 +190,7 @@ function Home() {
     <>
       <InfiniteScroll
         refresh={() => fetcher(state.feed, true)}
-        next={() => fetcher(state.feed, false)}
+        next={() => fetcher(state.feed, false, true)}
         length={getFeed(state.feed).length}
         hasMore={getHasMore(state.feed)}
       >
