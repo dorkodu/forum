@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next";
 interface Props {
   children: React.ReactNode;
 
-  refresh: () => any;
-  next: () => any;
+  refresh?: () => any;
+  next?: () => any;
 
   length: number;
   hasMore: boolean;
@@ -35,7 +35,7 @@ function InfiniteScroll({ children, refresh, next, length, hasMore }: Props) {
 
   return (
     <InfiniteScrollComponent
-      next={next}
+      next={next ?? (() => { })}
       refreshFunction={refresh}
 
       dataLength={length}
