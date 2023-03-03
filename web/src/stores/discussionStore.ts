@@ -14,6 +14,9 @@ interface State {
     // users[userId][discussionId] -> boolean
     users: { [key: string]: { [key: string]: boolean } }
 
+    // arguments[discussionId][argumentId] -> boolean
+    // arguments[discussionId].top -> IArgument[]
+    // arguments[discussionId].bottom -> IArgument[]
     arguments: {
       [key: string]: {
         normal: { [key: string]: boolean },
@@ -22,7 +25,7 @@ interface State {
       }
     }
 
-    // comments[discussionId][commentId] -> IComment
+    // comments[discussionId][commentId] -> boolean
     comments: { [key: string]: { [key: string]: boolean } }
   }
 
@@ -75,7 +78,7 @@ interface Action {
 
   queryCreateDiscussion: (title: string, readme: string) => Promise<{ status: boolean, id?: string }>;
   queryDeleteDiscussion: (discussion: IDiscussion) => Promise<boolean>;
-  queryGetDiscussion: (discussionId: string | undefined) => Promise<boolean>;
+  queryGetDiscussion: () => Promise<boolean>;
   queryEditDiscussion: (discussionId: string, title: string, readme: string) => Promise<boolean>;
   querySearchDiscussion: () => Promise<boolean>;
 
@@ -427,42 +430,8 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
     return status;
   },
 
-  queryGetDiscussion: async (discussionId) => {
-    if (!discussionId) return false;
-
-    const res = await sage.get(
-      {
-        a: sage.query("getDiscussion", { discussionId }, { ctx: "a" }),
-        b: sage.query("getUser", {}, { ctx: "a", wait: "a" }),
-        c: sage.query("getArguments", { discussionId, anchorId: "-1", type: "newer" }, { ctx: "c" }),
-        d: sage.query("getUser", {}, { ctx: "c", wait: "c" }),
-      },
-      (query) => request(query)
-    )
-
-    const status =
-      !(!res?.a.data || res.a.error) &&
-      !(!res?.b.data || res.b.error) &&
-      !(!res?.c.data || res.c.error) &&
-      !(!res?.d.data || res.d.error)
-
-    const discussion = res?.a.data;
-    const users = res?.b.data;
-    const _arguments = res?.c.data;
-    const argumentUsers = res?.d.data;
-
-    if (_arguments) get().setArguments(discussionId, _arguments, "newer");
-
-    set(state => {
-      if (discussion) state.discussion.entities[discussion.id] = discussion;
-    })
-
-    useUserStore.setState((store) => {
-      if (users) users.forEach((user) => { store.user.entities[user.id] = user; })
-      if (argumentUsers) argumentUsers.forEach((argumentUser) => { store.user.entities[argumentUser.id] = argumentUser; })
-    })
-
-    return status;
+  queryGetDiscussion: async () => {
+    return false;
   },
 
   querySearchDiscussion: async () => {

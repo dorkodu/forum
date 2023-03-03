@@ -1,9 +1,13 @@
+import { IArgument } from "@api/types/argument";
+import { IComment } from "@api/types/comment";
 import { Button, Card, Flex, SegmentedControl, Textarea } from "@mantine/core";
 import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
+import { request, sage } from "../stores/api";
 import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
+import { useUserStore } from "../stores/userStore";
 import { wrapContent } from "../styles/css";
 import Argument from "./Argument";
 import CardAlert from "./cards/CardAlert";
@@ -30,7 +34,6 @@ function Discussion({ discussionId }: Props) {
   const setRequestLogin = useAppStore(state => state.setRequestLogin);
   const currentUserId = useAuthStore(state => state.userId);
 
-  const queryGetDiscussion = useDiscussionStore(state => state.queryGetDiscussion);
   const queryGetArguments = useDiscussionStore(state => state.queryGetArguments);
   const queryGetComments = useDiscussionStore(state => state.queryGetComments);
   const queryCreateArgument = useDiscussionStore(state => state.queryCreateArgument);
@@ -52,9 +55,58 @@ function Discussion({ discussionId }: Props) {
   const [actionCommentProps, setActionCommentProps] = useFeedProps();
 
   const getDiscussion = async () => {
+    if (!discussionId) return;
+
     setDiscussionProps(s => ({ ...s, loader: "top", status: undefined }));
-    const status = await useWait(() => queryGetDiscussion(discussionId))();
+
+    const res = await sage.get(
+      {
+        a: sage.query("getDiscussion", { discussionId }, { ctx: "a" }),
+        b: sage.query("getUser", {}, { ctx: "a", wait: "a" }),
+        c: (state.show === "arguments" ?
+          sage.query("getArguments", { discussionId, anchorId: "-1", type: state.argumentType }, { ctx: "c" }) :
+          sage.query("getComments", { discussionId, anchorId: "-1", type: state.commentType }, { ctx: "c" })
+        ),
+        d: sage.query("getUser", {}, { ctx: "c", wait: "c" }),
+      },
+      (query) => request(query)
+    )
+
+    const status =
+      !(!res?.a.data || res.a.error) &&
+      !(!res?.b.data || res.b.error) &&
+      !(!res?.c.data || res.c.error) &&
+      !(!res?.d.data || res.d.error)
+
+    const discussion = res?.a.data;
+    const user = res?.b.data;
+    const argumentsOrComments = res?.c.data;
+    const users = res?.d.data;
+
+    // Clear arguments/comments data to only show refreshed data
+    useDiscussionStore.setState(s => {
+      if (!discussionId) return;
+      delete s.discussion.arguments[discussionId];
+      delete s.discussion.comments[discussionId];
+    })
+
+    if (discussion) useDiscussionStore.setState(s => { s.discussion.entities[discussion.id] = discussion });
+    if (user) useUserStore.getState().setUsers(user);
+    if (argumentsOrComments) {
+      if (state.show === "arguments") {
+        const _arguments = argumentsOrComments as IArgument[];
+        useDiscussionStore.getState().setArguments(discussionId, _arguments, state.argumentType);
+      }
+      else if (state.show === "comments") {
+        const comments = argumentsOrComments as IComment[];
+        useDiscussionStore.getState().setComments(discussionId, comments);
+      }
+    }
+    if (users) useUserStore.getState().setUsers(users);
+
     setDiscussionProps(s => ({ ...s, loader: undefined, status: status }));
+    setFetchArgumentProps(s => ({ ...s, hasMore: true }));
+    setFetchCommentProps(s => ({ ...s, hasMore: true }));
   }
 
   const createArgument = async () => {
