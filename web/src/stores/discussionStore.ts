@@ -6,6 +6,7 @@ import type { IArgument } from "@api/types/argument";
 import type { IComment } from "@api/types/comment";
 import { useUserStore } from "./userStore";
 import { array } from "../lib/array";
+import { util } from "../lib/util";
 
 interface State {
   discussion: {
@@ -143,7 +144,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
       if (user) out.push(user);
     })
 
-    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+    return array.sort(out, "id", ((a, b) => util.compareId(a, b, type === "newer")));
   },
 
   setUserDiscussions: (userId, discussions) => {
@@ -174,7 +175,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
       if (discussion) out.push(discussion);
     })
 
-    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+    return array.sort(out, "id", ((a, b) => util.compareId(a, b, type === "newer")));
   },
 
   addUserFeedDiscussions: (discussions) => {
@@ -208,7 +209,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
       if (discussion) out.push(discussion);
     })
 
-    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+    return array.sort(out, "id", ((a, b) => util.compareId(a, b, type === "newer")));
   },
 
   addFavouriteFeedDiscussions: (discussions) => {
@@ -242,7 +243,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
       if (discussion) out.push(discussion);
     })
 
-    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+    return array.sort(out, "id", ((a, b) => util.compareId(a, b, type === "newer")));
   },
 
   addGuestFeedDiscussions: (discussions) => {
@@ -306,7 +307,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
       if (user) out.push(user);
     })
 
-    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+    return array.sort(out, "id", ((a, b) => util.compareId(a, b, type === "newer")));
   },
 
   setArguments: (discussionId, argumentsArray, type) => {
@@ -358,8 +359,7 @@ export const useDiscussionStore = create(immer<State & Action>((set, get) => ({
       if (user) out.push(user);
     })
 
-    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
-
+    return array.sort(out, "id", ((a, b) => util.compareId(a, b, type === "newer")));
   },
 
   setComments: (discussionId, comments) => {
