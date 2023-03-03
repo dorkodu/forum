@@ -7,6 +7,7 @@ import { useFeedProps, useWait } from "../components/hooks";
 import InfiniteScroll from "../components/InfiniteScroll";
 import ProfileSummary from "../components/ProfileSummary";
 import { array } from "../lib/array";
+import { util } from "../lib/util";
 import { request, sage } from "../stores/api";
 import { useAppStore } from "../stores/appStore";
 import { useUserStore } from "../stores/userStore";
@@ -22,11 +23,7 @@ function Search() {
   const [searchFeedProps, setSearchFeedProps] = useFeedProps();
 
   const getSorted = (type: "newer" | "older") => {
-    return array.sort(
-      users,
-      "joinDate",
-      type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b)
-    );
+    return array.sort(users, "id", ((a, b) => util.compareId(a, b, type === "newer")));
   }
 
   const getAnchor = (type: "newer" | "older", refresh?: boolean) => {

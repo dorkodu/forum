@@ -107,7 +107,7 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
       if (user) out.push(user);
     })
 
-    return array.sort(out, "joinDate", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+    return array.sort(out, "id", ((a, b) => util.compareId(a, b, type === "newer")));
   },
 
   addSearchUsers: (users, refresh) => {
@@ -130,7 +130,7 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
       if (user) out.push(user);
     })
 
-    return array.sort(out, "joinDate", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+    return array.sort(out, "id", ((a, b) => util.compareId(a, b, type === "newer")));
   },
 
   getUserFollowing: (user, type) => {
@@ -145,7 +145,7 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
       if (user) out.push(user);
     })
 
-    return array.sort(out, "joinDate", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+    return array.sort(out, "id", ((a, b) => util.compareId(a, b, type === "newer")));
   },
 
   addUserFollowers: (user, followers) => {
@@ -204,7 +204,7 @@ export const useUserStore = create(immer<State & Action>((set, get) => ({
       if (notification) out.push(notification);
     })
 
-    return array.sort(out, "date", type === "newer" ? ((a, b) => b - a) : ((a, b) => a - b));
+    return array.sort(out, "id", ((a, b) => util.compareId(a, b, type === "newer")));
   },
 
   setNotifications: (notifications) => {
