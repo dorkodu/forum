@@ -230,133 +230,136 @@ function Discussion({ discussionId }: Props) {
 
   useEffect(() => { getDiscussion() }, []);
 
-  if (!discussion || discussionProps.loading) {
-    return (
-      <>
-        {discussionProps.loading && <CardLoader />}
-        {!discussionProps.loading && discussionProps.status === false &&
-          <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
-        }
-      </>
-    )
-  }
-
   return (
     <InfiniteScroll
       refresh={getDiscussion}
       next={() => fetcher(state.show, false, true)}
       length={getFeed(state.show).length}
       hasMore={getHasMore(state.show)}
+      hideLoader={!discussion}
     >
-      <DiscussionSummary discussionId={discussionId} />
+      {!discussion || discussionProps.loading ?
+        <>
+          {discussionProps.loading && <CardLoader />}
+          {!discussionProps.loading && discussionProps.status === false &&
+            <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
+          }
+        </>
 
-      <Card shadow="sm" p="lg" m="md" radius="md" withBorder css={wrapContent}>
-        <TextParser text={discussion.readme ?? ""} />
-      </Card>
+        :
 
-      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
-        <Flex direction="column" gap="md">
+        <>
+          <DiscussionSummary discussionId={discussionId} />
 
-          <CardPanel.Segments
-            segments={[
-              {
-                value: state.show,
-                setValue: changeShow,
-                label: t("show"),
-                data: [
-                  { label: t("argument.plural"), value: "arguments" },
-                  { label: t("comment.plural"), value: "comments" },
-                ]
+          <Card shadow="sm" p="lg" m="md" radius="md" withBorder css={wrapContent}>
+            <TextParser text={discussion.readme ?? ""} />
+          </Card>
+
+          <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+            <Flex direction="column" gap="md">
+
+              <CardPanel.Segments
+                segments={[
+                  {
+                    value: state.show,
+                    setValue: changeShow,
+                    label: t("show"),
+                    data: [
+                      { label: t("argument.plural"), value: "arguments" },
+                      { label: t("comment.plural"), value: "comments" },
+                    ]
+                  }
+                ]}
+              />
+
+              {state.show === "arguments" &&
+                <CardPanel.Segments
+                  segments={[
+                    {
+                      value: state.argumentType,
+                      setValue: changeType,
+                      label: t("order"),
+                      data: [
+                        { label: t("newer"), value: "newer" },
+                        { label: t("older"), value: "older" },
+                        { label: t("mostVoted"), value: "top" },
+                        { label: t("leastVoted"), value: "bottom" },
+                      ]
+                    }
+                  ]}
+                />
               }
-            ]}
-          />
 
-          {state.show === "arguments" &&
-            <CardPanel.Segments
-              segments={[
-                {
-                  value: state.argumentType,
-                  setValue: changeType,
-                  label: t("order"),
-                  data: [
-                    { label: t("newer"), value: "newer" },
-                    { label: t("older"), value: "older" },
-                    { label: t("mostVoted"), value: "top" },
-                    { label: t("leastVoted"), value: "bottom" },
-                  ]
-                }
-              ]}
-            />
-          }
+              {state.show === "comments" &&
+                <CardPanel.Segments
+                  segments={[
+                    {
+                      value: state.commentType,
+                      setValue: changeType,
+                      label: t("order"),
+                      data: [
+                        { label: t("newer"), value: "newer" },
+                        { label: t("older"), value: "older" },
+                      ]
+                    }
+                  ]}
+                />
+              }
+            </Flex>
+          </Card>
 
-          {state.show === "comments" &&
-            <CardPanel.Segments
-              segments={[
-                {
-                  value: state.commentType,
-                  setValue: changeType,
-                  label: t("order"),
-                  data: [
-                    { label: t("newer"), value: "newer" },
-                    { label: t("older"), value: "older" },
-                  ]
-                }
-              ]}
-            />
-          }
-        </Flex>
-      </Card>
+          <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+            {getActionLoading(state.show) && <OverlayLoader />}
 
-      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
-        {getActionLoading(state.show) && <OverlayLoader />}
+            {state.show === "arguments" &&
+              <>
+                <Textarea
+                  radius="md"
+                  label={`${t("argument.title")} (${argument.text.length} / 500)`}
+                  description={t("argument.description")}
+                  placeholder={t("argument.write")}
+                  ref={argumentInputRef}
+                  defaultValue={argument.text}
+                  onChange={ev => setArgument(s => ({ ...s, text: ev.target.value }))}
+                  autosize
+                  pb="md"
+                />
 
-        {state.show === "arguments" &&
-          <>
-            <Textarea
-              radius="md"
-              label={`${t("argument.title")} (${argument.text.length} / 500)`}
-              description={t("argument.description")}
-              placeholder={t("argument.write")}
-              ref={argumentInputRef}
-              defaultValue={argument.text}
-              onChange={ev => setArgument(s => ({ ...s, text: ev.target.value }))}
-              autosize
-              pb="md"
-            />
+                <Button onClick={createArgument} color="dark" radius="md" mr="md">{t("argument.create")}</Button>
 
-            <Button onClick={createArgument} color="dark" radius="md" mr="md">{t("argument.create")}</Button>
+                <SegmentedControl radius="md"
+                  value={argument.type ? "+" : "-"}
+                  onChange={(type: "+" | "-") => setArgument(s => ({ ...s, type: type === "+" }))}
+                  data={[
+                    { label: "+", value: "+" },
+                    { label: "-", value: "-" },
+                  ]}
+                />
+              </>
+            }
+            {state.show === "comments" &&
+              <>
+                <Textarea
+                  radius="md"
+                  label={`${t("comment.title")} (${comment.text.length} / 500)`}
+                  description={t("comment.description")}
+                  placeholder={t("comment.write")}
+                  ref={commentInputRef}
+                  defaultValue={comment.text}
+                  onChange={ev => setComment(s => ({ ...s, text: ev.target.value }))}
+                  autosize
+                  pb="md"
+                />
 
-            <SegmentedControl radius="md"
-              value={argument.type ? "+" : "-"}
-              onChange={(type: "+" | "-") => setArgument(s => ({ ...s, type: type === "+" }))}
-              data={[
-                { label: "+", value: "+" },
-                { label: "-", value: "-" },
-              ]}
-            />
-          </>
-        }
-        {state.show === "comments" &&
-          <>
-            <Textarea
-              radius="md"
-              label={`${t("comment.title")} (${comment.text.length} / 500)`}
-              description={t("comment.description")}
-              placeholder={t("comment.write")}
-              ref={commentInputRef}
-              defaultValue={comment.text}
-              onChange={ev => setComment(s => ({ ...s, text: ev.target.value }))}
-              autosize
-              pb="md"
-            />
+                <Button onClick={createComment} color="dark" radius="md" mr="md">{t("comment.create")}</Button>
+              </>
+            }
+          </Card>
 
-            <Button onClick={createComment} color="dark" radius="md" mr="md">{t("comment.create")}</Button>
-          </>
-        }
-      </Card>
-
-      {state.show === "arguments" && _arguments.map((argument) => <Argument key={argument.id} argumentId={argument.id} />)}
-      {state.show === "comments" && comments.map((comment) => <Comment key={comment.id} commentId={comment.id} />)}
+          {state.show === "arguments" && _arguments.map((argument) => <Argument key={argument.id} argumentId={argument.id} />)}
+          {state.show === "comments" && comments.map((comment) => <Comment key={comment.id} commentId={comment.id} />)}
+        </>
+      }
     </InfiniteScroll>
   )
 }

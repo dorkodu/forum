@@ -13,9 +13,11 @@ interface Props {
 
   length: number;
   hasMore: boolean;
+
+  hideLoader?: boolean;
 }
 
-function InfiniteScroll({ children, refresh, next, length, hasMore }: Props) {
+function InfiniteScroll({ children, refresh, next, length, hasMore, hideLoader }: Props) {
   const { t } = useTranslation();
 
   const pulldownToRefresh = () => (
@@ -50,7 +52,7 @@ function InfiniteScroll({ children, refresh, next, length, hasMore }: Props) {
       dataLength={length + (scroll <= 0 ? 1 : 0)}
       hasMore={scroll <= 0 || hasMore}
 
-      loader={<CardLoader />}
+      loader={hideLoader ? null : <CardLoader />}
 
       pullDownToRefresh
       pullDownToRefreshThreshold={54}

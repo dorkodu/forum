@@ -65,6 +65,7 @@ function ProfileRoute() {
     if (user && discussions) useDiscussionStore.getState().setUserDiscussions(user.id, discussions);
 
     setUserProps(s => ({ ...s, loading: false, status: status }));
+    setDiscussionProps(s => ({ ...s, hasMore: true }));
   }
 
   const changeOrder = (value: string) => {
@@ -84,41 +85,44 @@ function ProfileRoute() {
     discussions.length === 0 && fetchDiscussions(state.order, false);
   }, [state.order]);
 
-  if (!user || userProps.loading) {
-    return (
-      <>
-        {userProps.loading && <CardLoader />}
-        {userProps.status === false &&
-          <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
-        }
-      </>
-    )
-  }
-
   return (
     <InfiniteScroll
       refresh={fetchRoute}
       next={() => fetchDiscussions(state.order, false, true)}
       length={discussions.length}
       hasMore={discussionProps.hasMore}
+      hideLoader={!user}
     >
-      <Profile user={user} />
+      {!user || userProps.loading ?
+        <>
+          {userProps.loading && <CardLoader />}
+          {userProps.status === false &&
+            <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
+          }
+        </>
 
-      <CardPanel
-        segments={[
-          {
-            value: state.order,
-            setValue: changeOrder,
-            label: t("discussionOrder"),
-            data: [
-              { label: t("newer"), value: "newer" },
-              { label: t("older"), value: "older" },
-            ]
-          },
-        ]}
-      />
+        :
 
-      {discussions.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+        <>
+          <Profile user={user} />
+
+          <CardPanel
+            segments={[
+              {
+                value: state.order,
+                setValue: changeOrder,
+                label: t("discussionOrder"),
+                data: [
+                  { label: t("newer"), value: "newer" },
+                  { label: t("older"), value: "older" },
+                ]
+              },
+            ]}
+          />
+
+          {discussions.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+        </>
+      }
     </InfiniteScroll>
   )
 }

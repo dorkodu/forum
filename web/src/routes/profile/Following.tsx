@@ -68,6 +68,7 @@ function Following() {
     if (user && following) useUserStore.getState().addUserFollowing(user, following);
 
     setUserProps(s => ({ ...s, loading: false, status: status }));
+    setFollowingProps(s => ({ ...s, hasMore: true }));
   }
 
   const changeOrder = (value: string) => {
@@ -87,42 +88,44 @@ function Following() {
     following.length === 0 && fetchFollowing(state.order, false);
   }, [state.order]);
 
-  if (!user || userProps.loading) {
-    return (
-      <>
-        {userProps.loading && <CardLoader />}
-        {userProps.status === false &&
-          <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
-        }
-      </>
-    )
-  }
-
   return (
-
     <InfiniteScroll
       refresh={fetchRoute}
       next={() => fetchFollowing(state.order, false, true)}
       length={following.length}
       hasMore={followingProps.hasMore}
+      hideLoader={!user}
     >
-      <Profile user={user} />
+      {!user || userProps.loading ?
+        <>
+          {userProps.loading && <CardLoader />}
+          {userProps.status === false &&
+            <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
+          }
+        </>
 
-      <CardPanel
-        segments={[
-          {
-            value: state.order,
-            setValue: changeOrder,
-            label: t("followingOrder"),
-            data: [
-              { label: t("newer"), value: "newer" },
-              { label: t("older"), value: "older" },
-            ]
-          },
-        ]}
-      />
+        :
 
-      {following.map((_following) => <ProfileSummary key={_following.id} user={_following} />)}
+        <>
+          <Profile user={user} />
+
+          <CardPanel
+            segments={[
+              {
+                value: state.order,
+                setValue: changeOrder,
+                label: t("followingOrder"),
+                data: [
+                  { label: t("newer"), value: "newer" },
+                  { label: t("older"), value: "older" },
+                ]
+              },
+            ]}
+          />
+
+          {following.map((_following) => <ProfileSummary key={_following.id} user={_following} />)}
+        </>
+      }
     </InfiniteScroll>
   )
 }

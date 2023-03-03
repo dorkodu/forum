@@ -68,6 +68,7 @@ function Follower() {
     if (user && followers) useUserStore.getState().addUserFollowers(user, followers);
 
     setUserProps(s => ({ ...s, loading: false, status: status }));
+    setFollowerProps(s => ({ ...s, hasMore: true }));
   }
 
   const changeOrder = (value: string) => {
@@ -87,42 +88,44 @@ function Follower() {
     followers.length === 0 && fetchFollowers(state.order, false);
   }, [state.order]);
 
-  if (!user || userProps.loading) {
-    return (
-      <>
-        {userProps.loading && <CardLoader />}
-        {userProps.status === false &&
-          <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
-        }
-      </>
-    )
-  }
-
   return (
-
     <InfiniteScroll
       refresh={fetchRoute}
       next={() => fetchFollowers(state.order, false, true)}
       length={followers.length}
       hasMore={followerProps.hasMore}
+      hideLoader={!user}
     >
-      <Profile user={user} />
+      {!user || userProps.loading ?
+        <>
+          {userProps.loading && <CardLoader />}
+          {userProps.status === false &&
+            <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
+          }
+        </>
 
-      <CardPanel
-        segments={[
-          {
-            value: state.order,
-            setValue: changeOrder,
-            label: t("followersOrder"),
-            data: [
-              { label: t("newer"), value: "newer" },
-              { label: t("older"), value: "older" },
-            ]
-          },
-        ]}
-      />
+        :
 
-      {followers.map((follower) => <ProfileSummary key={follower.id} user={follower} />)}
+        <>
+          <Profile user={user} />
+
+          <CardPanel
+            segments={[
+              {
+                value: state.order,
+                setValue: changeOrder,
+                label: t("followersOrder"),
+                data: [
+                  { label: t("newer"), value: "newer" },
+                  { label: t("older"), value: "older" },
+                ]
+              },
+            ]}
+          />
+
+          {followers.map((follower) => <ProfileSummary key={follower.id} user={follower} />)}
+        </>
+      }
     </InfiniteScroll>
   )
 }
