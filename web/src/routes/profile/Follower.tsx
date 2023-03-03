@@ -64,6 +64,9 @@ function Follower() {
     const user = res?.a.data && res?.a.data[0];
     const followers = res?.b.data;
 
+    // Clear feed when fetching route since it's used by infinite scroll
+    useUserStore.setState(state => { user && delete state.user.followers[user.id] });
+
     if (user) useUserStore.getState().setUsers([user]);
     if (followers) useUserStore.getState().setUsers(followers);
     if (user && followers) useUserStore.getState().addUserFollowers(user, followers);

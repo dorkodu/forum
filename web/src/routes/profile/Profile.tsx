@@ -62,6 +62,9 @@ function ProfileRoute() {
     const user = res?.a.data && res?.a.data[0];
     const discussions = res?.b.data;
 
+    // Clear feed when fetching route since it's used by infinite scroll
+    useDiscussionStore.setState(state => { user && delete state.discussion.users[user.id] });
+
     if (user) useUserStore.getState().setUsers([user]);
     if (user && discussions) useDiscussionStore.getState().setUserDiscussions(user.id, discussions);
 
