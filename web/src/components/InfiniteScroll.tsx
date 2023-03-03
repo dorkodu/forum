@@ -36,12 +36,18 @@ function InfiniteScroll({ children, refresh, next, length, hasMore, hideLoader }
     </Flex>
   )
 
-  const [scroll, setScroll] = useState(scrollY);
-  const onScroll = () => { setScroll(scrollY) }
+  const [scroll, setScroll] = useState({ y: scrollY, scrolled: false });
+  const onScroll = () => { setScroll({ y: scrollY, scrolled: true }) };
+  const onResize = () => { setScroll({ y: scrollY, scrolled: false }) };
 
   useEffect(() => {
-    window.addEventListener("scroll", onScroll)
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll);
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    }
   }, []);
 
   return (
@@ -49,8 +55,8 @@ function InfiniteScroll({ children, refresh, next, length, hasMore, hideLoader }
       next={next ?? (() => { })}
       refreshFunction={refresh}
 
-      dataLength={length + (scroll <= 0 ? 1 : 0)}
-      hasMore={scroll <= 0 || hasMore}
+      dataLength={length + ((scroll.scrolled && scroll.y <= 0) ? 1 : 0)}
+      hasMore={scroll.scrolled && (scroll.y <= 0 || hasMore)}
 
       loader={hideLoader ? null : <CardLoader />}
 
