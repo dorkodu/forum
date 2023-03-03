@@ -20,16 +20,14 @@ function ProfileRoute() {
   const user = useUserStore(state => state.getUserByUsername(username));
   const discussions = useDiscussionStore(_state => _state.getUserDiscussions(user?.id, state.order));
 
-  const [userProps, setUserProps] = useFeedProps({ loader: user ? undefined : "top" });
+  const [userProps, setUserProps] = useFeedProps({ loading: !user });
   const [discussionProps, setDiscussionProps] = useFeedProps();
 
   const fetchDiscussions = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
     if (!user) return;
-    if (!skipWaiting && discussionProps.loader) return;
+    if (!skipWaiting && discussionProps.loading) return;
 
-    setDiscussionProps(s => ({
-      ...s, loader: refresh ? "top" : "bottom", status: undefined
-    }));
+    setDiscussionProps(s => ({ ...s, loading: true, status: undefined }));
 
     const anchorId = useDiscussionStore.getState().getUserDiscussionAnchor(user.id, type, refresh)
     const res = await sage.get(
@@ -42,13 +40,11 @@ function ProfileRoute() {
     if (refresh) useDiscussionStore.setState(state => { user && delete state.discussion.users[user.id] });
     if (discussions) useDiscussionStore.getState().setUserDiscussions(user.id, discussions);
 
-    setDiscussionProps(s => ({
-      ...s, loader: undefined, status, hasMore: discussions?.length !== 0
-    }));
+    setDiscussionProps(s => ({ ...s, loading: false, status, hasMore: discussions?.length !== 0 }));
   }
 
   const fetchRoute = async () => {
-    setUserProps(s => ({ ...s, loader: "top", status: undefined }));
+    setUserProps(s => ({ ...s, loading: true, status: undefined }));
 
     const res = await sage.get(
       {
@@ -68,12 +64,12 @@ function ProfileRoute() {
     if (user) useUserStore.getState().setUsers([user]);
     if (user && discussions) useDiscussionStore.getState().setUserDiscussions(user.id, discussions);
 
-    setUserProps(s => ({ ...s, loader: undefined, status: status }));
+    setUserProps(s => ({ ...s, loading: false, status: status }));
   }
 
   const changeOrder = (value: string) => {
     // See /routes/Home.tsx for explanation
-    if (discussionProps.loader) return;
+    if (discussionProps.loading) return;
 
     if (value === "newer" || value === "older") {
       useAppStore.setState(s => { s.options.profile.order = value });
@@ -88,10 +84,10 @@ function ProfileRoute() {
     discussions.length === 0 && fetchDiscussions(state.order, false);
   }, [state.order]);
 
-  if (!user || userProps.loader) {
+  if (!user || userProps.loading) {
     return (
       <>
-        {userProps.loader && <CardLoader />}
+        {userProps.loading && <CardLoader />}
         {userProps.status === false &&
           <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
         }

@@ -22,11 +22,9 @@ function Home() {
   const [guestFeedProps, setGuestFeedProps] = useFeedProps();
 
   const fetchUserFeed = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
-    if (!skipWaiting && userFeedProps.loader) return;
+    if (!skipWaiting && userFeedProps.loading) return;
 
-    setUserFeedProps(s => ({
-      ...s, loader: refresh ? "top" : "bottom", status: undefined
-    }));
+    setUserFeedProps(s => ({ ...s, loading: true, status: undefined }));
 
     const anchorId = useDiscussionStore.getState().getUserFeedAnchor(type, refresh);
     const res = await sage.get(
@@ -44,17 +42,13 @@ function Home() {
     if (discussions) useDiscussionStore.getState().addUserFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
-    setUserFeedProps(s => ({
-      ...s, loader: undefined, status, hasMore: discussions?.length !== 0
-    }));
+    setUserFeedProps(s => ({ ...s, loading: false, status, hasMore: discussions?.length !== 0 }));
   }
 
   const fetchFavouriteFeed = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
-    if (!skipWaiting && favouriteFeedProps.loader) return;
+    if (!skipWaiting && favouriteFeedProps.loading) return;
 
-    setFavouriteFeedProps(s => ({
-      ...s, loader: refresh ? "top" : "bottom", status: undefined
-    }));
+    setFavouriteFeedProps(s => ({ ...s, loading: true, status: undefined }));
 
     const anchorId = useDiscussionStore.getState().getFavouriteFeedAnchor(type, refresh);
     const res = await sage.get(
@@ -72,17 +66,13 @@ function Home() {
     if (discussions) useDiscussionStore.getState().addFavouriteFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
-    setFavouriteFeedProps(s => ({
-      ...s, loader: undefined, status, hasMore: discussions?.length !== 0
-    }));
+    setFavouriteFeedProps(s => ({ ...s, loading: false, status, hasMore: discussions?.length !== 0 }));
   }
 
   const fetchGuestFeed = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
-    if (!skipWaiting && guestFeedProps.loader) return;
+    if (!skipWaiting && guestFeedProps.loading) return;
 
-    setGuestFeedProps(s => ({
-      ...s, loader: refresh ? "top" : "bottom", status: undefined
-    }));
+    setGuestFeedProps(s => ({ ...s, loading: true, status: undefined }));
 
     const anchorId = useDiscussionStore.getState().getGuestFeedAnchor(type, refresh);
     const res = await sage.get(
@@ -100,9 +90,7 @@ function Home() {
     if (discussions) useDiscussionStore.getState().addGuestFeedDiscussions(discussions);
     if (users) useUserStore.getState().setUsers(users);
 
-    setGuestFeedProps(s => ({
-      ...s, loader: undefined, status, hasMore: discussions?.length !== 0
-    }));
+    setGuestFeedProps(s => ({ ...s, loading: false, status, hasMore: discussions?.length !== 0 }));
   }
 
   const fetcher = async (feed: typeof state.feed, refresh?: boolean, skipWaiting?: boolean) => {
@@ -142,7 +130,7 @@ function Home() {
      * for ex. changes newer -> older -> newer, then the feed will show,
      * older posts in newer order, which not the desired outcome.
      */
-    if (getLoader(state.feed)) return;
+    if (getLoading(state.feed)) return;
 
     if (value === "newer" || value === "older") {
       useAppStore.setState(s => {
@@ -164,11 +152,11 @@ function Home() {
     }
   }
 
-  const getLoader = (feed: typeof state.feed) => {
+  const getLoading = (feed: typeof state.feed) => {
     switch (feed) {
-      case "user": return userFeedProps.loader;
-      case "favourite": return favouriteFeedProps.loader;
-      case "guest": return guestFeedProps.loader;
+      case "user": return userFeedProps.loading;
+      case "favourite": return favouriteFeedProps.loading;
+      case "guest": return guestFeedProps.loading;
     }
   }
 

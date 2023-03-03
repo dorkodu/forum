@@ -46,7 +46,7 @@ function Discussion({ discussionId }: Props) {
   const argumentInputRef = useRef<HTMLTextAreaElement>(null);
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
-  const [discussionProps, setDiscussionProps] = useFeedProps({ loader: "top" });
+  const [discussionProps, setDiscussionProps] = useFeedProps({ loading: true });
 
   const [fetchArgumentProps, setFetchArgumentProps] = useFeedProps();
   const [fetchCommentProps, setFetchCommentProps] = useFeedProps();
@@ -57,7 +57,7 @@ function Discussion({ discussionId }: Props) {
   const getDiscussion = async () => {
     if (!discussionId) return;
 
-    setDiscussionProps(s => ({ ...s, loader: "top", status: undefined }));
+    setDiscussionProps(s => ({ ...s, loading: true, status: undefined }));
 
     const res = await sage.get(
       {
@@ -104,7 +104,7 @@ function Discussion({ discussionId }: Props) {
     }
     if (users) useUserStore.getState().setUsers(users);
 
-    setDiscussionProps(s => ({ ...s, loader: undefined, status: status }));
+    setDiscussionProps(s => ({ ...s, loading: false, status: status }));
     setFetchArgumentProps(s => ({ ...s, hasMore: true }));
     setFetchCommentProps(s => ({ ...s, hasMore: true }));
   }
@@ -116,11 +116,11 @@ function Discussion({ discussionId }: Props) {
     if (argument.text.length === 0) return;
     if (argument.text.length > 500) return;
     if (!discussion) return;
-    if (actionArgumentProps.loader) return;
+    if (actionArgumentProps.loading) return;
 
-    setActionArgumentProps(s => ({ ...s, loader: "top", status: undefined }));
+    setActionArgumentProps(s => ({ ...s, loading: true, status: undefined }));
     const status = await useWait(() => queryCreateArgument(discussion.id, argument.text, argument.type))();
-    setActionArgumentProps(s => ({ ...s, loader: undefined, status: status }));
+    setActionArgumentProps(s => ({ ...s, loading: false, status: status }));
 
     // TODO: If status is not true (failed), don't reset input, instead show error message
 
@@ -137,11 +137,11 @@ function Discussion({ discussionId }: Props) {
     if (comment.text.length === 0) return;
     if (comment.text.length > 500) return;
     if (!discussion) return;
-    if (actionCommentProps.loader) return;
+    if (actionCommentProps.loading) return;
 
-    setActionCommentProps(s => ({ ...s, loader: "top", status: undefined }));
+    setActionCommentProps(s => ({ ...s, loading: true, status: undefined }));
     const status = await useWait(() => queryCreateComment(discussion.id, comment.text))();
-    setActionCommentProps(s => ({ ...s, loader: undefined, status: status }));
+    setActionCommentProps(s => ({ ...s, loading: false, status: status }));
 
     // TODO: If status is not true (failed), don't reset input, instead show error message
 
@@ -153,20 +153,20 @@ function Discussion({ discussionId }: Props) {
 
   const getArguments = async (type: "newer" | "older" | "top" | "bottom", refresh?: boolean, skipWaiting?: boolean) => {
     if (!discussion) return;
-    if (!skipWaiting && fetchArgumentProps.loader) return;
+    if (!skipWaiting && fetchArgumentProps.loading) return;
 
-    setFetchArgumentProps(s => ({ ...s, loader: refresh ? "top" : "bottom", status: undefined }));
+    setFetchArgumentProps(s => ({ ...s, loading: true, status: undefined }));
     const res = await useWait(() => queryGetArguments(discussion.id, type, refresh))();
-    setFetchArgumentProps(s => ({ ...s, loader: undefined, status: res.status, hasMore: res.length !== 0 }));
+    setFetchArgumentProps(s => ({ ...s, loading: false, status: res.status, hasMore: res.length !== 0 }));
   }
 
   const getComments = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
     if (!discussion) return;
-    if (!skipWaiting && fetchCommentProps.loader) return;
+    if (!skipWaiting && fetchCommentProps.loading) return;
 
-    setFetchCommentProps(s => ({ ...s, loader: refresh ? "top" : "bottom", status: undefined }));
+    setFetchCommentProps(s => ({ ...s, loading: true, status: undefined }));
     const res = await useWait(() => queryGetComments(discussion.id, type, refresh))();
-    setFetchCommentProps(s => ({ ...s, loader: undefined, status: res.status, hasMore: res.length !== 0 }));
+    setFetchCommentProps(s => ({ ...s, loading: false, status: res.status, hasMore: res.length !== 0 }));
   }
 
   const fetcher = async (show: typeof state.show, refresh?: boolean, skipWaiting?: boolean) => {
@@ -203,10 +203,10 @@ function Discussion({ discussionId }: Props) {
     }
   }
 
-  const getActionLoader = (show: typeof state.show) => {
+  const getActionLoading = (show: typeof state.show) => {
     switch (show) {
-      case "arguments": return actionArgumentProps.loader;
-      case "comments": return actionCommentProps.loader;
+      case "arguments": return actionArgumentProps.loading;
+      case "comments": return actionCommentProps.loading;
     }
   }
 
@@ -230,11 +230,11 @@ function Discussion({ discussionId }: Props) {
 
   useEffect(() => { getDiscussion() }, []);
 
-  if (!discussion || discussionProps.loader) {
+  if (!discussion || discussionProps.loading) {
     return (
       <>
-        {discussionProps.loader && <CardLoader />}
-        {!discussionProps.loader && discussionProps.status === false &&
+        {discussionProps.loading && <CardLoader />}
+        {!discussionProps.loading && discussionProps.status === false &&
           <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
         }
       </>
@@ -308,7 +308,7 @@ function Discussion({ discussionId }: Props) {
       </Card>
 
       <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
-        {getActionLoader(state.show) && <OverlayLoader />}
+        {getActionLoading(state.show) && <OverlayLoader />}
 
         {state.show === "arguments" &&
           <>

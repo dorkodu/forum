@@ -34,15 +34,13 @@ function Search() {
   }
 
   const fetchUsers = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
-    if (!skipWaiting && searchFeedProps.loader) return;
+    if (!skipWaiting && searchFeedProps.loading) return;
 
     const name = state.search.startsWith("@") ? undefined : state.search;
     const username = state.search.startsWith("@") ? state.search.substring(1) : undefined;
     if (!name && !username) return;
 
-    setSearchFeedProps(s => ({
-      ...s, loader: refresh ? "top" : "bottom", status: undefined
-    }));
+    setSearchFeedProps(s => ({ ...s, loading: true, status: undefined }));
 
     const anchorId = getAnchor(type, refresh);
     const res = await sage.get(
@@ -58,14 +56,12 @@ function Search() {
       useUserStore.getState().addSearchUsers(users, refresh);
     }
 
-    setSearchFeedProps(s => ({
-      ...s, loader: undefined, status, hasMore: users?.length !== 0
-    }));
+    setSearchFeedProps(s => ({ ...s, loading: false, status, hasMore: users?.length !== 0 }));
   }
 
   const changeOrder = (value: string) => {
     // See /routes/Home.tsx for explanation
-    if (searchFeedProps.loader) return;
+    if (searchFeedProps.loading) return;
 
     if (value === "newer" || value === "older") {
       useAppStore.setState(s => { s.options.search.order = value });

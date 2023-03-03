@@ -17,11 +17,9 @@ function NotificationsRoute() {
   const [notificationProps, setNotificationProps] = useFeedProps();
 
   const fetchNotifications = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
-    if (!skipWaiting && notificationProps.loader) return;
+    if (!skipWaiting && notificationProps.loading) return;
 
-    setNotificationProps(s => ({
-      ...s, loader: refresh ? "top" : "bottom", status: undefined
-    }));
+    setNotificationProps(s => ({ ...s, loading: true, status: undefined }));
 
     const anchorId = useUserStore.getState().getNotificationsAnchor(type, refresh)
     const res = await sage.get(
@@ -47,14 +45,12 @@ function NotificationsRoute() {
       if (currentUser) currentUser.hasNotification = false;
     });
 
-    setNotificationProps(s => ({
-      ...s, loader: undefined, status, hasMore: notifications?.length !== 0
-    }));
+    setNotificationProps(s => ({ ...s, loading: false, status, hasMore: notifications?.length !== 0 }));
   }
 
   const changeOrder = (value: string) => {
     // See /routes/Home.tsx for explanation
-    if (notificationProps.loader) return;
+    if (notificationProps.loading) return;
 
     if (value === "newer" || value === "older") {
       useAppStore.setState(s => { s.options.notifications.order = value });

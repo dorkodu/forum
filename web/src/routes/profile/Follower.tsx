@@ -19,16 +19,14 @@ function Follower() {
   const user = useUserStore(state => state.getUserByUsername(username));
   const followers = useUserStore(_state => _state.getUserFollowers(user, state.order));
 
-  const [userProps, setUserProps] = useFeedProps({ loader: user ? undefined : "top" });
+  const [userProps, setUserProps] = useFeedProps({ loading: !user });
   const [followerProps, setFollowerProps] = useFeedProps();
 
   const fetchFollowers = async (type: "newer" | "older", refresh?: boolean, skipWaiting?: boolean) => {
     if (!user) return;
-    if (!skipWaiting && followerProps.loader) return;
+    if (!skipWaiting && followerProps.loading) return;
 
-    setFollowerProps(s => ({
-      ...s, loader: refresh ? "top" : "bottom", status: undefined
-    }));
+    setFollowerProps(s => ({ ...s, loading: true, status: undefined }));
 
     const anchorId = useUserStore.getState().getUserFollowersAnchor(user, type, refresh)
     const res = await sage.get(
@@ -44,13 +42,11 @@ function Follower() {
       useUserStore.getState().addUserFollowers(user, followers);
     }
 
-    setFollowerProps(s => ({
-      ...s, loader: undefined, status, hasMore: followers?.length !== 0
-    }));
+    setFollowerProps(s => ({ ...s, loading: false, status, hasMore: followers?.length !== 0 }));
   }
 
   const fetchRoute = async () => {
-    setUserProps(s => ({ ...s, loader: "top", status: undefined }));
+    setUserProps(s => ({ ...s, loading: true, status: undefined }));
 
     const res = await sage.get(
       {
@@ -71,12 +67,12 @@ function Follower() {
     if (followers) useUserStore.getState().setUsers(followers);
     if (user && followers) useUserStore.getState().addUserFollowers(user, followers);
 
-    setUserProps(s => ({ ...s, loader: undefined, status: status }));
+    setUserProps(s => ({ ...s, loading: false, status: status }));
   }
 
   const changeOrder = (value: string) => {
     // See /routes/Home.tsx for explanation
-    if (followerProps.loader) return;
+    if (followerProps.loading) return;
 
     if (value === "newer" || value === "older") {
       useAppStore.setState(s => { s.options.followers.order = value });
@@ -91,10 +87,10 @@ function Follower() {
     followers.length === 0 && fetchFollowers(state.order, false);
   }, [state.order]);
 
-  if (!user || userProps.loader) {
+  if (!user || userProps.loading) {
     return (
       <>
-        {userProps.loader && <CardLoader />}
+        {userProps.loading && <CardLoader />}
         {userProps.status === false &&
           <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
         }
