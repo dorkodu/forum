@@ -11,7 +11,6 @@ import { useUserStore } from "../stores/userStore";
 import { wrapContent } from "../styles/css";
 import Argument from "./Argument";
 import CardAlert from "./cards/CardAlert";
-import CardLoader from "./cards/CardLoader";
 import { CardPanel } from "./cards/CardPanel";
 import OverlayLoader from "./cards/OverlayLoader";
 import Comment from "./Comment"
@@ -240,7 +239,6 @@ function Discussion({ discussionId }: Props) {
     >
       {!discussion || discussionProps.loading ?
         <>
-          {discussionProps.loading && <CardLoader />}
           {!discussionProps.loading && discussionProps.status === false &&
             <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
           }

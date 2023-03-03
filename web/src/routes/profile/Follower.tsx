@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import CardAlert from "../../components/cards/CardAlert";
-import CardLoader from "../../components/cards/CardLoader";
 import CardPanel from "../../components/cards/CardPanel";
 import { useFeedProps, useWait } from "../../components/hooks";
 import InfiniteScroll from "../../components/InfiniteScroll";
@@ -98,7 +97,6 @@ function Follower() {
     >
       {!user || userProps.loading ?
         <>
-          {userProps.loading && <CardLoader />}
           {userProps.status === false &&
             <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
           }
