@@ -150,7 +150,10 @@ function UrlPiece({ url }: { url: string }) {
 
 function EmojiPiece({ emoji }: { emoji: string }) {
   const element = document.createElement("div");
-  element.innerHTML = twemoji.parse(emoji, { ext: ".svg", folder: "svg" });
+  element.innerHTML = twemoji.parse(
+    emoji,
+    { ext: ".svg", folder: "svg", base: "https://cdn.jsdelivr.net/gh/twitter/twemoji@v14.0.2/assets/" }
+  );
   const src = (element.firstChild as HTMLImageElement).src;
 
   return (
