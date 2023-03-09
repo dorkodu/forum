@@ -25,7 +25,7 @@ function CardAlert({ type, title, content }: Props) {
   }
 
   return (
-    <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+    <Card shadow="sm" p="md" m="md" radius="md" withBorder>
       <Alert icon={icon()} title={title} color={color()} variant="light">
         {content}
       </Alert>

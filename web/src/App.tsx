@@ -132,7 +132,7 @@ function App() {
 
   const AppFooter = () => (
     <Footer css={width} px="md" pb="md" height={64} withBorder={false}>
-      <Card css={css`height:100%;`} shadow="sm" p="lg" radius="md" withBorder>
+      <Card css={css`height:100%;`} shadow="sm" p="md" radius="md" withBorder>
         <Flex css={css`height:100%;`} align="center" justify="space-evenly">
           <ActionIcon color={route === "home" ? "green" : "dark"} onClick={routeHome}>
             <IconHome />

@@ -249,11 +249,11 @@ function Discussion({ discussionId }: Props) {
         <>
           <DiscussionSummary discussionId={discussionId} />
 
-          <Card shadow="sm" p="lg" m="md" radius="md" withBorder css={wrapContent}>
+          <Card shadow="sm" p="md" m="md" radius="md" withBorder css={wrapContent}>
             <TextParser text={discussion.readme ?? ""} />
           </Card>
 
-          <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+          <Card shadow="sm" p="md" m="md" radius="md" withBorder>
             <Flex direction="column" gap="md">
 
               <CardPanel.Segments
@@ -308,7 +308,7 @@ function Discussion({ discussionId }: Props) {
             </Flex>
           </Card>
 
-          <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+          <Card shadow="sm" p="md" m="md" radius="md" withBorder>
             {getActionLoading(state.show) && <OverlayLoader />}
 
             {state.show === "arguments" &&

@@ -72,7 +72,7 @@ function DiscussionSummary({ discussionId }: Props) {
   if (!discussion || !user) return (<></>)
 
   return (
-    <Card css={css`overflow: visible; ${bgColorHover(theme)}`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoDiscussion}>
+    <Card css={css`overflow: visible; ${bgColorHover(theme)}`} shadow="sm" p="md" m="md" radius="md" withBorder onClick={gotoDiscussion}>
       <Flex direction="column">
         <Flex align="center" justify="space-between">
           <Flex miw={0}>

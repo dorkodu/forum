@@ -5,7 +5,7 @@ function NotFound() {
   const { t } = useTranslation();
 
   return (
-    <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+    <Card shadow="sm" p="md" m="md" radius="md" withBorder>
       <Text align="center">{t("notFound")}</Text>
     </Card>
   )

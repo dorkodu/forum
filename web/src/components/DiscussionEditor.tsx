@@ -100,7 +100,7 @@ function DiscussionEditor({ id }: Props) {
   if (id && state.initial && state.loading) return <CardLoader />
 
   return (
-    <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+    <Card shadow="sm" p="md" m="md" radius="md" withBorder>
       {state.loading && <OverlayLoader />}
 
       <TextInput

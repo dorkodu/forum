@@ -81,7 +81,7 @@ function Notification({ notification }: Props) {
   if (!user) return (<></>)
 
   return (
-    <Card css={css`overflow: visible; ${bgColorHover(theme)}`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={typeToOnClick()}>
+    <Card css={css`overflow: visible; ${bgColorHover(theme)}`} shadow="sm" p="md" m="md" radius="md" withBorder onClick={typeToOnClick()}>
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
           <Anchor href={`/profile/${user.username}`} css={colorBW(theme)} onClick={gotoUser}>

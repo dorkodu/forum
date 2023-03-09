@@ -30,7 +30,7 @@ interface Props {
 
 function _CardPanel({ segments, buttons }: Props) {
   return (
-    <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+    <Card shadow="sm" p="md" m="md" radius="md" withBorder>
       <Flex direction="column" gap="md">
         <Segments segments={segments} />
         <Buttons buttons={buttons} />

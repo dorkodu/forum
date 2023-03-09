@@ -106,7 +106,7 @@ function Search() {
       length={users.length}
       hasMore={searchFeedProps.hasMore}
     >
-      <Card shadow="sm" p="lg" m="md" radius="md" withBorder>
+      <Card shadow="sm" p="md" m="md" radius="md" withBorder>
         <TextInput
           radius="md"
           label={t("user.searchLabel")}

@@ -47,7 +47,7 @@ function ProfileSummary({ user }: Props) {
   }
 
   return (
-    <Card css={css`overflow: visible; ${bgColorHover(theme)}`} shadow="sm" p="lg" m="md" radius="md" withBorder onClick={gotoUser}>
+    <Card css={css`overflow: visible; ${bgColorHover(theme)}`} shadow="sm" p="md" m="md" radius="md" withBorder onClick={gotoUser}>
       <Flex direction="column" gap={4}>
         <Flex direction="column">
           <Flex align="center" justify="space-between">

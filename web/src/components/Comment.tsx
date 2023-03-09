@@ -30,7 +30,7 @@ function Comment({ commentId }: Props) {
   if (!comment || !user) return (<></>)
 
   return (
-    <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
+    <Card css={css`overflow: visible;`} shadow="sm" p="md" m="md" radius="md" withBorder>
       <Flex align="center" justify="space-between">
         <Flex miw={0}>
           <Anchor href={`/profile/${user.username}`} css={colorBW(theme)} onClick={gotoUser}>

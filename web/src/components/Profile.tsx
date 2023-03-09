@@ -53,7 +53,7 @@ function Profile({ user }: Props) {
   }
 
   return (
-    <Card css={css`overflow: visible;`} shadow="sm" p="lg" m="md" radius="md" withBorder>
+    <Card css={css`overflow: visible;`} shadow="sm" p="md" m="md" radius="md" withBorder>
       <Flex direction="column" gap="xs">
         <Flex direction="column">
           <Flex justify="space-between" gap="xs">
