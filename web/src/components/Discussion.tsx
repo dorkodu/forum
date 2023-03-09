@@ -1,6 +1,7 @@
 import { IArgument } from "@api/types/argument";
 import { IComment } from "@api/types/comment";
 import { Button, Card, Flex, SegmentedControl, Textarea } from "@mantine/core";
+import { IconRefresh } from "@tabler/icons";
 import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { request, sage } from "../stores/api";
@@ -282,7 +283,8 @@ function Discussion({ discussionId }: Props) {
                         { label: t("older"), value: "older" },
                         { label: t("mostVoted"), value: "top" },
                         { label: t("leastVoted"), value: "bottom" },
-                      ]
+                      ],
+                      buttons: [{ icon: IconRefresh, onClick: getDiscussion }]
                     }
                   ]}
                 />
@@ -298,7 +300,8 @@ function Discussion({ discussionId }: Props) {
                       data: [
                         { label: t("newer"), value: "newer" },
                         { label: t("older"), value: "older" },
-                      ]
+                      ],
+                      buttons: [{ icon: IconRefresh, onClick: getDiscussion }]
                     }
                   ]}
                 />

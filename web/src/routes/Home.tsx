@@ -8,6 +8,7 @@ import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import { useAppStore } from "../stores/appStore";
 import InfiniteScroll from "../components/InfiniteScroll";
+import { IconRefresh } from "@tabler/icons";
 
 function Home() {
   const { t } = useTranslation();
@@ -200,7 +201,8 @@ function Home() {
             data: [
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },
-            ]
+            ],
+            buttons: [{ icon: IconRefresh, onClick: () => fetcher(state.feed, true) }]
           },
         ]}
       />

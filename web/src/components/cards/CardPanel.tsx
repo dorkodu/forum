@@ -1,5 +1,7 @@
-import { Button, Card, createStyles, Flex, SegmentedControl, Tooltip } from "@mantine/core"
+import { css } from "@emotion/react";
+import { ActionIcon, Button, Card, createStyles, Flex, SegmentedControl, Tooltip } from "@mantine/core"
 import { useClickOutside } from "@mantine/hooks";
+import { TablerIcon } from "@tabler/icons";
 import React, { useState } from "react";
 
 const useStyles = createStyles((_theme) => ({
@@ -18,6 +20,7 @@ interface ISegment {
   setValue: (value: string) => any;
   data: { label: string, value: string }[];
   label: string;
+  buttons?: { icon: TablerIcon, onClick: () => any }[]
 }
 
 interface Props {
@@ -59,13 +62,13 @@ function SingleSegment({ segment }: { segment: ISegment }) {
   }
 
   return (
-    <Flex direction="column">
-      <Tooltip
-        label={`${segment.label}: ${findLabel(segment)}`}
-        position="top"
-        withinPortal
-        opened={opened}
-      >
+    <Tooltip
+      label={`${segment.label}: ${findLabel(segment)}`}
+      position="top"
+      withinPortal
+      opened={opened}
+    >
+      <Flex direction="row" align="center" gap="md">
         <SegmentedControl
           radius="md"
           value={segment.value}
@@ -74,9 +77,15 @@ function SingleSegment({ segment }: { segment: ISegment }) {
           classNames={{ root: classes.root, control: classes.control }}
           onClick={() => setOpened(true)}
           ref={ref}
+          css={css`flex-grow: 1;`}
         />
-      </Tooltip>
-    </Flex>
+        {segment.buttons?.map((button, index) => (
+          <ActionIcon color="dark" key={index}>
+            <button.icon onClick={button.onClick} />
+          </ActionIcon>
+        ))}
+      </Flex>
+    </Tooltip>
   )
 }
 

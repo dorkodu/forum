@@ -1,3 +1,4 @@
+import { IconRefresh } from "@tabler/icons";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import CardPanel from "../components/cards/CardPanel";
@@ -80,7 +81,8 @@ function NotificationsRoute() {
             data: [
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },
-            ]
+            ],
+            buttons: [{ icon: IconRefresh, onClick: () => fetchNotifications(state.order, true) }]
           },
         ]}
       />

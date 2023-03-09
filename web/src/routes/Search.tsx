@@ -1,4 +1,5 @@
 import { Card, TextInput } from "@mantine/core";
+import { IconRefresh } from "@tabler/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -125,7 +126,8 @@ function Search() {
               data: [
                 { label: t("newer"), value: "newer" },
                 { label: t("older"), value: "older" },
-              ]
+              ],
+              buttons: [{ icon: IconRefresh, onClick: () => fetchUsers(state.order, true) }]
             }]
           }
         />
