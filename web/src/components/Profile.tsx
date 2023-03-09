@@ -11,6 +11,7 @@ import { useUserStore } from "../stores/userStore";
 import { colorBW, wrapContent } from "../styles/css";
 import TextParser, { PieceType } from "./TextParser";
 import UserMenu from "./menus/UserMenu";
+import { util } from "../lib/util";
 
 interface Props {
   user: IUser;
@@ -80,11 +81,11 @@ function Profile({ user }: Props) {
 
         <Flex direction="row" wrap="wrap">
           <Anchor href={`/profile/${user.username}/followers`} css={colorBW(theme)} onClick={gotoFollowers} mr="xs">
-            {t("user.followers", { count: user.followerCount })}
+            {t("user.followers", { count: user.followerCount, number: util.formatNumber(user.followerCount) })}
           </Anchor>
 
           <Anchor href={`/profile/${user.username}/following`} css={colorBW(theme)} onClick={gotoFollowing}>
-            {t("user.following", { count: user.followingCount })}
+            {t("user.following", { count: user.followingCount, number: util.formatNumber(user.followingCount) })}
           </Anchor>
         </Flex>
 

@@ -1,3 +1,5 @@
+import i18n from "./i18n";
+
 function parseUserAgent(ua: string) {
   return ua.split(",").filter(value => value !== "").join(" | ");
 }
@@ -62,10 +64,15 @@ function compareId(a: string, b: string, reverse?: boolean) {
   return 0;
 }
 
+function formatNumber(number: number) {
+  return Intl.NumberFormat(i18n.language, { notation: "compact", maximumFractionDigits: 1 }).format(number);
+}
+
 export const util = {
   parseUserAgent,
   share,
   copyToClipboard,
   tryObjSwap,
   compareId,
+  formatNumber,
 }

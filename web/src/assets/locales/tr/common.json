@@ -38,8 +38,8 @@
     "unfollow": "Takipten Çık",
     "followsYou": "Seni Takip Ediyor",
 
-    "followers": "{{count}} Takipçi",
-    "following": "{{count}} Takip Edilen",
+    "followers": "{{number}} Takipçi",
+    "following": "{{number}} Takip Edilen",
 
     "search": "@Kullanıcıadı veya Ad Girin",
     "searchLabel": "Kullanıcı Ara",

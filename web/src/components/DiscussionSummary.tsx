@@ -15,6 +15,7 @@ import { autoGrid, bgColorHover, colorBW, nowrap, wrapContent } from "../styles/
 import { useAppStore } from "../stores/appStore";
 import TextParser, { PieceType } from "./TextParser";
 import DiscussionMenu from "./menus/DiscussionMenu";
+import { util } from "../lib/util";
 
 interface Props {
   discussionId: string | undefined;
@@ -101,15 +102,15 @@ function DiscussionSummary({ discussionId }: Props) {
             <ActionIcon color="dark" onClick={favouriteDiscussion}>
               <IconStar fill={discussion.favourited ? "currentColor" : "none"} />
             </ActionIcon>
-            <span>{discussion.favouriteCount}</span>
+            <span>{util.formatNumber(discussion.favouriteCount)}</span>
           </Flex>
           <Flex align="center">
             <IconMessages />
-            <span>{discussion.argumentCount}</span>
+            <span>{util.formatNumber(discussion.argumentCount)}</span>
           </Flex>
           <Flex align="center">
             <IconMessage />
-            <span>{discussion.commentCount}</span>
+            <span>{util.formatNumber(discussion.commentCount)}</span>
           </Flex>
           <Flex align="center">
             <IconActivity />

@@ -5,6 +5,7 @@ import { IconHandOff, IconUsers } from "@tabler/icons";
 import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
+import { util } from "../lib/util";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import { autoGrid, bgColorHover, colorBW, wrapContent } from "../styles/css";
@@ -69,11 +70,11 @@ function ProfileSummary({ user }: Props) {
 
         <Flex direction="row" wrap="wrap">
           <Text mr="xs">
-            {t("user.followers", { count: user.followerCount })}
+            {t("user.followers", { count: user.followerCount, number: util.formatNumber(user.followerCount) })}
           </Text>
 
           <Text>
-            {t("user.following", { count: user.followingCount })}
+            {t("user.following", { count: user.followingCount, number: util.formatNumber(user.followingCount) })}
           </Text>
         </Flex>
 

@@ -38,9 +38,9 @@
     "unfollow": "Unfollow",
     "followsYou": "Follows You",
     
-    "followers_one": "{{count}} Follower",
-    "followers_other": "{{count}} Followers",
-    "following": "{{count}} Following",
+    "followers_one": "{{number}} Follower",
+    "followers_other": "{{number}} Followers",
+    "following": "{{number}} Following",
 
     "search": "Enter @Username or Name",
     "searchLabel": "Search Users",

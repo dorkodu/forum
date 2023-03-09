@@ -4,6 +4,7 @@ import { IconArrowBigTop, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/
 import { MouseEvent, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { date } from "../lib/date";
+import { util } from "../lib/util";
 import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
@@ -87,7 +88,7 @@ function Argument({ argumentId }: Props) {
           />
         </ActionIcon>
 
-        <span>{argument.voteCount}</span>
+        <span>{util.formatNumber(argument.voteCount)}</span>
 
         <ActionIcon color="dark" onClick={() => voteArgument(false)}>
           <IconArrowBigDown
