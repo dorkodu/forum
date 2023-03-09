@@ -1,5 +1,5 @@
 import { IconRefresh } from "@tabler/icons";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import CardAlert from "../../components/cards/CardAlert";
@@ -15,6 +15,8 @@ import { useUserStore } from "../../stores/userStore";
 
 function ProfileRoute() {
   const { t } = useTranslation();
+
+  const [initial, setInitial] = useState(true);
   const state = useAppStore(state => state.options.profile);
   const username = useParams<{ username: string }>().username;
   const user = useUserStore(state => state.getUserByUsername(username));
@@ -81,8 +83,13 @@ function ProfileRoute() {
   }
 
   useEffect(() => {
-    !user && fetchRoute();
-    discussions.length === 0 && fetchDiscussions(state.order, false);
+    if (initial) {
+      setInitial(true);
+      !user && fetchRoute();
+    }
+    else {
+      discussions.length === 0 && fetchDiscussions(state.order, false);
+    }
   }, [state.order]);
 
   return (
