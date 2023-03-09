@@ -30,7 +30,6 @@ function Discussion({ discussionId }: Props) {
 
   const { t } = useTranslation();
 
-  const [initial, setInitial] = useState(true);
   const state = useAppStore(state => state.options.discussion);
   const setRequestLogin = useAppStore(state => state.setRequestLogin);
   const currentUserId = useAuthStore(state => state.userId);
@@ -226,13 +225,8 @@ function Discussion({ discussionId }: Props) {
   }
 
   useEffect(() => {
-    if (initial) {
-      setInitial(true);
-      !discussion?.readme && getDiscussion();
-    }
-    else {
-      getFeed(state.show).length === 0 && fetcher(state.show, false);
-    }
+    if (!discussion?.readme) getDiscussion();
+    else getFeed(state.show).length === 0 && fetcher(state.show, false);
   }, [state.show, state.argumentType, state.commentType]);
 
   return (

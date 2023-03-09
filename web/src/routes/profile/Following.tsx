@@ -1,5 +1,5 @@
 import { IconRefresh } from "@tabler/icons";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import CardAlert from "../../components/cards/CardAlert";
@@ -15,7 +15,6 @@ import { useUserStore } from "../../stores/userStore";
 function Following() {
   const { t } = useTranslation();
 
-  const [initial, setInitial] = useState(true);
   const state = useAppStore(state => state.options.following);
   const username = useParams<{ username: string }>().username;
   const user = useUserStore(state => state.getUserByUsername(username));
@@ -86,13 +85,8 @@ function Following() {
   }
 
   useEffect(() => {
-    if (initial) {
-      setInitial(true);
-      !user && fetchRoute();
-    }
-    else {
-      following.length === 0 && fetchFollowing(state.order, false);
-    }
+    if (!user) fetchRoute();
+    else following.length === 0 && fetchFollowing(state.order, false);
   }, [state.order]);
 
   return (
