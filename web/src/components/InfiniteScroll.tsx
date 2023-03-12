@@ -3,6 +3,7 @@ import React, { ReactElement, useMemo, useRef } from "react";
 import { IconArrowBigDownLineFilled } from "@tabler/icons-react";
 import { Flex } from "@mantine/core";
 import DefaultLoader from "./cards/DefaultLoader";
+import { css } from "@emotion/react";
 
 interface Props {
   children: React.ReactNode;
@@ -71,6 +72,8 @@ function InfiniteScroll({ children, refresh, next, hasMore }: Props) {
 
         pullingContent={PullingContent}
         refreshingContent={RefreshingContent}
+
+        className={css`overflow: visible;`.name}
       >
         {children as ReactElement}
       </InfiniteScrollComponent>
