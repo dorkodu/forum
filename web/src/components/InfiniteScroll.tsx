@@ -1,5 +1,5 @@
 import InfiniteScrollComponent from "react-simple-pull-to-refresh";
-import React, { ReactElement, useLayoutEffect, useRef } from "react";
+import React, { ReactElement, useMemo, useRef } from "react";
 import { IconArrowBigDownLineFilled } from "@tabler/icons-react";
 import { Flex } from "@mantine/core";
 import DefaultLoader from "./cards/DefaultLoader";
@@ -31,28 +31,28 @@ function InfiniteScroll({ children, refresh, next, hasMore }: Props) {
     working.current = false;
   }
 
-  const PullingContent = () => (
+  const PullingContent = useMemo(() => {
     // TODO: h={72} -> 72 is a magic number (56 + 16 (margin md) = 72)
-    <Flex direction="column" align="center" justify="center" h={72}>
-      <IconArrowBigDownLineFilled />
-    </Flex>
-  )
+    return (
+      <Flex direction="column" align="center" justify="center" h={72}>
+        <IconArrowBigDownLineFilled />
+      </Flex>
+    )
+  }, [])
 
-  const RefreshingContent = () => (
+  const RefreshingContent = useMemo(() => {
     // TODO: h={72} -> 72 is a magic number (56 + 16 (margin md) = 72)
-    <Flex
-      direction="column"
-      align="center"
-      justify="center"
-      h={40}
-      my="md"
-    >
-      <DefaultLoader />
-    </Flex>
-  )
-
-  useLayoutEffect(() => {
-
+    return (
+      <Flex
+        direction="column"
+        align="center"
+        justify="center"
+        h={40}
+        my="md"
+      >
+        <DefaultLoader />
+      </Flex>
+    )
   }, [])
 
   return (
@@ -69,8 +69,8 @@ function InfiniteScroll({ children, refresh, next, hasMore }: Props) {
         maxPullDownDistance={56 * 2}
         resistance={1}
 
-        pullingContent={<PullingContent />}
-        refreshingContent={<RefreshingContent />}
+        pullingContent={PullingContent}
+        refreshingContent={RefreshingContent}
       >
         {children as ReactElement}
       </InfiniteScrollComponent>
