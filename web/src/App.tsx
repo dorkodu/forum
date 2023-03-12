@@ -118,7 +118,14 @@ function App() {
             <IconArrowLeft />
           </ActionIcon>
 
-          <img src={ForumIcon} width={28} height={28} alt="Forum" />
+          <ActionIcon size={28}>
+            <img
+              src={ForumIcon} alt="Forum"
+              width={28} height={28}
+              onClick={routeHome}
+              draggable={false}
+            />
+          </ActionIcon>
 
           <ActionIcon
             color={route === "menu" ? "green" : "dark"}
