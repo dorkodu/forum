@@ -1,5 +1,5 @@
 import { Alert, Card, DefaultMantineColor } from "@mantine/core"
-import { IconAlertCircle, IconCircleCheck, IconInfoCircle } from "@tabler/icons";
+import { IconAlertCircle, IconCircleCheck, IconInfoCircle } from "@tabler/icons-react";
 
 interface Props {
   type: "success" | "error" | "info";

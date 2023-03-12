@@ -5,7 +5,7 @@ import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import {
   IconStar, IconMessage, IconMessages, IconActivity
-} from "@tabler/icons";
+} from "@tabler/icons-react";
 
 import { ActionIcon, Anchor, Card, Flex, Text, useMantineTheme } from "@mantine/core"
 import { date } from "../lib/date";

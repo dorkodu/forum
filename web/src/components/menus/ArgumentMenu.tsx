@@ -1,7 +1,7 @@
 import { IArgument } from "@api/types/argument";
 import { IUser } from "@api/types/user";
 import { ActionIcon, Menu } from "@mantine/core"
-import { IconDots, IconTrash } from "@tabler/icons"
+import { IconDots, IconTrash } from "@tabler/icons-react"
 import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../../stores/authStore";

@@ -1,7 +1,6 @@
 import { IArgument } from "@api/types/argument";
 import { IComment } from "@api/types/comment";
 import { Button, Card, Flex, SegmentedControl, Textarea } from "@mantine/core";
-import { IconRefresh } from "@tabler/icons";
 import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { request, sage } from "../stores/api";
@@ -233,13 +232,11 @@ function Discussion({ discussionId }: Props) {
     <InfiniteScroll
       refresh={getDiscussion}
       next={() => fetcher(state.show, false, true)}
-      length={getFeed(state.show).length}
       hasMore={getHasMore(state.show)}
-      hideLoader={!discussion}
     >
-      {!discussion || discussionProps.loading ?
+      {!discussion ?
         <>
-          {!discussionProps.loading && discussionProps.status === false &&
+          {discussionProps.status === false &&
             <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
           }
         </>
@@ -282,8 +279,7 @@ function Discussion({ discussionId }: Props) {
                         { label: t("older"), value: "older" },
                         { label: t("mostVoted"), value: "top" },
                         { label: t("leastVoted"), value: "bottom" },
-                      ],
-                      buttons: [{ icon: IconRefresh, onClick: getDiscussion }]
+                      ]
                     }
                   ]}
                 />
@@ -299,8 +295,7 @@ function Discussion({ discussionId }: Props) {
                       data: [
                         { label: t("newer"), value: "newer" },
                         { label: t("older"), value: "older" },
-                      ],
-                      buttons: [{ icon: IconRefresh, onClick: getDiscussion }]
+                      ]
                     }
                   ]}
                 />

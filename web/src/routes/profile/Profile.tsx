@@ -1,4 +1,3 @@
-import { IconRefresh } from "@tabler/icons";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -90,11 +89,9 @@ function ProfileRoute() {
     <InfiniteScroll
       refresh={fetchRoute}
       next={() => fetchDiscussions(state.order, false, true)}
-      length={discussions.length}
       hasMore={discussionProps.hasMore}
-      hideLoader={!user}
     >
-      {!user || userProps.loading ?
+      {!user ?
         <>
           {userProps.status === false &&
             <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
@@ -115,8 +112,7 @@ function ProfileRoute() {
                 data: [
                   { label: t("newer"), value: "newer" },
                   { label: t("older"), value: "older" },
-                ],
-                buttons: [{ icon: IconRefresh, onClick: fetchRoute }]
+                ]
               },
             ]}
           />

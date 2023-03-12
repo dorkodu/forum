@@ -1,7 +1,7 @@
 import { IUser } from "@api/types/user";
 import { css } from "@emotion/react";
 import { Anchor, Button, Card, Flex, Text, useMantineTheme, } from "@mantine/core";
-import { IconCalendar, IconHandOff, IconUsers } from "@tabler/icons";
+import { IconCalendar, IconHandOff, IconUsers } from "@tabler/icons-react";
 import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"

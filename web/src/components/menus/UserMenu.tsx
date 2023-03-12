@@ -1,6 +1,6 @@
 import { IUser } from "@api/types/user";
 import { ActionIcon, Menu } from "@mantine/core"
-import { IconClipboardText, IconDots, IconHandOff, IconHandStop, IconShare } from "@tabler/icons"
+import { IconClipboardText, IconDots, IconHandOff, IconHandStop, IconShare } from "@tabler/icons-react"
 import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { util } from "../../lib/util";

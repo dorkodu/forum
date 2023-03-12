@@ -1,5 +1,5 @@
 import { ActionIcon, Menu } from "@mantine/core"
-import { IconDots } from "@tabler/icons"
+import { IconDots } from "@tabler/icons-react"
 
 function NotificationMenu() {
   return (

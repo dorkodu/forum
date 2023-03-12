@@ -1,7 +1,7 @@
 import { IDiscussion } from "@api/types/discussion";
 import { IUser } from "@api/types/user";
 import { ActionIcon, Menu } from "@mantine/core"
-import { IconClipboardText, IconDots, IconEdit, IconShare, IconTrash } from "@tabler/icons"
+import { IconClipboardText, IconDots, IconEdit, IconShare, IconTrash } from "@tabler/icons-react"
 import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";

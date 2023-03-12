@@ -8,7 +8,6 @@ import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import { useAppStore } from "../stores/appStore";
 import InfiniteScroll from "../components/InfiniteScroll";
-import { IconRefresh } from "@tabler/icons";
 
 function Home() {
   const { t } = useTranslation();
@@ -179,7 +178,6 @@ function Home() {
     <InfiniteScroll
       refresh={() => fetcher(state.feed, true)}
       next={() => fetcher(state.feed, false, true)}
-      length={getFeed(state.feed).length}
       hasMore={getHasMore(state.feed)}
     >
       <CardPanel
@@ -201,8 +199,7 @@ function Home() {
             data: [
               { label: t("newer"), value: "newer" },
               { label: t("older"), value: "older" },
-            ],
-            buttons: [{ icon: IconRefresh, onClick: () => fetcher(state.feed, true) }]
+            ]
           },
         ]}
       />

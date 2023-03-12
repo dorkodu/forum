@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
 import { ActionIcon, Anchor, Card, Flex, Text, useMantineTheme } from "@mantine/core";
-import { IconArrowBigTop, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons";
+import { IconArrowBigUp, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons-react";
 import { MouseEvent, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { date } from "../lib/date";
@@ -83,7 +83,7 @@ function Argument({ argumentId }: Props) {
         {argument.type ? <IconPlus /> : <IconMinus />}
 
         <ActionIcon color="dark" onClick={() => voteArgument(true)}>
-          <IconArrowBigTop
+          <IconArrowBigUp
             fill={argument.voted && (argument.votedType ? "currentColor" : "none") || "none"}
           />
         </ActionIcon>

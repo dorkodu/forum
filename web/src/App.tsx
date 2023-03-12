@@ -1,6 +1,6 @@
 import { css, Global } from "@emotion/react";
 import { ActionIcon, AppShell, Card, ColorScheme, ColorSchemeProvider, Flex, Footer, Header, Indicator, MantineProvider } from "@mantine/core";
-import { IconArrowLeft, IconBell, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons";
+import { IconArrowLeft, IconBell, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons-react";
 import { Suspense, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAppStore } from "./stores/appStore";

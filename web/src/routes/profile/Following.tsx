@@ -1,4 +1,3 @@
-import { IconRefresh } from "@tabler/icons";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -93,11 +92,9 @@ function Following() {
     <InfiniteScroll
       refresh={fetchRoute}
       next={() => fetchFollowing(state.order, false, true)}
-      length={following.length}
       hasMore={followingProps.hasMore}
-      hideLoader={!user}
     >
-      {!user || userProps.loading ?
+      {!user ?
         <>
           {userProps.status === false &&
             <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
@@ -118,8 +115,7 @@ function Following() {
                 data: [
                   { label: t("newer"), value: "newer" },
                   { label: t("older"), value: "older" },
-                ],
-                buttons: [{ icon: IconRefresh, onClick: fetchRoute }]
+                ]
               },
             ]}
           />
