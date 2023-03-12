@@ -1,5 +1,5 @@
 import InfiniteScrollComponent from "react-simple-pull-to-refresh";
-import React, { ReactElement, useMemo, useRef } from "react";
+import React, { ReactElement, useLayoutEffect, useMemo, useRef } from "react";
 import { IconArrowBigDownLineFilled } from "@tabler/icons-react";
 import { Flex } from "@mantine/core";
 import DefaultLoader from "./cards/DefaultLoader";
@@ -15,6 +15,7 @@ interface Props {
 }
 
 function InfiniteScroll({ children, refresh, next, hasMore }: Props) {
+  const ref = useRef<HTMLDivElement | null>(null);
   const working = useRef(false);
   const promise = useRef<Promise<any>>(Promise.resolve())
 
@@ -56,8 +57,13 @@ function InfiniteScroll({ children, refresh, next, hasMore }: Props) {
     )
   }, [])
 
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    (ref.current.firstChild as HTMLElement).style.overflow = "visible";
+  }, []);
+
   return (
-    <Flex direction="column">
+    <Flex direction="column" ref={ref} css={css`height: 100%;`}>
       <InfiniteScrollComponent
         onFetchMore={doNext}
         canFetchMore={hasMore}
@@ -72,8 +78,6 @@ function InfiniteScroll({ children, refresh, next, hasMore }: Props) {
 
         pullingContent={PullingContent}
         refreshingContent={RefreshingContent}
-
-        className={css`overflow: visible;`.name}
       >
         {children as ReactElement}
       </InfiniteScrollComponent>
