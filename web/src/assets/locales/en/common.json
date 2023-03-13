@@ -17,6 +17,10 @@
   "favouriteFeed": "Favourite Feed",
   "guestFeed": "Guest Feed",
 
+  "mode": "Mode",
+  "editMode": "Edit",
+  "previewMode": "Preview",
+
 
   "login": "Log In",
   "logout": "Log Out",

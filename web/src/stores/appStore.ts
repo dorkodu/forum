@@ -44,6 +44,13 @@ interface State {
     }
 
     notifications: { order: "newer" | "older" };
+
+    discussionEditor: {
+      id: string | undefined;
+      title: string;
+      readme: string;
+      mode: "edit" | "preview";
+    }
   }
 }
 
@@ -81,6 +88,7 @@ const initialState: State = {
       argumentType: "newer",
     },
     notifications: { order: "newer" },
+    discussionEditor: { id: undefined, title: "", readme: "", mode: "edit" },
   },
 }
 

@@ -28,15 +28,15 @@ export const router = createBrowserRouter(
       <Route path="/profile/:username/followers" element={<Follower />} />
       <Route path="/profile/:username/following" element={<Following />} />
       <Route path="/discussion/:id" element={<Discussion />} />
-      <Route path="/discussion-editor" element={<DiscussionEditor />} />
-      <Route path="/discussion-editor/:id" element={<DiscussionEditor />} />
       <Route path="/search" element={<Search />} />
-      <Route path="/notifications" element={<Notifications />} />
       <Route path="/menu" element={<Menu />} />
       <Route path="/dorkodu-id" element={<DorkoduID />} />
 
       {/* Routes that require authentication */}
       <Route element={<RequireAuth />}>
+        <Route path="/discussion-editor" element={<DiscussionEditor />} />
+        <Route path="/discussion-editor/:id" element={<DiscussionEditor />} />
+        <Route path="/notifications" element={<Notifications />} />
       </Route>
 
       {/* Error routes & catch all */}

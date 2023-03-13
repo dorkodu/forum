@@ -17,6 +17,10 @@
   "favouriteFeed": "Favori Akışı",
   "guestFeed": "Misafir Akışı",
 
+  "mode": "Mod",
+  "editMode": "Düzenle",
+  "previewMode": "Önizleme",
+
 
   "login": "Giriş Yap",
   "logout": "Çıkış Yap",

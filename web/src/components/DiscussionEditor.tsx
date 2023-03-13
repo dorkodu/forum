@@ -1,38 +1,31 @@
-import { Button, Card, Textarea, TextInput } from "@mantine/core";
+import { Button, Card, Flex, Text, Textarea, TextInput } from "@mantine/core";
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { request, sage } from "../stores/api";
 import { useAppStore } from "../stores/appStore";
-import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
+import { wrapContent } from "../styles/css";
 import CardLoader from "./cards/CardLoader";
+import { CardPanel } from "./cards/CardPanel";
 import OverlayLoader from "./cards/OverlayLoader";
 import { useWait } from "./hooks";
+import TextParser from "./TextParser";
 
 interface Props {
   id: string | undefined;
 }
 
 interface State {
-  initial: boolean;
-
   loading: boolean;
   status: boolean | undefined;
-
-  title: string;
-  readme: string;
 }
 
 function DiscussionEditor({ id }: Props) {
-  const [state, setState] = useState<State>(
-    { title: "", readme: "", initial: true, loading: !!id, status: undefined }
-  );
+  const discussion = useAppStore(state => state.options.discussionEditor);
+  const [state, setState] = useState<State>({ loading: !!id, status: undefined });
 
   const { t } = useTranslation();
-
-  const setRequestLogin = useAppStore(state => state.setRequestLogin);
-  const currentUserId = useAuthStore(state => state.userId);
 
   const navigate = useNavigate();
   const queryCreateDiscussion = useDiscussionStore(state => state.queryCreateDiscussion);
@@ -41,14 +34,14 @@ function DiscussionEditor({ id }: Props) {
   const createDiscussion = async () => {
     if (state.loading) return;
 
-    if (state.title.length === 0) return;
-    if (state.title.length > 100) return;
-    if (state.readme.length === 0) return;
-    if (state.readme.length > 100000) return;
+    if (discussion.title.length === 0) return;
+    if (discussion.title.length > 100) return;
+    if (discussion.readme.length === 0) return;
+    if (discussion.readme.length > 100000) return;
 
-    setState({ ...state, loading: true, status: undefined });
-    const res = await useWait(() => queryCreateDiscussion(state.title, state.readme))();
-    setState({ ...state, loading: false, status: res.status });
+    setState(s => ({ ...s, loading: true, status: undefined }));
+    const res = await useWait(() => queryCreateDiscussion(discussion.title, discussion.readme))();
+    setState(s => ({ ...s, loading: false, status: res.status }));
     if (res.id) navigate(`/discussion/${res.id}`);
   }
 
@@ -56,14 +49,14 @@ function DiscussionEditor({ id }: Props) {
     if (state.loading) return;
     if (!id) return;
 
-    if (state.title.length === 0) return;
-    if (state.title.length > 100) return;
-    if (state.readme.length === 0) return;
-    if (state.readme.length > 100000) return;
+    if (discussion.title.length === 0) return;
+    if (discussion.title.length > 100) return;
+    if (discussion.readme.length === 0) return;
+    if (discussion.readme.length > 100000) return;
 
-    setState({ ...state, loading: true, status: undefined });
-    const status = await useWait(() => queryEditDiscussion(id, state.title, state.readme))();
-    setState({ ...state, loading: false, status: status });
+    setState(s => ({ ...s, loading: true, status: undefined }));
+    const status = await useWait(() => queryEditDiscussion(id, discussion.title, discussion.readme))();
+    setState(s => ({ ...s, loading: false, status: status }));
     navigate(`/discussion/${id}`);
   }
 
@@ -79,54 +72,100 @@ function DiscussionEditor({ id }: Props) {
     return { status, title: discussion?.title ?? "", readme: discussion?.readme ?? "" };
   }
 
-  useEffect(() => {
-    (async () => {
-      // If user is trying to create discussion while not being logged in
-      if (!currentUserId) {
-        setRequestLogin(true);
-        navigate("/home");
-        return;
-      }
+  const fetchRoute = async () => {
+    if (!id || discussion.id === id) return;
 
-      if (!id) return;
-      setState({ ...state, loading: true, status: undefined });
-      const out = await useWait(() => fetchDiscussion(id))();
-      setState({ ...state, ...out, loading: false, initial: false });
-    })();
-  }, []);
+    setState(s => ({ ...s, loading: true, status: undefined }));
+    const out = await useWait(() => fetchDiscussion(id))();
+    setState(s => ({ ...s, loading: false, status: out.status }));
 
-  if (!currentUserId) return (<></>)
+    useAppStore.setState(s => {
+      s.options.discussionEditor.id = id;
+      s.options.discussionEditor.title = out.title;
+      s.options.discussionEditor.readme = out.readme;
+    })
+  }
 
-  if (id && state.initial && state.loading) return <CardLoader />
+  const changeMode = (value: string) => {
+    if (value === "edit" || value === "preview") {
+      useAppStore.setState(s => { s.options.discussionEditor.mode = value });
+    }
+  }
+
+  useEffect(() => { fetchRoute() }, []);
+
+  if (id && state.loading) return <CardLoader />
 
   return (
     <Card shadow="sm" p="md" m="md" radius="md" withBorder>
-      {state.loading && <OverlayLoader />}
+      <Flex direction="column" gap="md">
+        {state.loading && <OverlayLoader />}
 
-      <TextInput
-        radius="md"
-        label={`${t("discussion.titleLabel")} (${state.title.length} / 100)`}
-        description={t("discussion.titleDescription")}
-        placeholder={t("discussion.title")}
-        defaultValue={state.title}
-        onChange={(ev) => { setState({ ...state, title: ev.target.value }) }}
-        pb="md"
-      />
+        <CardPanel.Segments
+          segments={[
+            {
+              value: discussion.mode,
+              setValue: changeMode,
+              label: t("mode"),
+              data: [
+                { label: t("editMode"), value: "edit" },
+                { label: t("previewMode"), value: "preview" },
+              ]
+            }
+          ]}
+        />
 
-      <Textarea
-        radius="md"
-        label={`${t("discussion.readmeLabel")} (${state.readme.length} / 100000)`}
-        description={t("discussion.readmeDescription")}
-        placeholder={t("discussion.readme")}
-        defaultValue={state.readme}
-        onChange={(ev) => setState({ ...state, readme: ev.target.value })}
-        autosize
-        pb="md"
-      />
+        {discussion.mode === "edit" &&
+          <>
+            <TextInput
+              radius="md"
+              label={`${t("discussion.titleLabel")} (${discussion.title.length} / 100)`}
+              description={t("discussion.titleDescription")}
+              placeholder={t("discussion.title")}
+              defaultValue={discussion.title}
+              onChange={(ev) => useAppStore.setState(s => { s.options.discussionEditor.title = ev.target.value })}
+            />
 
-      <Button onClick={id ? editDiscussion : createDiscussion} color="dark" radius="md">
-        {id ? t("discussion.edit") : t("discussion.create")}
-      </Button>
+            <Textarea
+              radius="md"
+              label={`${t("discussion.readmeLabel")} (${discussion.readme.length} / 100000)`}
+              description={t("discussion.readmeDescription")}
+              placeholder={t("discussion.readme")}
+              defaultValue={discussion.readme}
+              onChange={(ev) => useAppStore.setState(s => { s.options.discussionEditor.readme = ev.target.value })}
+              autosize
+            />
+
+            <Flex>
+              <Button onClick={id ? editDiscussion : createDiscussion} color="dark" radius="md">
+                {id ? t("discussion.edit") : t("discussion.create")}
+              </Button>
+            </Flex>
+          </>
+        }
+
+        {discussion.mode === "preview" &&
+          <>
+            <Flex direction="column">
+              {t("discussion.titleLabel")}
+              <Card withBorder>
+                <Text css={wrapContent}>
+                  <TextParser text={discussion.title} />
+                </Text>
+              </Card>
+            </Flex>
+
+            <Flex direction="column">
+              {t("discussion.readmeLabel")}
+              <Card withBorder>
+                <Text css={wrapContent}>
+                  <TextParser text={discussion.readme} />
+                </Text>
+              </Card>
+            </Flex>
+          </>
+        }
+      </Flex>
     </Card>
   )
 }

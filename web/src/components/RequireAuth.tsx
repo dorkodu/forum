@@ -4,7 +4,7 @@ import { useAuthStore } from "../stores/authStore"
 function RequireAuth() {
   const authorized = useAuthStore(state => state.userId);
 
-  return authorized ? <Outlet /> : < Navigate to="/welcome" replace />
+  return authorized ? <Outlet /> : < Navigate to="/home" replace />
 }
 
 export default RequireAuth
