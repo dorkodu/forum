@@ -3,19 +3,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
-import {
-  IconStar, IconMessage, IconMessages, IconActivity
-} from "@tabler/icons-react";
-
-import { ActionIcon, Anchor, Card, Flex, Text, useMantineTheme } from "@mantine/core"
-import { date } from "../lib/date";
-import { css } from "@emotion/react";
-import { useTranslation } from "react-i18next";
-import { autoGrid, bgColorHover, colorBW, nowrap, wrapContent } from "../styles/css";
+import { IconStar, IconMessage, IconMessages } from "@tabler/icons-react";
+import { ActionIcon, Flex } from "@mantine/core"
 import { useAppStore } from "../stores/appStore";
-import TextParser, { PieceType } from "./TextParser";
 import DiscussionMenu from "./menus/DiscussionMenu";
 import { util } from "../lib/util";
+import CardEntity from "./cards/CardEntity";
 
 interface Props {
   discussionId: string | undefined;
@@ -29,8 +22,6 @@ interface State {
 function DiscussionSummary({ discussionId }: Props) {
   const [state, setState] = useState<State>({ loading: false, status: undefined });
 
-  const theme = useMantineTheme();
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -73,31 +64,20 @@ function DiscussionSummary({ discussionId }: Props) {
   if (!discussion || !user) return (<></>)
 
   return (
-    <Card css={css`overflow: visible; ${bgColorHover(theme)}`} shadow="sm" p="md" m="md" radius="md" withBorder onClick={gotoDiscussion}>
-      <Flex direction="column">
-        <Flex align="center" justify="space-between">
-          <Flex miw={0}>
-            <Anchor href={`/profile/${user.username}`} css={colorBW(theme)} onClick={gotoUser}>
-              <Flex miw={0} css={autoGrid}>
-                <Text truncate pr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
-                <Text>@</Text>
-                <Text truncate>{user.username}</Text>
-              </Flex>
-            </Anchor>
-            <Text mx={4}>·</Text>
-            <Text css={nowrap} mr={4} title={date(discussion.date).format('lll')}>
-              {date(discussion.date).fromNow()}
-            </Text>
-          </Flex>
+    <CardEntity
+      user={user}
+      entity={{
+        content: discussion.title,
+        date: discussion.date,
+        updateDate: discussion.lastUpdateDate,
+      }}
 
-          <DiscussionMenu user={user} discussion={discussion} />
-        </Flex>
+      onClickCard={gotoDiscussion}
+      onClickUser={gotoUser}
 
-        <Text css={wrapContent} my="xs">
-          <TextParser text={discussion.title} />
-        </Text>
-
-        <Flex align="center" gap="xs">
+      componentMenu={<DiscussionMenu user={user} discussion={discussion} />}
+      componentBottom={
+        <Flex direction="row" gap="xs">
           <Flex align="center">
             <ActionIcon color="dark" onClick={favouriteDiscussion}>
               <IconStar fill={discussion.favourited ? "currentColor" : "none"} />
@@ -112,18 +92,9 @@ function DiscussionSummary({ discussionId }: Props) {
             <IconMessage />
             <span>{util.formatNumber(discussion.commentCount)}</span>
           </Flex>
-          <Flex align="center">
-            <IconActivity />
-            <span>
-              {discussion.lastUpdateDate === -1 ?
-                t("discussion.never") :
-                date(discussion.lastUpdateDate).fromNow()
-              }
-            </span>
-          </Flex>
         </Flex>
-      </Flex>
-    </Card>
+      }
+    />
   )
 }
 

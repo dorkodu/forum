@@ -1,17 +1,14 @@
-import { css } from "@emotion/react";
-import { ActionIcon, Anchor, Card, Flex, Text, useMantineTheme } from "@mantine/core";
+import { ActionIcon, Flex } from "@mantine/core";
 import { IconArrowBigUp, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons-react";
 import { MouseEvent, useState } from "react"
 import { useNavigate } from "react-router-dom";
-import { date } from "../lib/date";
 import { util } from "../lib/util";
 import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
-import { autoGrid, colorBW, nowrap, wrapContent } from "../styles/css";
+import CardEntity from "./cards/CardEntity";
 import ArgumentMenu from "./menus/ArgumentMenu";
-import TextParser, { PieceType } from "./TextParser";
 
 interface Props {
   argumentId: string;
@@ -25,7 +22,6 @@ interface State {
 function Argument({ argumentId }: Props) {
   const [state, setState] = useState<State>({ loading: false, status: undefined });
 
-  const theme = useMantineTheme();
   const navigate = useNavigate();
   const setRequestLogin = useAppStore(state => state.setRequestLogin);
   const queryVoteArgument = useDiscussionStore(state => state.queryVoteArgument);
@@ -56,47 +52,36 @@ function Argument({ argumentId }: Props) {
   if (!argument || !user) return (<></>)
 
   return (
-    <Card css={css`overflow: visible;`} shadow="sm" p="md" m="md" radius="md" withBorder>
-      <Flex align="center" justify="space-between">
-        <Flex miw={0}>
-          <Anchor href={`/profile/${user.username}`} css={colorBW(theme)} onClick={gotoUser}>
-            <Flex miw={0} css={autoGrid}>
-              <Text truncate mr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
-              <Text>@</Text>
-              <Text truncate>{user.username}</Text>
-            </Flex>
-          </Anchor>
-          <Text mx={4}>·</Text>
-          <Text css={nowrap} mr={4} title={date(argument.date).format('lll')}>
-            {date(argument.date).fromNow()}
-          </Text>
+    <CardEntity
+      user={user}
+      entity={{
+        content: argument.content,
+        date: argument.date
+      }}
+
+      onClickUser={gotoUser}
+
+      componentMenu={<ArgumentMenu user={user} argument={argument} />}
+      componentBottom={
+        <Flex align="center">
+          {argument.type ? <IconPlus /> : <IconMinus />}
+
+          <ActionIcon color="dark" onClick={() => voteArgument(true)}>
+            <IconArrowBigUp
+              fill={argument.voted && (argument.votedType ? "currentColor" : "none") || "none"}
+            />
+          </ActionIcon>
+
+          <span>{util.formatNumber(argument.voteCount)}</span>
+
+          <ActionIcon color="dark" onClick={() => voteArgument(false)}>
+            <IconArrowBigDown
+              fill={argument.voted && (!argument.votedType ? "currentColor" : "none") || "none"}
+            />
+          </ActionIcon>
         </Flex>
-
-        <ArgumentMenu user={user} argument={argument} />
-      </Flex>
-
-      <Text css={wrapContent} my="xs">
-        <TextParser text={argument.content} />
-      </Text>
-
-      <Flex align="center">
-        {argument.type ? <IconPlus /> : <IconMinus />}
-
-        <ActionIcon color="dark" onClick={() => voteArgument(true)}>
-          <IconArrowBigUp
-            fill={argument.voted && (argument.votedType ? "currentColor" : "none") || "none"}
-          />
-        </ActionIcon>
-
-        <span>{util.formatNumber(argument.voteCount)}</span>
-
-        <ActionIcon color="dark" onClick={() => voteArgument(false)}>
-          <IconArrowBigDown
-            fill={argument.voted && (!argument.votedType ? "currentColor" : "none") || "none"}
-          />
-        </ActionIcon>
-      </Flex>
-    </Card>
+      }
+    />
   )
 }
 

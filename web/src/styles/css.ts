@@ -4,10 +4,8 @@ import { MantineTheme } from "@mantine/core";
 export const nowrap = css`white-space: nowrap;`
 export const wrapContent = css`white-space: pre-wrap; word-break: break-word;`
 
-export const autoGrid = css`
-  display: grid;
-  grid-template-columns: auto auto auto;
-`
+export const flexGrow = css`flex-grow: 1;`
+export const autoGrid = css`display: grid; grid-template-columns: auto auto auto;`
 
 export const colorBW = (theme: MantineTheme) => css`
   color: ${theme.colorScheme === "light" ? theme.colors.dark[8] : theme.colors.dark[0]};
