@@ -1,6 +1,6 @@
 import { IUser } from "@api/types/user";
 import { css } from "@emotion/react";
-import { Anchor, Button, Card, Flex, Text, useMantineTheme, } from "@mantine/core";
+import { Anchor, Avatar, Button, Card, Flex, Text, useMantineTheme, } from "@mantine/core";
 import { IconCalendar, IconHandOff, IconUsers } from "@tabler/icons-react";
 import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,8 @@ import { colorBW, wrapContent } from "../styles/css";
 import TextParser, { PieceType } from "./TextParser";
 import UserMenu from "./menus/UserMenu";
 import { util } from "../lib/util";
+import AvatarWebp from "../assets/avatar.webp";
+import { tokens } from "@dorkodu/prism";
 
 interface Props {
   user: IUser;
@@ -56,23 +58,27 @@ function Profile({ user }: Props) {
   return (
     <Card css={css`overflow: visible;`} shadow="sm" p="md" m="md" radius="md" withBorder>
       <Flex direction="column" gap="xs">
-        <Flex direction="column">
-          <Flex justify="space-between" gap="xs">
-            <Flex align="center">
-              <Text css={wrapContent}>
-                <TextParser text={user.name} types={[PieceType.Emoji]} />
-              </Text>
-            </Flex>
-
-            <Flex align="flex-start"><UserMenu user={user} /></Flex>
-          </Flex>
-
-          <Text css={wrapContent}>@{user.username}</Text>
+        <Flex direction="row" justify="space-between">
+          <Avatar src={AvatarWebp} size={100} radius="md" />
+          <UserMenu user={user} />
         </Flex>
 
-        {user.bio.length !== 0 &&
-          <Text css={wrapContent}><TextParser text={user.bio} /></Text>
-        }
+        <Flex direction="column">
+          <Flex direction="column">
+            <Text size="xl" weight={600} css={wrapContent}>
+              <TextParser text={user.name} types={[PieceType.Emoji]} />
+            </Text>
+
+            <Flex>
+              <Text style={{ color: tokens.color.gray(50), fontWeight: 750 }}>@</Text>
+              <Text weight={500} css={wrapContent}>{user.username}</Text>
+            </Flex>
+          </Flex>
+
+          {user.bio.length !== 0 &&
+            <Text size="sm" color="dimmed" css={wrapContent}><TextParser text={user.bio} /></Text>
+          }
+        </Flex>
 
         <Flex align="center" gap="xs">
           <IconCalendar />
