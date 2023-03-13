@@ -31,6 +31,8 @@ function Notification({ notification }: Props) {
 
     if (childId) {
       switch (notification.type) {
+        case notificationTypes.argumentVote:
+          return navigate(`/discussion/${discussionId}?argument=${childId}`);
         case notificationTypes.discussionArgument:
           return navigate(`/discussion/${discussionId}?argument=${childId}`);
         case notificationTypes.discussionComment:
