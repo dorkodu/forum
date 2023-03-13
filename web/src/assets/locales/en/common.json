@@ -107,5 +107,12 @@
     "discussionComment": "Created a comment in your discussion.",
 
     "argumentVote": "Voted your argument."
+  },
+
+  "requirements": {
+    "titleLength": "1-100 characters.",
+    "readmeLength": "1-100000 characters.",
+    "argumentLength": "1-500 characters.",
+    "commentLength": "1-500 characters."
   }
 }

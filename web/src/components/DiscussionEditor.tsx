@@ -1,4 +1,6 @@
-import { Button, Card, Flex, Text, Textarea, TextInput } from "@mantine/core";
+import { Alert, Button, Card, Flex, Text, Textarea, TextInput } from "@mantine/core";
+import { useFocusWithin } from "@mantine/hooks";
+import { IconAlertCircle } from "@tabler/icons-react";
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +12,7 @@ import CardLoader from "./cards/CardLoader";
 import { CardPanel } from "./cards/CardPanel";
 import OverlayLoader from "./cards/OverlayLoader";
 import { useWait } from "./hooks";
+import InputRequirements, { getRequirement, getRequirementError } from "./popovers/InputRequirements";
 import TextParser from "./TextParser";
 
 interface Props {
@@ -92,6 +95,18 @@ function DiscussionEditor({ id }: Props) {
     }
   }
 
+  // Necessary stuff for input validation & error messages
+  const [inputReady, setInputReady] = useState({ title: false, readme: false });
+  const { ref: titleRef, focused: titleFocused } = useFocusWithin();
+  const { ref: readmeRef, focused: readmeFocused } = useFocusWithin();
+  useEffect(() => {
+    setInputReady(s => ({
+      ...s,
+      title: titleFocused || s.title,
+      readme: readmeFocused || s.readme,
+    }))
+  }, [titleFocused, readmeFocused]);
+
   useEffect(() => { fetchRoute() }, []);
 
   if (id && state.loading) return <CardLoader />
@@ -117,37 +132,60 @@ function DiscussionEditor({ id }: Props) {
 
         {discussion.mode === "edit" &&
           <>
-            <TextInput
-              radius="md"
-              label={`${t("discussion.titleLabel")} (${discussion.title.length} / 100)`}
-              description={t("discussion.titleDescription")}
-              placeholder={t("discussion.title")}
-              defaultValue={discussion.title}
-              onChange={(ev) => useAppStore.setState(s => { s.options.discussionEditor.title = ev.target.value })}
-            />
+            <InputRequirements
+              value={discussion.title}
+              requirements={getRequirement(t, "title")}
+            >
+              <TextInput
+                radius="md"
+                label={`${t("discussion.titleLabel")} (${discussion.title.length} / 100)`}
+                placeholder={t("discussion.title")}
+                defaultValue={discussion.title}
+                onChange={(ev) => useAppStore.setState(s => { s.options.discussionEditor.title = ev.target.value })}
+                error={inputReady.title && !titleFocused && getRequirementError(t, "title", discussion.title)}
+                ref={titleRef}
+              />
+            </InputRequirements>
 
-            <Textarea
-              radius="md"
-              label={`${t("discussion.readmeLabel")} (${discussion.readme.length} / 100000)`}
-              description={t("discussion.readmeDescription")}
-              placeholder={t("discussion.readme")}
-              defaultValue={discussion.readme}
-              onChange={(ev) => useAppStore.setState(s => { s.options.discussionEditor.readme = ev.target.value })}
-              autosize
-            />
+            <InputRequirements
+              value={discussion.readme}
+              requirements={getRequirement(t, "readme")}
+            >
+              <Textarea
+                radius="md"
+                label={`${t("discussion.readmeLabel")} (${discussion.readme.length} / 100000)`}
+                placeholder={t("discussion.readme")}
+                defaultValue={discussion.readme}
+                onChange={(ev) => useAppStore.setState(s => { s.options.discussionEditor.readme = ev.target.value })}
+                autosize
+                error={inputReady.readme && !readmeFocused && getRequirementError(t, "readme", discussion.readme)}
+                ref={readmeRef}
+              />
+            </InputRequirements>
 
             <Flex>
               <Button onClick={id ? editDiscussion : createDiscussion} color="dark" radius="md">
                 {id ? t("discussion.edit") : t("discussion.create")}
               </Button>
             </Flex>
+
+            {state.status === false &&
+              <Alert
+                icon={<IconAlertCircle size={24} />}
+                title={t("error.text")}
+                color="red"
+                variant="light"
+              >
+                {t("error.default")}
+              </Alert>
+            }
           </>
         }
 
         {discussion.mode === "preview" &&
           <>
             <Flex direction="column">
-              {t("discussion.titleLabel")}
+              <Text weight={500} size="sm">{t("discussion.titleLabel")}</Text>
               <Card withBorder>
                 <Text css={wrapContent}>
                   <TextParser text={discussion.title} />
@@ -156,7 +194,7 @@ function DiscussionEditor({ id }: Props) {
             </Flex>
 
             <Flex direction="column">
-              {t("discussion.readmeLabel")}
+              <Text weight={500} size="sm">{t("discussion.readmeLabel")}</Text>
               <Card withBorder>
                 <Text css={wrapContent}>
                   <TextParser text={discussion.readme} />

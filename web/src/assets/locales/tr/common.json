@@ -106,5 +106,12 @@
     "discussionComment": "Tartışmanıza yorum yolladı.",
 
     "argumentVote": "Argümanınızı oyladı."
+  },
+
+  "requirements": {
+    "titleLength": "1-100 karakter.",
+    "readmeLength": "1-100000 karakter.",
+    "argumentLength": "1-500 karakter.",
+    "commentLength": "1-500 karakter."
   }
 }

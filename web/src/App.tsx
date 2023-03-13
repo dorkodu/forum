@@ -176,7 +176,7 @@ function App() {
           <AppShell padding={0} header={<AppHeader />} footer={<AppFooter />}>
             <Suspense fallback={<CenterLoader />}>
               {(loading.auth || loading.locale) && <OverlayLoader full={true} />}
-              <Outlet />
+              {!loading.auth && <Outlet />}
               <RequestLogin />
               {needRefresh && <UpdateSW updateSW={updateServiceWorker} />}
             </Suspense>
