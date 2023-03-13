@@ -63,15 +63,15 @@ export function getRequirement(t: TFunction<"common", undefined>, requirement: R
       ]
     case "readme":
       return [
-        { req: /^.{1,100000}$/, label: t("requirements.readmeLength"), hidden: true },
+        { req: /^[\s\S]{1,100000}$/, label: t("requirements.readmeLength"), hidden: true },
       ]
     case "argument":
       return [
-        { req: /^.{1,500}$/, label: t("requirements.argumentLength"), hidden: true },
+        { req: /^[\s\S]{1,500}$/, label: t("requirements.argumentLength"), hidden: true },
       ]
     case "comment":
       return [
-        { req: /^.{1,500}$/, label: t("requirements.commentLength"), hidden: true },
+        { req: /^[\s\S]{1,500}$/, label: t("requirements.commentLength"), hidden: true },
       ]
   }
 }
