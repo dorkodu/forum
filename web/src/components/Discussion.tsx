@@ -1,6 +1,6 @@
 import { IArgument } from "@api/types/argument";
 import { IComment } from "@api/types/comment";
-import { Button, Card, Flex, SegmentedControl, Textarea } from "@mantine/core";
+import { Button, Card, Divider, Flex, SegmentedControl, Textarea } from "@mantine/core";
 import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { request, sage } from "../stores/api";
@@ -21,9 +21,13 @@ import TextParser from "./TextParser";
 
 interface Props {
   discussionId: string | undefined;
+
+  // Highlights particular argument/comment. Mainly used by notifications.
+  argumentId?: string;
+  commentId?: string;
 }
 
-function Discussion({ discussionId }: Props) {
+function Discussion({ discussionId, argumentId, commentId }: Props) {
   const [argument, setArgument] = useState<{ text: string, type: boolean }>({ text: "", type: true });
   const [comment, setComment] = useState<{ text: string }>({ text: "" });
 
@@ -41,6 +45,8 @@ function Discussion({ discussionId }: Props) {
   const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
   const comments = useDiscussionStore(_state => _state.getComments(discussionId, state.commentType));
   const _arguments = useDiscussionStore(_state => _state.getArguments(discussionId, state.argumentType));
+  const discussionArgument = useDiscussionStore(state => argumentId ? state.argument.entities[argumentId] : undefined);
+  const discussionComment = useDiscussionStore(state => commentId ? state.comment.entities[commentId] : undefined);
 
   const argumentInputRef = useRef<HTMLTextAreaElement>(null);
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
@@ -68,7 +74,7 @@ function Discussion({ discussionId }: Props) {
         ),
         d: sage.query("getUser", {}, { ctx: "c", wait: "c" }),
       },
-      (query) => request(query)
+      (query) => useWait(() => request(query))()
     )
 
     const status =
@@ -168,6 +174,58 @@ function Discussion({ discussionId }: Props) {
     setFetchCommentProps(s => ({ ...s, loading: false, status: res.status, hasMore: res.length !== 0 }));
   }
 
+  const getDiscussionArgument = async () => {
+    if (!argumentId) return;
+
+    const res = await sage.get(
+      {
+        a: sage.query("getArgument", { argumentId }, { ctx: "a" }),
+        b: sage.query("getUser", {}, { ctx: "a", wait: "a" }),
+      },
+      (query) => useWait(() => request(query))()
+    );
+
+    //const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
+    const argument = res?.a.data;
+    const user = res?.b.data?.[0];
+
+    useDiscussionStore.setState(s => {
+      if (!argument) return;
+      s.argument.entities[argumentId] = argument;
+    });
+
+    useUserStore.setState(s => {
+      if (!user) return;
+      s.user.entities[user.id] = user;
+    });
+  }
+
+  const getDiscussionComment = async () => {
+    if (!commentId) return;
+
+    const res = await sage.get(
+      {
+        a: sage.query("getComment", { commentId }, { ctx: "a" }),
+        b: sage.query("getUser", {}, { ctx: "a", wait: "a" }),
+      },
+      (query) => useWait(() => request(query))()
+    );
+
+    //const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
+    const comment = res?.a.data;
+    const user = res?.b.data?.[0];
+
+    useDiscussionStore.setState(s => {
+      if (!comment) return;
+      s.comment.entities[commentId] = comment;
+    });
+
+    useUserStore.setState(s => {
+      if (!user) return;
+      s.user.entities[user.id] = user;
+    });
+  }
+
   const fetcher = async (show: typeof state.show, refresh?: boolean, skipWaiting?: boolean) => {
     switch (show) {
       case "arguments": await getArguments(state.argumentType, refresh, skipWaiting); break;
@@ -226,6 +284,9 @@ function Discussion({ discussionId }: Props) {
   useEffect(() => {
     if (!discussion?.readme) getDiscussion();
     else getFeed(state.show).length === 0 && fetcher(state.show, false);
+
+    if (argumentId && !discussionArgument) getDiscussionArgument();
+    else if (commentId && !discussionComment) getDiscussionComment();
   }, [state.show, state.argumentType, state.commentType]);
 
   return (
@@ -245,6 +306,16 @@ function Discussion({ discussionId }: Props) {
 
         <>
           <DiscussionSummary discussionId={discussionId} />
+
+          {(argumentId || commentId) &&
+            <>
+              <Flex justify="center">
+                <Divider orientation="vertical" variant="dashed" h={64} size="md" />
+              </Flex>
+              {argumentId && <Argument argumentId={argumentId} />}
+              {commentId && <Comment commentId={commentId} />}
+            </>
+          }
 
           <Card shadow="sm" p="md" m="md" radius="md" withBorder css={wrapContent}>
             <TextParser text={discussion.readme ?? ""} />

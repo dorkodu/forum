@@ -20,6 +20,12 @@ export const editDiscussionSchema = z.object({
   readme: sharedSchemas.readme,
 }).strict();
 
+export const favouriteDiscussionSchema = z.object({
+  discussionId: z.string(),
+  favourited: z.boolean(),
+}).strict();
+
+
 export const getUserDiscussionFeedSchema = z.object({
   anchorId: z.string(),
   type: z.enum(["newer", "older"]),
@@ -33,11 +39,6 @@ export const getFavouriteDiscussionFeedSchema = z.object({
 export const getGuestDiscussionFeedSchema = z.object({
   anchorId: z.string(),
   type: z.enum(["newer", "older"]),
-}).strict();
-
-export const favouriteDiscussionSchema = z.object({
-  discussionId: z.string(),
-  favourited: z.boolean(),
 }).strict();
 
 
@@ -55,6 +56,10 @@ export const getArgumentsSchema = z.object({
   discussionId: z.string(),
   anchorId: z.string(),
   type: z.enum(["newer", "older", "top", "bottom"]),
+}).strict();
+
+export const getArgumentSchema = z.object({
+  argumentId: z.string(),
 }).strict();
 
 export const voteArgumentSchema = z.object({
@@ -76,4 +81,8 @@ export const getCommentsSchema = z.object({
   discussionId: z.string(),
   anchorId: z.string(),
   type: z.enum(["newer", "older"]),
+}).strict();
+
+export const getCommentSchema = z.object({
+  commentId: z.string(),
 }).strict();

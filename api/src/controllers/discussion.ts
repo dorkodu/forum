@@ -2,7 +2,7 @@ import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
 import { ErrorCode } from "../types/error_codes";
 import auth from "./auth";
-import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, favouriteDiscussionSchema, getArgumentsSchema, getCommentsSchema, getDiscussionSchema, getFavouriteDiscussionFeedSchema, getGuestDiscussionFeedSchema, getUserDiscussionFeedSchema, voteArgumentSchema } from "../schemas/discussion";
+import { createArgumentSchema, createCommentSchema, createDiscussionSchema, deleteArgumentSchema, deleteCommentSchema, deleteDiscussionSchema, editDiscussionSchema, favouriteDiscussionSchema, getArgumentSchema, getArgumentsSchema, getCommentSchema, getCommentsSchema, getDiscussionSchema, getFavouriteDiscussionFeedSchema, getGuestDiscussionFeedSchema, getUserDiscussionFeedSchema, voteArgumentSchema } from "../schemas/discussion";
 import pg from "../pg";
 import { snowflake } from "../lib/snowflake";
 import { date } from "../lib/date";
@@ -156,6 +156,7 @@ const searchDiscussion = sage.resource(
   }
 )
 
+
 const getUserDiscussionFeed = sage.resource(
   {} as SchemaContext,
   {} as z.infer<typeof getUserDiscussionFeedSchema>,
@@ -297,6 +298,7 @@ const getGuestDiscussionFeed = sage.resource(
     return { data: res };
   }
 )
+
 
 const favouriteDiscussion = sage.resource(
   {} as SchemaContext,
@@ -592,6 +594,66 @@ const getArguments = sage.resource(
   }
 )
 
+const getArgument = sage.resource(
+  {} as SchemaContext,
+  {} as z.infer<typeof getArgumentSchema>,
+  async (arg, ctx): Promise<{ data?: IArgument, error?: ErrorCode }> => {
+    const parsed = getArgumentSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+
+    const { argumentId } = parsed.data;
+
+    if (info) {
+      // If current user is blocked by the discussion owner
+      const [result0]: [{ exists: boolean }?] = await pg`
+      SELECT EXISTS (
+        SELECT * FROM user_blocks
+        WHERE
+          blocker_id IN (SELECT user_id FROM discussion_arguments WHERE id=${argumentId})
+          AND
+          blocking_id=${info.userId}
+      )
+      `;
+      if (!result0) return { error: ErrorCode.Default };
+      if (result0.exists) return { error: ErrorCode.Default };
+    }
+
+    const [result1]: [IArgumentRaw?] = await pg`
+      SELECT 
+        da.id, da.user_id, da.discussion_id, 
+        da.date, da.content, da.type, da.vote_count,
+      ${info ?
+        pg`
+        (av.user_id IS NOT NULL) AS voted, 
+        av.type AS voted_type` :
+        pg`FALSE AS voted, null AS voted_type`
+      }
+      FROM discussion_arguments da
+      ${info ?
+        pg`
+        LEFT JOIN argument_votes av
+        ON da.id=av.argument_id AND av.user_id=${info.userId}` :
+        pg``
+      }
+      WHERE da.id=${argumentId}
+    `;
+    if (!result1) return { error: ErrorCode.Default };
+
+    const res = iArgumentSchema.safeParse(result1);
+
+    if (res.success) {
+      if (ctx.userIds === undefined) ctx.userIds = new Set();
+      ctx.userIds?.add(res.data.userId);
+
+      return { data: res.data };
+    }
+
+    return { error: ErrorCode.Default };
+  }
+)
+
 const voteArgument = sage.resource(
   {} as SchemaContext,
   {} as z.infer<typeof voteArgumentSchema>,
@@ -701,6 +763,7 @@ const voteArgument = sage.resource(
     return { data: {} };
   }
 )
+
 
 const createComment = sage.resource(
   {} as SchemaContext,
@@ -864,6 +927,50 @@ const getComments = sage.resource(
   }
 )
 
+const getComment = sage.resource(
+  {} as SchemaContext,
+  {} as z.infer<typeof getCommentSchema>,
+  async (arg, ctx): Promise<{ data?: IComment, error?: ErrorCode }> => {
+    const parsed = getCommentSchema.safeParse(arg);
+    if (!parsed.success) return { error: ErrorCode.Default };
+
+    const info = await auth.getAuthInfo(ctx);
+
+    const { commentId } = parsed.data;
+
+    if (info) {
+      // If current user is blocked by the discussion owner
+      const [result0]: [{ exists: boolean }?] = await pg`
+      SELECT EXISTS (
+        SELECT * FROM user_blocks
+        WHERE
+          blocker_id IN (SELECT user_id FROM discussion_comments WHERE id=${commentId})
+          AND
+          blocking_id=${info.userId}
+      )
+      `;
+      if (!result0) return { error: ErrorCode.Default };
+      if (result0.exists) return { error: ErrorCode.Default };
+    }
+
+    const [result1]: [ICommentRaw?] = await pg`
+      SELECT id, user_id, discussion_id, date, content FROM discussion_comments dc
+      WHERE dc.id=${commentId}
+    `;
+
+    const res = iCommentSchema.safeParse(result1);
+
+    if (res.success) {
+      if (ctx.userIds === undefined) ctx.userIds = new Set();
+      ctx.userIds?.add(res.data.userId);
+
+      return { data: res.data };
+    }
+
+    return { error: ErrorCode.Default };
+  }
+)
+
 export default {
   createDiscussion,
   deleteDiscussion,
@@ -880,9 +987,11 @@ export default {
   createArgument,
   deleteArgument,
   getArguments,
+  getArgument,
   voteArgument,
 
   createComment,
   deleteComment,
   getComments,
+  getComment,
 }

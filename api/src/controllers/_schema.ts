@@ -49,20 +49,21 @@ export const schema = sage.schema(
     getDiscussion: discussion.getDiscussion,
     editDiscussion: discussion.editDiscussion,
     searchDiscussion: discussion.searchDiscussion,
-
     favouriteDiscussion: discussion.favouriteDiscussion,
 
     getUserDiscussionFeed: discussion.getUserDiscussionFeed,
     getFavouriteDiscussionFeed: discussion.getFavouriteDiscussionFeed,
     getGuestDiscussionFeed: discussion.getGuestDiscussionFeed,
 
-    createComment: discussion.createComment,
-    deleteComment: discussion.deleteComment,
-    getComments: discussion.getComments,
-
     createArgument: discussion.createArgument,
     deleteArgument: discussion.deleteArgument,
     getArguments: discussion.getArguments,
+    getArgument: discussion.getArgument,
     voteArgument: discussion.voteArgument,
+
+    createComment: discussion.createComment,
+    deleteComment: discussion.deleteComment,
+    getComments: discussion.getComments,
+    getComment: discussion.getComment,
   }
 )

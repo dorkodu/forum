@@ -23,11 +23,21 @@ function Notification({ notification }: Props) {
     navigate(`/profile/${user.username}`);
   }
 
-  const gotoDiscussion = (ev: MouseEvent, discussionId: string) => {
+  const gotoDiscussion = (ev: MouseEvent, discussionId: string, childId?: string) => {
     ev.stopPropagation();
     ev.preventDefault();
 
     if (!user) return;
+
+    if (childId) {
+      switch (notification.type) {
+        case notificationTypes.discussionArgument:
+          return navigate(`/discussion/${discussionId}?argument=${childId}`);
+        case notificationTypes.discussionComment:
+          return navigate(`/discussion/${discussionId}?comment=${childId}`);
+      }
+    }
+
     navigate(`/discussion/${discussionId}`);
   }
 
@@ -49,14 +59,6 @@ function Notification({ notification }: Props) {
   }
 
   const typeToOnClick = () => {
-    /**
-     * TODO:
-     * In discussion argument & comment
-     * instead of going to discussion, 
-     * show the argument or the comment.
-     * In argument vote, show the argument that is voted.
-     */
-
     switch (notification.type) {
       case notificationTypes.userFollow:
         return gotoUser;
@@ -64,12 +66,12 @@ function Notification({ notification }: Props) {
       case notificationTypes.discussionFavourite:
         return (ev: MouseEvent) => gotoDiscussion(ev, notification.parentId);
       case notificationTypes.discussionArgument:
-        return (ev: MouseEvent) => gotoDiscussion(ev, notification.parentId);
+        return (ev: MouseEvent) => gotoDiscussion(ev, notification.parentId, notification.childId);
       case notificationTypes.discussionComment:
-        return (ev: MouseEvent) => gotoDiscussion(ev, notification.parentId);
+        return (ev: MouseEvent) => gotoDiscussion(ev, notification.parentId, notification.childId);
 
       case notificationTypes.argumentVote:
-        return (ev: MouseEvent) => gotoDiscussion(ev, notification.parentId);
+        return (ev: MouseEvent) => gotoDiscussion(ev, notification.parentId, notification.childId);
     }
   }
 
