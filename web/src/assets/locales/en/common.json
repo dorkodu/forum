@@ -54,11 +54,9 @@
 
   "discussion": {
     "titleLabel": "Title",
-    "titleDescription": "Maximum of 100 characters.",
     "title": "Enter Title",
 
     "readmeLabel": "Readme",
-    "readmeDescription": "Maximum of 100000 characters.",
     "readme": "Enter Readme",
 
     "create": "Create",
@@ -73,8 +71,7 @@
     "create": "Send",
     "write": "Write Your Argument",
     "delete": "Delete Argument",
-    "title": "Argument",
-    "description": "Maximum of 500 characters."
+    "title": "Argument"
   },
 
   
@@ -83,8 +80,7 @@
     "create": "Send",
     "write": "Write Your Comment",
     "delete": "Delete Comement",
-    "title": "Comment",
-    "description": "Maximum of 500 characters."
+    "title": "Comment"
   },
   
 

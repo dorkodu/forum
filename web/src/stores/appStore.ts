@@ -39,8 +39,15 @@ interface State {
 
     discussion: {
       show: "comments" | "arguments";
-      commentType: "newer" | "older";
-      argumentType: "newer" | "older" | "top" | "bottom";
+      commentOrder: "newer" | "older";
+      argumentOrder: "newer" | "older" | "top" | "bottom";
+
+      argument: string;
+      argumentMode: "edit" | "preview";
+      argumentType: boolean;
+
+      comment: string;
+      commentMode: "edit" | "preview";
     }
 
     notifications: { order: "newer" | "older" };
@@ -78,17 +85,33 @@ const initialState: State = {
       favouriteOrder: "newer",
       guestOrder: "newer",
     },
+
     search: { search: "", order: "older" },
     profile: { order: "newer" },
     followers: { order: "newer" },
     following: { order: "newer" },
+
     discussion: {
       show: "arguments",
-      commentType: "newer",
-      argumentType: "newer",
+      commentOrder: "newer",
+      argumentOrder: "newer",
+
+      argument: "",
+      argumentMode: "edit",
+      argumentType: true,
+
+      comment: "",
+      commentMode: "edit",
     },
+
     notifications: { order: "newer" },
-    discussionEditor: { id: undefined, title: "", readme: "", mode: "edit" },
+
+    discussionEditor: {
+      id: undefined,
+      title: "",
+      readme: "",
+      mode: "edit",
+    },
   },
 }
 

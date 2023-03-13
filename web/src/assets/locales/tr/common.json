@@ -53,11 +53,9 @@
 
   "discussion": {
     "titleLabel": "Başlık",
-    "titleDescription": "Maksimum 100 karakter.",
     "title": "Başlık Girin",
 
     "readmeLabel": "Beni Oku",
-    "readmeDescription": "Maksimum 100000 karakter.",
     "readme": "Beni Oku Girin",
 
     "create": "Oluştur",
@@ -72,8 +70,7 @@
     "create": "Yolla",
     "write": "Argümanını Yaz",
     "delete": "Argümanı Sil",
-    "title": "Argüman",
-    "description": "Maksimum 500 karakter."
+    "title": "Argüman"
   },
 
 
@@ -82,8 +79,7 @@
     "create": "Yolla",
     "write": "Yorumunu Yaz...",
     "delete": "Yorumu Sil",
-    "title": "Yorum",
-    "description": "Maksimum 500 karakter."
+    "title": "Yorum"
   },
 
 

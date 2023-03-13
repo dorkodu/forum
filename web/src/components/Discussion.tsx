@@ -1,19 +1,19 @@
 import { IArgument } from "@api/types/argument";
 import { IComment } from "@api/types/comment";
-import { Button, Card, Divider, Flex, SegmentedControl, Textarea } from "@mantine/core";
-import { useEffect, useRef, useState } from "react"
+import { Card, Divider, Flex } from "@mantine/core";
+import { useEffect } from "react"
 import { useTranslation } from "react-i18next";
 import { request, sage } from "../stores/api";
 import { useAppStore } from "../stores/appStore";
-import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import { wrapContent } from "../styles/css";
 import Argument from "./Argument";
 import CardAlert from "./cards/CardAlert";
 import { CardPanel } from "./cards/CardPanel";
-import OverlayLoader from "./cards/OverlayLoader";
 import Comment from "./Comment"
+import CreateArgument from "./CreateArgument";
+import CreateComment from "./CreateComment";
 import DiscussionSummary from "./DiscussionSummary";
 import { useFeedProps, useWait } from "./hooks";
 import InfiniteScroll from "./InfiniteScroll";
@@ -28,36 +28,26 @@ interface Props {
 }
 
 function Discussion({ discussionId, argumentId, commentId }: Props) {
-  const [argument, setArgument] = useState<{ text: string, type: boolean }>({ text: "", type: true });
-  const [comment, setComment] = useState<{ text: string }>({ text: "" });
-
   const { t } = useTranslation();
 
-  const state = useAppStore(state => state.options.discussion);
-  const setRequestLogin = useAppStore(state => state.setRequestLogin);
-  const currentUserId = useAuthStore(state => state.userId);
+  const state = useAppStore(
+    state => state.options.discussion,
+    (a, b) => a.argument !== b.argument || a.comment !== b.comment
+  );
 
   const queryGetArguments = useDiscussionStore(state => state.queryGetArguments);
   const queryGetComments = useDiscussionStore(state => state.queryGetComments);
-  const queryCreateArgument = useDiscussionStore(state => state.queryCreateArgument);
-  const queryCreateComment = useDiscussionStore(state => state.queryCreateComment);
 
   const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
-  const comments = useDiscussionStore(_state => _state.getComments(discussionId, state.commentType));
-  const _arguments = useDiscussionStore(_state => _state.getArguments(discussionId, state.argumentType));
+  const comments = useDiscussionStore(_state => _state.getComments(discussionId, state.commentOrder));
+  const _arguments = useDiscussionStore(_state => _state.getArguments(discussionId, state.argumentOrder));
   const discussionArgument = useDiscussionStore(state => argumentId ? state.argument.entities[argumentId] : undefined);
   const discussionComment = useDiscussionStore(state => commentId ? state.comment.entities[commentId] : undefined);
-
-  const argumentInputRef = useRef<HTMLTextAreaElement>(null);
-  const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
   const [discussionProps, setDiscussionProps] = useFeedProps({ loading: !discussion?.readme });
 
   const [fetchArgumentProps, setFetchArgumentProps] = useFeedProps();
   const [fetchCommentProps, setFetchCommentProps] = useFeedProps();
-
-  const [actionArgumentProps, setActionArgumentProps] = useFeedProps();
-  const [actionCommentProps, setActionCommentProps] = useFeedProps();
 
   const getDiscussion = async () => {
     if (!discussionId) return;
@@ -69,8 +59,8 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
         a: sage.query("getDiscussion", { discussionId }, { ctx: "a" }),
         b: sage.query("getUser", {}, { ctx: "a", wait: "a" }),
         c: (state.show === "arguments" ?
-          sage.query("getArguments", { discussionId, anchorId: "-1", type: state.argumentType }, { ctx: "c" }) :
-          sage.query("getComments", { discussionId, anchorId: "-1", type: state.commentType }, { ctx: "c" })
+          sage.query("getArguments", { discussionId, anchorId: "-1", type: state.argumentOrder }, { ctx: "c" }) :
+          sage.query("getComments", { discussionId, anchorId: "-1", type: state.commentOrder }, { ctx: "c" })
         ),
         d: sage.query("getUser", {}, { ctx: "c", wait: "c" }),
       },
@@ -100,7 +90,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
     if (argumentsOrComments) {
       if (state.show === "arguments") {
         const _arguments = argumentsOrComments as IArgument[];
-        useDiscussionStore.getState().setArguments(discussionId, _arguments, state.argumentType);
+        useDiscussionStore.getState().setArguments(discussionId, _arguments, state.argumentOrder);
       }
       else if (state.show === "comments") {
         const comments = argumentsOrComments as IComment[];
@@ -112,48 +102,6 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
     setDiscussionProps(s => ({ ...s, loading: false, status: status }));
     setFetchArgumentProps(s => ({ ...s, hasMore: true }));
     setFetchCommentProps(s => ({ ...s, hasMore: true }));
-  }
-
-  const createArgument = async () => {
-    // If user is trying to create argument while not being logged in
-    if (!currentUserId) return setRequestLogin(true);
-
-    if (argument.text.length === 0) return;
-    if (argument.text.length > 500) return;
-    if (!discussion) return;
-    if (actionArgumentProps.loading) return;
-
-    setActionArgumentProps(s => ({ ...s, loading: true, status: undefined }));
-    const status = await useWait(() => queryCreateArgument(discussion.id, argument.text, argument.type))();
-    setActionArgumentProps(s => ({ ...s, loading: false, status: status }));
-
-    // TODO: If status is not true (failed), don't reset input, instead show error message
-
-    // Since it's a controlled component, it's value can't be changed
-    // directly with a setArgument call, instead it's html property must be changed
-    if (argumentInputRef.current) argumentInputRef.current.value = "";
-    setArgument(a => ({ ...a, text: "" }));
-  }
-
-  const createComment = async () => {
-    // If user is trying to create comment while not being logged in
-    if (!currentUserId) return setRequestLogin(true);
-
-    if (comment.text.length === 0) return;
-    if (comment.text.length > 500) return;
-    if (!discussion) return;
-    if (actionCommentProps.loading) return;
-
-    setActionCommentProps(s => ({ ...s, loading: true, status: undefined }));
-    const status = await useWait(() => queryCreateComment(discussion.id, comment.text))();
-    setActionCommentProps(s => ({ ...s, loading: false, status: status }));
-
-    // TODO: If status is not true (failed), don't reset input, instead show error message
-
-    // Since it's a controlled component, it's value can't be changed
-    // directly with a setComment call, instead it's html property must be changed
-    if (commentInputRef.current) commentInputRef.current.value = "";
-    setComment(a => ({ ...a, text: "" }));
   }
 
   const getArguments = async (type: "newer" | "older" | "top" | "bottom", refresh?: boolean, skipWaiting?: boolean) => {
@@ -228,8 +176,8 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
 
   const fetcher = async (show: typeof state.show, refresh?: boolean, skipWaiting?: boolean) => {
     switch (show) {
-      case "arguments": await getArguments(state.argumentType, refresh, skipWaiting); break;
-      case "comments": await getComments(state.commentType, refresh, skipWaiting); break;
+      case "arguments": await getArguments(state.argumentOrder, refresh, skipWaiting); break;
+      case "comments": await getComments(state.commentOrder, refresh, skipWaiting); break;
     }
   }
 
@@ -247,7 +195,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
         value !== "top" &&
         value !== "bottom"
       ) return;
-      useAppStore.setState(s => { s.options.discussion.argumentType = value });
+      useAppStore.setState(s => { s.options.discussion.argumentOrder = value });
       useDiscussionStore.setState(state => { discussionId && delete state.discussion.arguments[discussionId] });
     }
     else if (state.show === "comments") {
@@ -255,15 +203,8 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
         value !== "newer" &&
         value !== "older"
       ) return;
-      useAppStore.setState(s => { s.options.discussion.commentType = value });
+      useAppStore.setState(s => { s.options.discussion.commentOrder = value });
       useDiscussionStore.setState(state => { discussionId && delete state.discussion.comments[discussionId] });
-    }
-  }
-
-  const getActionLoading = (show: typeof state.show) => {
-    switch (show) {
-      case "arguments": return actionArgumentProps.loading;
-      case "comments": return actionCommentProps.loading;
     }
   }
 
@@ -287,7 +228,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
 
     if (argumentId && !discussionArgument) getDiscussionArgument();
     else if (commentId && !discussionComment) getDiscussionComment();
-  }, [state.show, state.argumentType, state.commentType]);
+  }, [state.show, state.argumentOrder, state.commentOrder]);
 
   return (
     <InfiniteScroll
@@ -342,7 +283,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
                 <CardPanel.Segments
                   segments={[
                     {
-                      value: state.argumentType,
+                      value: state.argumentOrder,
                       setValue: changeType,
                       label: t("order"),
                       data: [
@@ -360,7 +301,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
                 <CardPanel.Segments
                   segments={[
                     {
-                      value: state.commentType,
+                      value: state.commentOrder,
                       setValue: changeType,
                       label: t("order"),
                       data: [
@@ -374,53 +315,8 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
             </Flex>
           </Card>
 
-          <Card shadow="sm" p="md" m="md" radius="md" withBorder>
-            {getActionLoading(state.show) && <OverlayLoader />}
-
-            {state.show === "arguments" &&
-              <>
-                <Textarea
-                  radius="md"
-                  label={`${t("argument.title")} (${argument.text.length} / 500)`}
-                  description={t("argument.description")}
-                  placeholder={t("argument.write")}
-                  ref={argumentInputRef}
-                  defaultValue={argument.text}
-                  onChange={ev => setArgument(s => ({ ...s, text: ev.target.value }))}
-                  autosize
-                  pb="md"
-                />
-
-                <Button onClick={createArgument} color="dark" radius="md" mr="md">{t("argument.create")}</Button>
-
-                <SegmentedControl radius="md"
-                  value={argument.type ? "+" : "-"}
-                  onChange={(type: "+" | "-") => setArgument(s => ({ ...s, type: type === "+" }))}
-                  data={[
-                    { label: "+", value: "+" },
-                    { label: "-", value: "-" },
-                  ]}
-                />
-              </>
-            }
-            {state.show === "comments" &&
-              <>
-                <Textarea
-                  radius="md"
-                  label={`${t("comment.title")} (${comment.text.length} / 500)`}
-                  description={t("comment.description")}
-                  placeholder={t("comment.write")}
-                  ref={commentInputRef}
-                  defaultValue={comment.text}
-                  onChange={ev => setComment(s => ({ ...s, text: ev.target.value }))}
-                  autosize
-                  pb="md"
-                />
-
-                <Button onClick={createComment} color="dark" radius="md" mr="md">{t("comment.create")}</Button>
-              </>
-            }
-          </Card>
+          {state.show === "arguments" && <CreateArgument discussionId={discussion.id} />}
+          {state.show === "comments" && <CreateComment discussionId={discussion.id} />}
 
           {state.show === "arguments" && _arguments.map((argument) => <Argument key={argument.id} argumentId={argument.id} />)}
           {state.show === "comments" && comments.map((comment) => <Comment key={comment.id} commentId={comment.id} />)}
