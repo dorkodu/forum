@@ -33,7 +33,6 @@ function UserMenu({ user }: Props) {
     ev.preventDefault();
 
     util.share(
-      `Profile`,
       `${user.name} @${user.username}`,
       `https://forum.dorkodu.com/profile/${user.username}`
     )

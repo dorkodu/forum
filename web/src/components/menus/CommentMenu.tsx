@@ -1,9 +1,10 @@
 import { IComment } from "@api/types/comment";
 import { IUser } from "@api/types/user";
 import { ActionIcon, Menu } from "@mantine/core"
-import { IconDots, IconTrash } from "@tabler/icons-react"
+import { IconClipboardText, IconDots, IconShare, IconTrash } from "@tabler/icons-react"
 import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { util } from "../../lib/util";
 import { useAuthStore } from "../../stores/authStore";
 import { useDiscussionStore } from "../../stores/discussionStore";
 
@@ -24,6 +25,23 @@ function CommentMenu({ user, comment }: Props) {
   const queryDeleteComment = useDiscussionStore(state => state.queryDeleteComment);
   const currentUserId = useAuthStore(state => state.userId);
 
+  const share = (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    util.share(
+      comment.content.length > 100 ? `${comment.content.substring(0, 100)}...` : comment.content,
+      `https://forum.dorkodu.com/discussion/${comment.discussionId}?comment=${comment.id}`
+    )
+  }
+
+  const copyToClipboard = (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    util.copyToClipboard(`https://forum.dorkodu.com/discussion/${comment.discussionId}?comment=${comment.id}`);
+  }
+
   const deleteComment = async (ev: MouseEvent) => {
     ev.stopPropagation();
     ev.preventDefault();
@@ -43,6 +61,20 @@ function CommentMenu({ user, comment }: Props) {
       </Menu.Target>
 
       <Menu.Dropdown>
+        <Menu.Item
+          icon={<IconShare size={14} />}
+          onClick={share}
+        >
+          {t("share")}
+        </Menu.Item>
+
+        <Menu.Item
+          icon={<IconClipboardText size={14} />}
+          onClick={copyToClipboard}
+        >
+          {t("copyToClipboard")}
+        </Menu.Item>
+
         {user.id === currentUserId &&
           <>
             <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={deleteComment}>

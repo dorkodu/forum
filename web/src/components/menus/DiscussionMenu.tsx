@@ -37,7 +37,6 @@ function DiscussionMenu({ user, discussion }: Props) {
     ev.preventDefault();
 
     util.share(
-      `Discussion`,
       `${discussion.title}`,
       `https://forum.dorkodu.com/discussion/${discussion.id}`
     )
