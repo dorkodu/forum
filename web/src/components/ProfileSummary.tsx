@@ -8,6 +8,7 @@ import { util } from "../lib/util";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import CardEntity from "./cards/CardEntity";
+import CustomTooltip from "./custom/CustomTooltip";
 import UserMenu from "./menus/UserMenu";
 
 interface Props {
@@ -56,10 +57,12 @@ function ProfileSummary({ user }: Props) {
       componentBottom={
         <Flex direction="column" gap={4}>
           <Flex direction="row" wrap="wrap">
+            {/*No need for a CustomTooltip here, since clicking the component will change the route.*/}
             <Text mr="xs">
               {t("user.followers", { count: user.followerCount, number: util.formatNumber(user.followerCount) })}
             </Text>
 
+            {/*No need for a CustomTooltip here, since clicking the component will change the route.*/}
             <Text>
               {t("user.following", { count: user.followingCount, number: util.formatNumber(user.followingCount) })}
             </Text>
