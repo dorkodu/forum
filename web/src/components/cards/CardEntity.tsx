@@ -1,6 +1,6 @@
 import { IUser } from "@api/types/user";
 import { css } from "@emotion/react"
-import { Anchor, Avatar, Card, Flex, Text, useMantineTheme } from "@mantine/core"
+import { Anchor, Avatar, Card, Flex, Text, Tooltip, useMantineTheme } from "@mantine/core"
 import React, { MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { date } from "../../lib/date";
@@ -52,13 +52,18 @@ function CardEntity({ user, entity, onClickCard, onClickUser, componentMenu, com
               <Text size="sm" color="dimmed" truncate>
                 <Flex direction="row">
                   <Flex miw={0} css={autoGrid}>
-                    <Text title={date(entity.date).format('lll')}>{date(entity.date).fromNow()}</Text>
+                    <Tooltip label={date(entity.date).format('lll')} events={{ hover: true, focus: false, touch: true }}>
+                      <Text>{date(entity.date).fromNow()}</Text>
+                    </Tooltip>
+
                     {entity.updateDate !== undefined && entity.updateDate !== -1 &&
-                      <Text truncate title={date(entity.updateDate).format('lll')}>
-                        &nbsp;/&nbsp;
-                        {t("discussion.activity")}
-                        {date(entity.updateDate).fromNow()}
-                      </Text>
+                      <Tooltip label={date(entity.updateDate).format('lll')} events={{ hover: true, focus: false, touch: true }}>
+                        <Text truncate>
+                          &nbsp;/&nbsp;
+                          {t("discussion.activity")}
+                          {date(entity.updateDate).fromNow()}
+                        </Text>
+                      </Tooltip>
                     }
                   </Flex>
                 </Flex>
