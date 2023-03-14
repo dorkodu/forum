@@ -1,4 +1,4 @@
-import { ActionIcon, Flex } from "@mantine/core";
+import { ActionIcon, Flex, Text } from "@mantine/core";
 import { IconArrowBigUp, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons-react";
 import { MouseEvent, useState } from "react"
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import CardEntity from "./cards/CardEntity";
+import CustomTooltip from "./custom/CustomTooltip";
 import ArgumentMenu from "./menus/ArgumentMenu";
 
 interface Props {
@@ -72,7 +73,9 @@ function Argument({ argumentId }: Props) {
             />
           </ActionIcon>
 
-          <span>{util.formatNumber(argument.voteCount)}</span>
+          <CustomTooltip label={util.formatNumber(argument.voteCount, true)}>
+            <Text>{util.formatNumber(argument.voteCount)}</Text>
+          </CustomTooltip>
 
           <ActionIcon color="dark" onClick={() => voteArgument(false)}>
             <IconArrowBigDown

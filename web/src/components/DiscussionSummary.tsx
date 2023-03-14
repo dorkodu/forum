@@ -4,11 +4,12 @@ import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import { IconStar, IconMessage, IconMessages } from "@tabler/icons-react";
-import { ActionIcon, Flex } from "@mantine/core"
+import { ActionIcon, Flex, Text } from "@mantine/core"
 import { useAppStore } from "../stores/appStore";
 import DiscussionMenu from "./menus/DiscussionMenu";
 import { util } from "../lib/util";
 import CardEntity from "./cards/CardEntity";
+import CustomTooltip from "./custom/CustomTooltip";
 
 interface Props {
   discussionId: string | undefined;
@@ -82,15 +83,26 @@ function DiscussionSummary({ discussionId }: Props) {
             <ActionIcon color="dark" onClick={favouriteDiscussion}>
               <IconStar fill={discussion.favourited ? "currentColor" : "none"} />
             </ActionIcon>
-            <span>{util.formatNumber(discussion.favouriteCount)}</span>
+
+            <CustomTooltip label={util.formatNumber(discussion.favouriteCount, true)}>
+              <Text>{util.formatNumber(discussion.favouriteCount)}</Text>
+            </CustomTooltip>
           </Flex>
+
           <Flex align="center">
             <IconMessages />
-            <span>{util.formatNumber(discussion.argumentCount)}</span>
+
+            <CustomTooltip label={util.formatNumber(discussion.argumentCount, true)}>
+              <Text>{util.formatNumber(discussion.argumentCount)}</Text>
+            </CustomTooltip>
           </Flex>
+
           <Flex align="center">
             <IconMessage />
-            <span>{util.formatNumber(discussion.commentCount)}</span>
+
+            <CustomTooltip label={util.formatNumber(discussion.commentCount, true)}>
+              <Text>{util.formatNumber(discussion.commentCount)}</Text>
+            </CustomTooltip>
           </Flex>
         </Flex>
       }

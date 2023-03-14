@@ -64,7 +64,8 @@ function compareId(a: string, b: string, reverse?: boolean) {
   return 0;
 }
 
-function formatNumber(number: number) {
+function formatNumber(number: number, long?: boolean) {
+  if (long) return Intl.NumberFormat(i18n.language).format(number);
   return Intl.NumberFormat(i18n.language, { notation: "compact", maximumFractionDigits: 1 }).format(number);
 }
 

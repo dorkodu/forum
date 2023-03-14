@@ -1,12 +1,13 @@
 import { IUser } from "@api/types/user";
 import { css } from "@emotion/react"
-import { Anchor, Avatar, Card, Flex, Text, Tooltip, useMantineTheme } from "@mantine/core"
+import { Anchor, Avatar, Card, Flex, Text, useMantineTheme } from "@mantine/core"
 import React, { MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { date } from "../../lib/date";
 import { autoGrid, bgColorHover, colorBW, flexGrow, wrapContent } from "../../styles/css"
 import AvatarWebp from "../../assets/avatar.webp";
 import TextParser, { PieceType } from "../TextParser";
+import CustomTooltip from "../custom/CustomTooltip";
 
 interface Props {
   user: IUser;
@@ -52,18 +53,18 @@ function CardEntity({ user, entity, onClickCard, onClickUser, componentMenu, com
               <Text size="sm" color="dimmed" truncate>
                 <Flex direction="row">
                   <Flex miw={0} css={autoGrid}>
-                    <Tooltip label={date(entity.date).format('lll')} events={{ hover: true, focus: false, touch: true }}>
+                    <CustomTooltip label={date(entity.date).format('lll')}>
                       <Text>{date(entity.date).fromNow()}</Text>
-                    </Tooltip>
+                    </CustomTooltip>
 
                     {entity.updateDate !== undefined && entity.updateDate !== -1 &&
-                      <Tooltip label={date(entity.updateDate).format('lll')} events={{ hover: true, focus: false, touch: true }}>
+                      <CustomTooltip label={date(entity.updateDate).format('lll')}>
                         <Text truncate>
                           &nbsp;/&nbsp;
                           {t("discussion.activity")}
                           {date(entity.updateDate).fromNow()}
                         </Text>
-                      </Tooltip>
+                      </CustomTooltip>
                     }
                   </Flex>
                 </Flex>
