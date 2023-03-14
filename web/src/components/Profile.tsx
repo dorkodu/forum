@@ -14,6 +14,7 @@ import UserMenu from "./menus/UserMenu";
 import { util } from "../lib/util";
 import AvatarWebp from "../assets/avatar.webp";
 import { tokens } from "@dorkodu/prism";
+import CustomTooltip from "./custom/CustomTooltip";
 
 interface Props {
   user: IUser;
@@ -86,13 +87,17 @@ function Profile({ user }: Props) {
         </Flex>
 
         <Flex direction="row" wrap="wrap">
-          <Anchor href={`/profile/${user.username}/followers`} css={colorBW(theme)} onClick={gotoFollowers} mr="xs">
-            {t("user.followers", { count: user.followerCount, number: util.formatNumber(user.followerCount) })}
-          </Anchor>
+          <CustomTooltip label={util.formatNumber(user.followerCount, true)}>
+            <Anchor href={`/profile/${user.username}/followers`} css={colorBW(theme)} onClick={gotoFollowers} mr="xs">
+              {t("user.followers", { count: user.followerCount, number: util.formatNumber(user.followerCount) })}
+            </Anchor>
+          </CustomTooltip>
 
-          <Anchor href={`/profile/${user.username}/following`} css={colorBW(theme)} onClick={gotoFollowing}>
-            {t("user.following", { count: user.followingCount, number: util.formatNumber(user.followingCount) })}
-          </Anchor>
+          <CustomTooltip label={util.formatNumber(user.followingCount, true)}>
+            <Anchor href={`/profile/${user.username}/following`} css={colorBW(theme)} onClick={gotoFollowing}>
+              {t("user.following", { count: user.followingCount, number: util.formatNumber(user.followingCount) })}
+            </Anchor>
+          </CustomTooltip>
         </Flex>
 
         {user.following &&
