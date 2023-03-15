@@ -4,6 +4,7 @@ import { IconAlertCircle } from "@tabler/icons-react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next"
 import { useAppStore } from "../stores/appStore";
+import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { wrapContent } from "../styles/css";
 import { CardPanel } from "./cards/CardPanel";
@@ -23,7 +24,13 @@ function CreateArgument({ discussionId }: Props) {
   const queryCreateArgument = useDiscussionStore(state => state.queryCreateArgument);
   const [actionArgumentProps, setActionArgumentProps] = useFeedProps();
 
+  const setRequestLogin = useAppStore(state => state.setRequestLogin);
+  const currentUserId = useAuthStore(state => state.userId);
+
   const createArgument = async () => {
+    // If user is trying to vote argument while not being logged in
+    if (!currentUserId) return setRequestLogin(true);
+
     if (state.argument.length === 0) return;
     if (state.argument.length > 500) return;
     if (actionArgumentProps.loading) return;

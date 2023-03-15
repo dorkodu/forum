@@ -118,7 +118,7 @@ function UsernamePiece({ username }: { username: string }) {
   return (
     <Anchor
       href={`https://forum.dorkodu.com/profile/${username.substring(1)}`}
-      onClick={(ev) => onClick(ev, username.substring(1))}
+      onClick={(ev: MouseEvent) => onClick(ev, username.substring(1))}
     >
       {username}
     </Anchor>
@@ -137,7 +137,7 @@ function DiscussionPiece({ discussion }: { discussion: string }) {
   return (
     <Anchor
       href={`https://forum.dorkodu.com/discussion/${discussion.substring(1)}`}
-      onClick={(ev) => onClick(ev, discussion.substring(1))}
+      onClick={(ev: MouseEvent) => onClick(ev, discussion.substring(1))}
     >
       {discussion}
     </Anchor>

@@ -8,7 +8,6 @@ import { util } from "../lib/util";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import CardEntity from "./cards/CardEntity";
-import CustomTooltip from "./custom/CustomTooltip";
 import UserMenu from "./menus/UserMenu";
 
 interface Props {
