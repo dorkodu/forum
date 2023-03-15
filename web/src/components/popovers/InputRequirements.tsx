@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
 import { Flex, Popover, Text } from "@mantine/core";
-import { IconCheck, IconX } from "@tabler/icons-react";
+import { IconX } from "@tabler/icons-react";
 import { TFunction } from "i18next";
 import { useState } from "react";
 
@@ -13,8 +13,10 @@ interface Props {
 function InputRequirements({ children, requirements, value }: Props) {
   const [popoverOpened, setPopoverOpened] = useState(false);
   const checks = requirements.map((requirement, index) => (
-    (requirement.hidden && !requirement.req.test(value)) || !requirement.hidden ?
-      <Requirement key={index} label={requirement.label} meets={requirement.req.test(value)} /> :
+    !requirement.req.test(value) && (
+      (requirement.hidden && value.length !== 0) || !requirement.hidden
+    ) ?
+      <Requirement key={index} label={requirement.label} /> :
       null
   )).filter(Boolean);
 
@@ -28,25 +30,18 @@ function InputRequirements({ children, requirements, value }: Props) {
           {children}
         </div>
       </Popover.Target>
-      {checks.length !== 0 &&
-        <Popover.Dropdown>
-          {checks}
-        </Popover.Dropdown>
-      }
+      {checks.length !== 0 && <Popover.Dropdown>{checks}</Popover.Dropdown>}
     </Popover>
   )
 }
 
 export default InputRequirements
 
-function Requirement({ meets, label }: { meets: boolean, label: string }) {
+function Requirement({ label }: { label: string }) {
   return (
-    <Text color={meets ? "teal" : "red"} size="sm">
+    <Text color="red" size="sm">
       <Flex direction="row" align="center" gap="xs">
-        {meets ?
-          <IconCheck size={14} css={css`flex-shrink:0;`} /> :
-          <IconX size={14} css={css`flex-shrink:0;`} />
-        }
+        <IconX size={14} css={css`flex-shrink:0;`} />
         {label}
       </Flex>
     </Text>
@@ -59,19 +54,19 @@ export function getRequirement(t: TFunction<"common", undefined>, requirement: R
   switch (requirement) {
     case "title":
       return [
-        { req: /^.{1,100}$/, label: t("requirements.titleLength"), hidden: true },
+        { req: /^.{1,100}$/, label: t("requirements.titleLength") },
       ]
     case "readme":
       return [
-        { req: /^[\s\S]{1,100000}$/, label: t("requirements.readmeLength"), hidden: true },
+        { req: /^[\s\S]{1,100000}$/, label: t("requirements.readmeLength") },
       ]
     case "argument":
       return [
-        { req: /^[\s\S]{1,500}$/, label: t("requirements.argumentLength"), hidden: true },
+        { req: /^[\s\S]{1,500}$/, label: t("requirements.argumentLength") },
       ]
     case "comment":
       return [
-        { req: /^[\s\S]{1,500}$/, label: t("requirements.commentLength"), hidden: true },
+        { req: /^[\s\S]{1,500}$/, label: t("requirements.commentLength") },
       ]
   }
 }
