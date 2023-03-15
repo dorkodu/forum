@@ -91,7 +91,7 @@ function CreateComment({ discussionId }: Props) {
                 defaultValue={state.comment}
                 onChange={ev => useAppStore.setState(s => { s.options.discussion.comment = ev.target.value })}
                 autosize
-                error={inputReady.current && !commentFocused && getRequirementError(t, "comment", state.comment)}
+                error={inputReady.current && getRequirementError(t, "comment", state.comment, commentFocused)}
                 ref={commentRef}
               />
             </InputRequirements>

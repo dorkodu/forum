@@ -142,7 +142,7 @@ function DiscussionEditor({ id }: Props) {
                 placeholder={t("discussion.title")}
                 defaultValue={discussion.title}
                 onChange={(ev) => useAppStore.setState(s => { s.options.discussionEditor.title = ev.target.value })}
-                error={inputReady.title && !titleFocused && getRequirementError(t, "title", discussion.title)}
+                error={inputReady.title && getRequirementError(t, "title", discussion.title, titleFocused)}
                 ref={titleRef}
               />
             </InputRequirements>
@@ -158,7 +158,7 @@ function DiscussionEditor({ id }: Props) {
                 defaultValue={discussion.readme}
                 onChange={(ev) => useAppStore.setState(s => { s.options.discussionEditor.readme = ev.target.value })}
                 autosize
-                error={inputReady.readme && !readmeFocused && getRequirementError(t, "readme", discussion.readme)}
+                error={inputReady.readme && getRequirementError(t, "readme", discussion.readme, readmeFocused)}
                 ref={readmeRef}
               />
             </InputRequirements>

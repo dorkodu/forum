@@ -91,7 +91,7 @@ function CreateArgument({ discussionId }: Props) {
                 defaultValue={state.argument}
                 onChange={ev => useAppStore.setState(s => { s.options.discussion.argument = ev.target.value })}
                 autosize
-                error={inputReady.current && !argumentFocused && getRequirementError(t, "argument", state.argument)}
+                error={inputReady.current && getRequirementError(t, "argument", state.argument, argumentFocused)}
                 ref={argumentRef}
               />
             </InputRequirements>

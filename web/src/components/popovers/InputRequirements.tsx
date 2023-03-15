@@ -74,14 +74,15 @@ export function getRequirement(t: TFunction<"common", undefined>, requirement: R
 export function getRequirementError(
   t: TFunction<"common", undefined>,
   requirement: Requirement,
-  value: string
+  value: string,
+  boolean?: boolean,
 ) {
   const requirements = getRequirement(t, requirement);
 
   for (let i = 0; i < requirements.length; ++i) {
     const r = requirements[i];
     if (!r) continue;
-    if (!r.req.test(value)) return r.label;
+    if (!r.req.test(value)) return boolean ? true : r.label;
   }
 
   return null;
