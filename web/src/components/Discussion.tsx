@@ -10,6 +10,7 @@ import { useUserStore } from "../stores/userStore";
 import { wrapContent } from "../styles/css";
 import Argument from "./Argument";
 import CardAlert from "./cards/CardAlert";
+import CardLoader from "./cards/CardLoader";
 import { CardPanel } from "./cards/CardPanel";
 import Comment from "./Comment"
 import CreateArgument from "./CreateArgument";
@@ -258,9 +259,13 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
             </>
           }
 
-          <Card shadow="sm" p="md" m="md" radius="md" withBorder css={wrapContent}>
-            <TextParser text={discussion.readme ?? ""} />
-          </Card>
+          {discussion.readme ?
+            <Card shadow="sm" p="md" m="md" radius="md" withBorder css={wrapContent}>
+              <TextParser text={discussion.readme} />
+            </Card>
+            :
+            <CardLoader />
+          }
 
           <Card shadow="sm" p="md" m="md" radius="md" withBorder>
             <Flex direction="column" gap="md">
