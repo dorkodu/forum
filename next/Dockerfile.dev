@@ -1,0 +1,11 @@
+FROM node:16.17.1-alpine
+WORKDIR /forum/next
+
+RUN npm install -g pnpm && pnpm config set --global store-dir /root/.local/share/pnpm/store/v3
+
+COPY ./next/pnpm-lock.yaml /forum/next
+RUN pnpm fetch
+COPY ./next /forum/next
+RUN pnpm install --offline
+
+CMD [ "pnpm", "run", "dev" ]
