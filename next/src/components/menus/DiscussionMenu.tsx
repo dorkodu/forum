@@ -1,0 +1,110 @@
+import { IDiscussion } from "@/types/discussion";
+import { IUser } from "@/types/user";
+import { ActionIcon, Menu } from "@mantine/core"
+import { IconClipboardText, IconDots, IconEdit, IconShare, IconTrash } from "@tabler/icons-react"
+import { MouseEvent, useState } from "react";
+import { useTranslation } from "next-i18next";
+import { util } from "@/lib/web/util";
+import { useAuthStore } from "../../stores/authStore";
+import { useDiscussionStore } from "../../stores/discussionStore";
+import { useRouter } from "next/router";
+import CustomLink from "../custom/CustomLink";
+
+interface Props {
+  user: IUser;
+  discussion: IDiscussion;
+}
+
+interface State {
+  loading: boolean;
+  status: boolean | undefined;
+}
+
+function DiscussionMenu({ user, discussion }: Props) {
+  const [state, setState] = useState<State>({ loading: false, status: undefined });
+
+  const router = useRouter();
+  const { t } = useTranslation();
+  const queryDeleteDiscussion = useDiscussionStore(state => state.queryDeleteDiscussion);
+  const currentUserId = useAuthStore(state => state.userId);
+
+  const onClick = (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+  }
+
+  const share = (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    util.share(
+      `${discussion.title}`,
+      `https://forum.dorkodu.com/discussion/${discussion.id}`
+    )
+  }
+
+  const copyToClipboard = (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    util.copyToClipboard(`https://forum.dorkodu.com/discussion/${discussion.id}`);
+  }
+
+  const deleteDiscussion = async (ev: MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    if (state.loading) return;
+
+    setState({ ...state, loading: true, status: undefined });
+    const status = await queryDeleteDiscussion(discussion);
+    setState({ ...state, loading: false, status: status });
+
+    // Redirect to home after successfully deleting the discussion
+    if (status) router.push("/home");
+  }
+
+  return (
+    <Menu shadow="md" radius="md" position="bottom-end">
+      <Menu.Target>
+        <ActionIcon color="dark" onClick={onClick}>
+          <IconDots />
+        </ActionIcon>
+      </Menu.Target>
+
+      <Menu.Dropdown>
+        <Menu.Item
+          icon={<IconShare size={14} />}
+          onClick={share}
+        >
+          {t("share")}
+        </Menu.Item>
+
+        <Menu.Item
+          icon={<IconClipboardText size={14} />}
+          onClick={copyToClipboard}
+        >
+          {t("copyToClipboard")}
+        </Menu.Item>
+
+        {user.id === currentUserId &&
+          <>
+            <Menu.Divider />
+
+            <CustomLink href={`/discussion-editor/${discussion.id}`}>
+              <Menu.Item icon={<IconEdit size={14} />}>
+                {t("discussion.edit")}
+              </Menu.Item>
+            </CustomLink>
+
+            <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={deleteDiscussion}>
+              {t("discussion.delete")}
+            </Menu.Item>
+          </>
+        }
+      </Menu.Dropdown>
+    </Menu>
+  )
+}
+
+export default DiscussionMenu
