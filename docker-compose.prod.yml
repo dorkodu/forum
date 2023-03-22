@@ -2,34 +2,24 @@ version: '3.8'
 name: forum_prod
 
 services:
-  forum_api:
+  forum_next:
     build:
       context: .
-      dockerfile: ./api/Dockerfile.prod
+      dockerfile: ./next/Dockerfile.dev
     env_file:
       - ./.env
     environment:
       - NODE_ENV=production
       - VIRTUAL_HOST=${VIRTUAL_HOST:-forum.dorkodu.com}
-      - VIRTUAL_PORT=${API_PORT:-8003}
+      - VIRTUAL_PORT=${PORT:-8001}
       - LETSENCRYPT_HOST=${LETSENCRYPT_HOST:-forum.dorkodu.com}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-hey@dorkodu.com}
-      - VIRTUAL_PATH=/api
     expose:
-      - ${API_PORT:-8003}
+      - ${PORT:-8001}
     restart: always
     networks:
       - app
       - nginx-proxy
-
-  forum_web:
-    build:
-      context: .
-      dockerfile: ./web/Dockerfile.prod
-    env_file:
-      - ./.env
-    environment:
-      - NODE_ENV=production
 
   forum_postgres:
     image: postgres:15-alpine

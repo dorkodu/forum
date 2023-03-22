@@ -2,48 +2,23 @@ version: '3.8'
 name: forum_dev
 
 services:
-  forum_api:
+  forum_next:
     build:
       context: .
-      dockerfile: ./api/Dockerfile.dev
+      dockerfile: ./next/Dockerfile.dev
     env_file:
       - ./.env
     environment:
       - NODE_ENV=development
       - VIRTUAL_HOST=${VIRTUAL_HOST:-forum.dorkodu.com}
-      - VIRTUAL_PORT=${API_PORT:-8003}
+      - VIRTUAL_PORT=${PORT:-8001}
       - LETSENCRYPT_HOST=${LETSENCRYPT_HOST:-forum.dorkodu.com}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-hey@dorkodu.com}
-      - VIRTUAL_PATH=/api
     expose:
-      - ${API_PORT:-8003}
+      - ${PORT:-8001}
     volumes:
-      - ./api:/forum/api
-      - api_node_modules:/forum/api/node_modules
-    restart: always
-    networks:
-      - app
-      - nginx-proxy
-
-  forum_web:
-    build:
-      context: .
-      dockerfile: ./web/Dockerfile.dev
-    env_file:
-      - ./.env
-    environment:
-      - NODE_ENV=development
-      - VIRTUAL_HOST=${VIRTUAL_HOST:-forum.dorkodu.com}
-      - VIRTUAL_PORT=${WEB_PORT:-8002}
-      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST:-forum.dorkodu.com}
-      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-hey@dorkodu.com}
-      - VIRTUAL_PATH=/
-    expose:
-      - ${WEB_PORT:-8002}
-    volumes:
-      - ./web:/forum/web
-      - ./api:/forum/api
-      - web_node_modules:/forum/web/node_modules
+      - ./next:/forum/next
+      - next_node_modules:/forum/next/node_modules
     restart: always
     networks:
       - app
@@ -72,8 +47,7 @@ services:
 
 volumes:
   pgdata:
-  api_node_modules:
-  web_node_modules:
+  next_node_modules:
 
 networks:
   nginx-proxy:
