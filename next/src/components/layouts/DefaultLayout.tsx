@@ -36,7 +36,7 @@ function DefaultHeader() {
           <CustomLink href="/">
             <ActionIcon size={28}>
               <img
-                src={ForumIcon} alt="Forum"
+                src={ForumIcon.src} alt="Forum"
                 width={28} height={28}
                 draggable={false}
               />
