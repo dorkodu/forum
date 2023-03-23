@@ -1,3 +1,4 @@
+import DefaultLayout from '@/components/layouts/DefaultLayout'
 import Head from 'next/head'
 
 export default function Home() {
@@ -7,7 +8,9 @@ export default function Home() {
 
       </Head>
       <main>
-        hello, world
+        <DefaultLayout>
+          hello, world
+        </DefaultLayout>
       </main>
     </>
   )
