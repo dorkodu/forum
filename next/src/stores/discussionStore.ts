@@ -1,12 +1,12 @@
 import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
 import { request, sage } from "./api";
-import type { IDiscussion } from "@api/types/discussion";
-import type { IArgument } from "@api/types/argument";
-import type { IComment } from "@api/types/comment";
+import type { IDiscussion } from "@/types/discussion";
+import type { IArgument } from "@/types/argument";
+import type { IComment } from "@/types/comment";
 import { useUserStore } from "./userStore";
-import { array } from "../lib/array";
-import { util } from "../lib/util";
+import { array } from "@/lib/web/array";
+import { util } from "@/lib/web/util";
 
 interface State {
   discussion: {

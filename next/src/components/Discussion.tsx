@@ -1,5 +1,5 @@
-import { IArgument } from "@api/types/argument";
-import { IComment } from "@api/types/comment";
+import { IArgument } from "@/types/argument";
+import { IComment } from "@/types/comment";
 import { Card, Divider, Flex } from "@mantine/core";
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next";
@@ -10,13 +10,13 @@ import { useUserStore } from "../stores/userStore";
 import { wrapContent } from "../styles/css";
 import Argument from "./Argument";
 import CardAlert from "./cards/CardAlert";
-import CardLoader from "./cards/CardLoader";
+import CardLoader from "./loaders/CardLoader";
 import { CardPanel } from "./cards/CardPanel";
 import Comment from "./Comment"
 import CreateArgument from "./CreateArgument";
 import CreateComment from "./CreateComment";
 import DiscussionSummary from "./DiscussionSummary";
-import { useFeedProps, useWait } from "./hooks";
+import { useFeedProps, wait } from "./hooks";
 import InfiniteScroll from "./InfiniteScroll";
 import TextParser from "./TextParser";
 
@@ -65,7 +65,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
         ),
         d: sage.query("getUser", {}, { ctx: "c", wait: "c" }),
       },
-      (query) => useWait(() => request(query))()
+      (query) => wait(() => request(query))()
     )
 
     const status =
@@ -110,7 +110,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
     if (!skipWaiting && fetchArgumentProps.loading) return;
 
     setFetchArgumentProps(s => ({ ...s, loading: true, status: undefined }));
-    const res = await useWait(() => queryGetArguments(discussion.id, type, refresh))();
+    const res = await wait(() => queryGetArguments(discussion.id, type, refresh))();
     setFetchArgumentProps(s => ({ ...s, loading: false, status: res.status, hasMore: res.length !== 0 }));
   }
 
@@ -119,7 +119,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
     if (!skipWaiting && fetchCommentProps.loading) return;
 
     setFetchCommentProps(s => ({ ...s, loading: true, status: undefined }));
-    const res = await useWait(() => queryGetComments(discussion.id, type, refresh))();
+    const res = await wait(() => queryGetComments(discussion.id, type, refresh))();
     setFetchCommentProps(s => ({ ...s, loading: false, status: res.status, hasMore: res.length !== 0 }));
   }
 
@@ -131,7 +131,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
         a: sage.query("getArgument", { argumentId }, { ctx: "a" }),
         b: sage.query("getUser", {}, { ctx: "a", wait: "a" }),
       },
-      (query) => useWait(() => request(query))()
+      (query) => wait(() => request(query))()
     );
 
     //const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
@@ -157,7 +157,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
         a: sage.query("getComment", { commentId }, { ctx: "a" }),
         b: sage.query("getUser", {}, { ctx: "a", wait: "a" }),
       },
-      (query) => useWait(() => request(query))()
+      (query) => wait(() => request(query))()
     );
 
     //const status = !(!res?.a.data || res.a.error) && !(!res?.b.data || res.b.error);
@@ -260,7 +260,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
           }
 
           {discussion.readme ?
-            <Card shadow="sm" p="md" m="md" radius="md" withBorder css={wrapContent}>
+            <Card shadow="sm" p="md" m="md" radius="md" withBorder sx={wrapContent}>
               <TextParser text={discussion.readme} />
             </Card>
             :

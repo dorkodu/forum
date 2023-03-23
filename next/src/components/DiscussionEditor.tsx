@@ -3,17 +3,17 @@ import { useFocusWithin } from "@mantine/hooks";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { request, sage } from "../stores/api";
 import { useAppStore } from "../stores/appStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { wrapContent } from "../styles/css";
-import CardLoader from "./cards/CardLoader";
+import CardLoader from "./loaders/CardLoader";
 import { CardPanel } from "./cards/CardPanel";
-import OverlayLoader from "./cards/OverlayLoader";
-import { useWait } from "./hooks";
+import OverlayLoader from "./loaders/OverlayLoader";
+import { wait } from "./hooks";
 import InputRequirements, { getRequirement, getRequirementError } from "./popovers/InputRequirements";
 import TextParser from "./TextParser";
+import { useRouter } from "next/router";
 
 interface Props {
   id: string | undefined;
@@ -28,9 +28,8 @@ function DiscussionEditor({ id }: Props) {
   const discussion = useAppStore(state => state.options.discussionEditor);
   const [state, setState] = useState<State>({ loading: !!id, status: undefined });
 
+  const router = useRouter();
   const { t } = useTranslation();
-
-  const navigate = useNavigate();
   const queryCreateDiscussion = useDiscussionStore(state => state.queryCreateDiscussion);
   const queryEditDiscussion = useDiscussionStore(state => state.queryEditDiscussion);
 
@@ -43,9 +42,9 @@ function DiscussionEditor({ id }: Props) {
     if (discussion.readme.length > 100000) return;
 
     setState(s => ({ ...s, loading: true, status: undefined }));
-    const res = await useWait(() => queryCreateDiscussion(discussion.title, discussion.readme))();
+    const res = await wait(() => queryCreateDiscussion(discussion.title, discussion.readme))();
     setState(s => ({ ...s, loading: false, status: res.status }));
-    if (res.id) navigate(`/discussion/${res.id}`);
+    if (res.id) router.push(`/discussion/${res.id}`);
   }
 
   const editDiscussion = async () => {
@@ -58,15 +57,15 @@ function DiscussionEditor({ id }: Props) {
     if (discussion.readme.length > 100000) return;
 
     setState(s => ({ ...s, loading: true, status: undefined }));
-    const status = await useWait(() => queryEditDiscussion(id, discussion.title, discussion.readme))();
+    const status = await wait(() => queryEditDiscussion(id, discussion.title, discussion.readme))();
     setState(s => ({ ...s, loading: false, status: status }));
-    navigate(`/discussion/${id}`);
+    router.push(`/discussion/${id}`);
   }
 
   const fetchDiscussion = async (id: string) => {
     const res = await sage.get(
       { a: sage.query("getDiscussion", { discussionId: id }), },
-      (query) => useWait(() => request(query))()
+      (query) => wait(() => request(query))()
     )
 
     const status = !(!res?.a.data || res.a.error);
@@ -79,7 +78,7 @@ function DiscussionEditor({ id }: Props) {
     if (!id || discussion.id === id) return;
 
     setState(s => ({ ...s, loading: true, status: undefined }));
-    const out = await useWait(() => fetchDiscussion(id))();
+    const out = await wait(() => fetchDiscussion(id))();
     setState(s => ({ ...s, loading: false, status: out.status }));
 
     useAppStore.setState(s => {
@@ -187,7 +186,7 @@ function DiscussionEditor({ id }: Props) {
             <Flex direction="column">
               <Text weight={500} size="sm">{t("discussion.titleLabel")}</Text>
               <Card withBorder>
-                <Text css={wrapContent}>
+                <Text sx={wrapContent}>
                   <TextParser text={discussion.title} />
                 </Text>
               </Card>
@@ -196,7 +195,7 @@ function DiscussionEditor({ id }: Props) {
             <Flex direction="column">
               <Text weight={500} size="sm">{t("discussion.readmeLabel")}</Text>
               <Card withBorder>
-                <Text css={wrapContent}>
+                <Text sx={wrapContent}>
                   <TextParser text={discussion.readme} />
                 </Text>
               </Card>

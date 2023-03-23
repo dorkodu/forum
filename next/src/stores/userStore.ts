@@ -1,11 +1,11 @@
-import { IUser } from "@api/types/user";
-import { INotification } from "@api/types/notification";
+import { IUser } from "@/types/user";
+import { INotification } from "@/types/notification";
 import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
-import { array } from "../lib/array";
+import { array } from "@/lib/web/array";
 import { request, sage } from "./api";
 import { useAuthStore } from "./authStore";
-import { util } from "../lib/util";
+import { util } from "@/lib/web/util";
 
 interface State {
   user: {

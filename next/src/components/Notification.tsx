@@ -33,7 +33,7 @@ function Notification({ notification }: Props) {
   const typeToHref = () => {
     switch (notification.type) {
       case notificationTypes.userFollow:
-        return `/profile/${user.username}`;
+        return `/profile/${user?.username}`;
 
       case notificationTypes.discussionFavourite:
         return `/discussion/${notification.parentId}`;

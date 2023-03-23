@@ -12,7 +12,7 @@ import { IUser, iUserSchema } from "@/types/user";
 import { crypto } from "../lib/crypto";
 
 async function middleware(ctx: SchemaContext) {
-  const rawToken = token.get(ctx.req);
+  const rawToken = token.get({ req: ctx.req, res: ctx.res }, "token");
   if (!rawToken) return;
 
   const auth = await queryAuth(rawToken);
@@ -45,10 +45,10 @@ const logout = sage.resource(
   {} as SchemaContext,
   undefined,
   async (_arg, ctx): Promise<{ data?: {}, error?: ErrorCode }> => {
-    const tkn = token.get(ctx.req);
+    const tkn = token.get({ req: ctx.req, res: ctx.res }, "token");
     if (!tkn) return { error: ErrorCode.Default };
     if (!(await queryExpireAccessToken(tkn))) return { error: ErrorCode.Default };
-    token.detach(ctx.res);
+    token.detach({ req: ctx.req, res: ctx.res }, "token");
 
     return { data: {} };
   }
@@ -110,7 +110,7 @@ const getAccessToken = sage.resource(
       if (result.count === 0) return { error: ErrorCode.Default };
 
       // Attach the access token for 30 days to the user
-      token.attach(ctx.res, { value: accessToken.token, expiresAt: date.day(30) });
+      token.attach({ req: ctx.req, res: ctx.res }, { value: accessToken.token, expiresAt: date.day(30) }, "token");
 
       return { data: { ...row, follower: false, following: false } };
     }
@@ -141,7 +141,7 @@ const getAccessToken = sage.resource(
       if (!res.success) return { error: ErrorCode.Default };
 
       // Attach the access token for 30 days to the user
-      token.attach(ctx.res, { value: accessToken.token, expiresAt: date.day(30) });
+      token.attach({ req: ctx.req, res: ctx.res }, { value: accessToken.token, expiresAt: date.day(30) }, "token");
 
       return { data: res.data };
     }
@@ -161,7 +161,7 @@ async function queryAuth(rawToken: string): Promise<{ userId: string } | undefin
     switch (config.env) {
       case "development":
         axios.post(
-          "http://id_api:8001/api",
+          "http://id_api:8000/api",
           { a: { res: "checkAccess", arg: { token: rawToken } } }
         )
           .then((value) => { resolve(value.data.a.data) })
@@ -185,7 +185,7 @@ async function queryGetAccessToken(code: string): Promise<{ token: string } | un
     switch (config.env) {
       case "development":
         axios.post(
-          "http://id_api:8001/api",
+          "http://id_api:8000/api",
           { a: { res: "getAccessToken", arg: { code } } }
         )
           .then((value) => { resolve(value.data.a.data) })
@@ -209,7 +209,7 @@ async function queryExpireAccessToken(token: string): Promise<{} | undefined> {
     switch (config.env) {
       case "development":
         axios.post(
-          "http://id_api:8001/api",
+          "http://id_api:8000/api",
           { a: { res: "expireAccessToken", arg: { token } } }
         )
           .then((value) => { resolve(value.data.a.data) })
@@ -242,7 +242,7 @@ async function queryUserData(token: string): Promise<UserData | undefined> {
     switch (config.env) {
       case "development":
         axios.post(
-          "http://id_api:8001/api",
+          "http://id_api:8000/api",
           { a: { res: "getUserData", arg: { token } } }
         )
           .then((value) => { resolve(value.data.a.data) })

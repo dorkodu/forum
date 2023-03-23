@@ -62,16 +62,40 @@ function compareId(a: string, b: string, reverse?: boolean) {
   return 0;
 }
 
-function formatNumber(locale: string, number: number, long?: boolean) {
+function formatNumber(locale: string | undefined, number: number, long?: boolean) {
   if (long) return Intl.NumberFormat(locale).format(number);
   return Intl.NumberFormat(locale, { notation: "compact", maximumFractionDigits: 1 }).format(number);
 }
 
+function formatDate(locale: string | undefined, date: number, long?: boolean) {
+  if (long) return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(date);
+
+  const current = new Date();
+  const target = new Date(date);
+  let diff = 0;
+
+  if (current.getFullYear() - target.getFullYear() >= 1)
+    return new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", year: "numeric" }).format(date);
+  else if (current.getDay() - target.getDay() >= 1)
+    return new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" }).format(date);
+  else if ((diff = current.getHours() - target.getHours()) >= 1)
+    return new Intl.RelativeTimeFormat(locale, { numeric: "always", style: "narrow" }).format(-diff, "hours");
+  else if ((diff = current.getMinutes() - target.getMinutes()) >= 1)
+    return new Intl.RelativeTimeFormat(locale, { numeric: "always", style: "narrow" }).format(-diff, "minutes");
+  else if ((diff = current.getSeconds() - target.getSeconds()) >= 1)
+    return new Intl.RelativeTimeFormat(locale, { numeric: "always", style: "narrow" }).format(-diff, "seconds");
+  else return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(0, "seconds");
+}
+
 export const util = {
   parseUserAgent,
+
   share,
   copyToClipboard,
+
   tryObjSwap,
   compareId,
+
   formatNumber,
+  formatDate,
 }

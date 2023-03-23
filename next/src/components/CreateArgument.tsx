@@ -8,7 +8,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { wrapContent } from "../styles/css";
 import { CardPanel } from "./cards/CardPanel";
-import OverlayLoader from "./cards/OverlayLoader";
+import OverlayLoader from "./loaders/OverlayLoader";
 import { useFeedProps, wait } from "./hooks";
 import InputRequirements, { getRequirement, getRequirementError } from "./popovers/InputRequirements";
 import TextParser from "./TextParser";
@@ -126,7 +126,7 @@ function CreateArgument({ discussionId }: Props) {
           <Flex direction="column">
             <Text weight={500} size="sm">{t("argument.title")}</Text>
             <Card withBorder>
-              <Text css={wrapContent}>
+              <Text sx={wrapContent}>
                 <TextParser text={state.argument} />
               </Text>
             </Card>

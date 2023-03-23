@@ -10,9 +10,9 @@ import Script from 'next/script';
 import { appWithTranslation } from 'next-i18next';
 import { NextApiRequest, NextApiResponse } from 'next';
 import type auth from '@/lib/api/controllers/auth';
-import { UserProvider } from '@/stores/userContext';
+import { IUser } from '@/types/user';
 
-type CustomAppProps = { authorized?: boolean, theme?: ColorScheme }
+type CustomAppProps = { user?: IUser, theme?: ColorScheme }
 
 export function CustomApp(props: AppProps & CustomAppProps) {
   const { Component, pageProps } = props;
@@ -31,30 +31,26 @@ export function CustomApp(props: AppProps & CustomAppProps) {
     <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
       <MantineProvider emotionCache={emotionCache} theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
 
-        <UserProvider authorized={props.authorized}>
+        <Head>
+          <meta
+            name='viewport'
+            content='minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover'
+          />
 
-          <Head>
-            <meta
-              name='viewport'
-              content='minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover'
-            />
+          <link rel="icon" type="image/svg+xml" href="/id.svg" />
+          <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+          <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+          <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+          <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#00cc30" />
+          <meta name="msapplication-TileColor" content="#ffffff" />
+          <meta name="theme-color" content={colorScheme === "light" ? "#fff" : "#1A1B1E"} />
+        </Head>
 
-            <link rel="icon" type="image/svg+xml" href="/id.svg" />
-            <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-            <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-            <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-            <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#00cc30" />
-            <meta name="msapplication-TileColor" content="#ffffff" />
-            <meta name="theme-color" content={colorScheme === "light" ? "#fff" : "#1A1B1E"} />
-          </Head>
+        <Script id="theme" strategy="beforeInteractive">
+          {'let a=`; ${document.cookie}`.split("; theme="),b=2===a.length&&a.pop().split(";").shift(),c="dark"===b?"#1A1B1E":"#fff";document.documentElement.style.backgroundColor=c'}
+        </Script>
 
-          <Script id="theme" strategy="beforeInteractive">
-            {'let a=`; ${document.cookie}`.split("; theme="),b=2===a.length&&a.pop().split(";").shift(),c="dark"===b?"#1A1B1E":"#fff";document.documentElement.style.backgroundColor=c'}
-          </Script>
-
-          <Component {...pageProps} />
-
-        </UserProvider>
+        <Component {...pageProps} />
 
       </MantineProvider>
     </ColorSchemeProvider>
@@ -66,7 +62,7 @@ CustomApp.getInitialProps = async (context: AppContext): Promise<CustomAppProps 
   const req = context.ctx.req as NextApiRequest;
   const res = context.ctx.res as NextApiResponse;
 
-  let authorized: boolean | undefined = undefined;
+  let user: IUser | undefined = undefined;
   let theme: ColorScheme | undefined = undefined;
 
   if (typeof window === "undefined") {
@@ -78,15 +74,14 @@ CustomApp.getInitialProps = async (context: AppContext): Promise<CustomAppProps 
 
       // Get user's authorization status
       const _auth = (await require('@/lib/api/controllers/auth')).default as typeof auth;
-      const result = await _auth.auth.executor({}, { req, res });
-      const status = !(!result?.data || result.error);
-      authorized = status;
+      const result = await _auth.auth.executor({}, { req, res, shared: {} });
+      user = result.data;
     }
   }
 
   return {
     ...ctx,
-    authorized,
+    user,
     theme,
   }
 }

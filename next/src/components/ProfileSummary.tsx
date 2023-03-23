@@ -1,14 +1,15 @@
-import { IUser } from "@api/types/user";
+import { IUser } from "@/types/user";
 import { Button, Flex, Text } from "@mantine/core";
 import { IconHandOff, IconUsers } from "@tabler/icons-react";
 import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom"
-import { util } from "../lib/util";
+import { util } from "@/lib/web/util";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import CardEntity from "./cards/CardEntity";
 import UserMenu from "./menus/UserMenu";
+import { useRouter } from "next/router";
+import CustomLink from "./custom/CustomLink";
 
 interface Props {
   user: IUser;
@@ -22,16 +23,10 @@ interface State {
 function ProfileSummary({ user }: Props) {
   const [state, setState] = useState<State>({ loading: false, status: undefined });
 
+  const router = useRouter();
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const queryFollowUser = useUserStore(state => state.queryFollowUser);
   const currentUserId = useAuthStore(state => state.userId);
-
-  const gotoUser = (ev: MouseEvent) => {
-    ev.stopPropagation();
-    ev.preventDefault();
-    navigate(`/profile/${user.username}`);
-  }
 
   const followUser = async (ev: MouseEvent) => {
     ev.stopPropagation();
@@ -45,53 +40,52 @@ function ProfileSummary({ user }: Props) {
   }
 
   return (
-    <CardEntity
-      user={user}
-      entity={{ content: user.bio }}
+    <CustomLink href={`/profile/${user.username}`}>
+      <CardEntity
+        user={user}
+        entity={{ content: user.bio }}
 
-      onClickUser={gotoUser}
-      onClickCard={gotoUser}
+        componentMenu={<UserMenu user={user} />}
+        componentBottom={
+          <Flex direction="column" gap={4}>
+            <Flex direction="row" wrap="wrap">
+              {/*No need for a CustomTooltip here, since clicking the component will change the route.*/}
+              <Text mr="xs">
+                {t("user.followers", { count: user.followerCount, number: util.formatNumber(router.locale, user.followerCount) })}
+              </Text>
 
-      componentMenu={<UserMenu user={user} />}
-      componentBottom={
-        <Flex direction="column" gap={4}>
-          <Flex direction="row" wrap="wrap">
-            {/*No need for a CustomTooltip here, since clicking the component will change the route.*/}
-            <Text mr="xs">
-              {t("user.followers", { count: user.followerCount, number: util.formatNumber(user.followerCount) })}
-            </Text>
+              {/*No need for a CustomTooltip here, since clicking the component will change the route.*/}
+              <Text>
+                {t("user.following", { count: user.followingCount, number: util.formatNumber(router.locale, user.followingCount) })}
+              </Text>
+            </Flex>
 
-            {/*No need for a CustomTooltip here, since clicking the component will change the route.*/}
-            <Text>
-              {t("user.following", { count: user.followingCount, number: util.formatNumber(user.followingCount) })}
-            </Text>
+            {user.following &&
+              <Flex align="center" gap="xs">
+                <IconUsers />{t("user.followsYou")}
+              </Flex>
+            }
+
+            {(user.blocking || user.blocker) &&
+              <Flex align="center" gap="xs">
+                <IconHandOff />
+                {user.blocking && user.blocker && t("user.blockBoth")}
+                {!user.blocking && user.blocker && t("user.blocker")}
+                {user.blocking && !user.blocker && t("user.blocking")}
+              </Flex>
+            }
+
+            {user.id !== currentUserId &&
+              <Flex justify="flex-end">
+                <Button onClick={followUser} color="dark" radius="md">
+                  {user.follower ? t("user.unfollow") : t("user.follow")}
+                </Button>
+              </Flex>
+            }
           </Flex>
-
-          {user.following &&
-            <Flex align="center" gap="xs">
-              <IconUsers />{t("user.followsYou")}
-            </Flex>
-          }
-
-          {(user.blocking || user.blocker) &&
-            <Flex align="center" gap="xs">
-              <IconHandOff />
-              {user.blocking && user.blocker && t("user.blockBoth")}
-              {!user.blocking && user.blocker && t("user.blocker")}
-              {user.blocking && !user.blocker && t("user.blocking")}
-            </Flex>
-          }
-
-          {user.id !== currentUserId &&
-            <Flex justify="flex-end">
-              <Button onClick={followUser} color="dark" radius="md">
-                {user.follower ? t("user.unfollow") : t("user.follow")}
-              </Button>
-            </Flex>
-          }
-        </Flex>
-      }
-    />
+        }
+      />
+    </CustomLink>
   )
 }
 
