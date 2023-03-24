@@ -161,7 +161,7 @@ async function queryAuth(rawToken: string): Promise<{ userId: string } | undefin
     switch (config.env) {
       case "development":
         axios.post(
-          "http://id_api:8000/api",
+          "http://id_next:8000/api",
           { a: { res: "checkAccess", arg: { token: rawToken } } }
         )
           .then((value) => { resolve(value.data.a.data) })
@@ -185,7 +185,7 @@ async function queryGetAccessToken(code: string): Promise<{ token: string } | un
     switch (config.env) {
       case "development":
         axios.post(
-          "http://id_api:8000/api",
+          "http://id_next:8000/api",
           { a: { res: "getAccessToken", arg: { code } } }
         )
           .then((value) => { resolve(value.data.a.data) })
@@ -209,7 +209,7 @@ async function queryExpireAccessToken(token: string): Promise<{} | undefined> {
     switch (config.env) {
       case "development":
         axios.post(
-          "http://id_api:8000/api",
+          "http://id_next:8000/api",
           { a: { res: "expireAccessToken", arg: { token } } }
         )
           .then((value) => { resolve(value.data.a.data) })
@@ -242,7 +242,7 @@ async function queryUserData(token: string): Promise<UserData | undefined> {
     switch (config.env) {
       case "development":
         axios.post(
-          "http://id_api:8000/api",
+          "http://id_next:8000/api",
           { a: { res: "getUserData", arg: { token } } }
         )
           .then((value) => { resolve(value.data.a.data) })

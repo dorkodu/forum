@@ -7,7 +7,7 @@ export const getServerSideProps: GetServerSideProps = async (props) => {
   const req = props.req as NextApiRequest;
   const res = props.res as NextApiResponse;
 
-  const code = typeof props.query.token === "string" ? props.query.token : undefined;
+  const code = typeof props.query.code === "string" ? props.query.code : undefined;
 
   if (code) {
     const input: typeof auth.getAccessToken.arg = { code };
