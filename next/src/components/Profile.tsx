@@ -71,21 +71,21 @@ function Profile({ user }: Props) {
         </Flex>
 
         <Flex direction="row" wrap="wrap">
-          <CustomTooltip label={util.formatNumber(router.locale, user.followerCount, true)}>
-            <CustomLink href={`/profile/${user.username}/followers`}>
+          <CustomLink href={`/profile/${user.username}/followers`}>
+            <CustomTooltip label={util.formatNumber(router.locale, user.followerCount, true)}>
               <Anchor sx={colorBW(theme)} component="div" mr="xs">
                 {t("user.followers", { count: user.followerCount, number: util.formatNumber(router.locale, user.followerCount) })}
               </Anchor>
-            </CustomLink>
-          </CustomTooltip>
+            </CustomTooltip>
+          </CustomLink>
 
-          <CustomTooltip label={util.formatNumber(router.locale, user.followingCount, true)}>
-            <CustomLink href={`/profile/${user.username}/following`}>
+          <CustomLink href={`/profile/${user.username}/following`}>
+            <CustomTooltip label={util.formatNumber(router.locale, user.followingCount, true)}>
               <Anchor sx={colorBW(theme)} component="div">
                 {t("user.following", { count: user.followingCount, number: util.formatNumber(router.locale, user.followingCount) })}
               </Anchor>
-            </CustomLink>
-          </CustomTooltip>
+            </CustomTooltip>
+          </CustomLink>
         </Flex>
 
         {user.following &&
