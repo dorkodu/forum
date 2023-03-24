@@ -4,9 +4,9 @@ import { Card, Divider, Flex } from "@mantine/core";
 import { useEffect } from "react"
 import { useTranslation } from "next-i18next";
 import { request, sage } from "../stores/api";
-import { useAppStore } from "../stores/appStore";
-import { useDiscussionStore } from "../stores/discussionStore";
-import { useUserStore } from "../stores/userStore";
+import { appStore, useAppStore } from "../stores/appStore";
+import { discussionStore, useDiscussionStore } from "../stores/discussionStore";
+import { userStore } from "../stores/userStore";
 import { wrapContent } from "../styles/css";
 import Argument from "./Argument";
 import CardAlert from "./cards/CardAlert";
@@ -80,25 +80,25 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
     const users = res?.d.data;
 
     // Clear arguments/comments data to only show refreshed data
-    useDiscussionStore.setState(s => {
+    discussionStore().setState(s => {
       if (!discussionId) return;
       delete s.discussion.arguments[discussionId];
       delete s.discussion.comments[discussionId];
     })
 
-    if (discussion) useDiscussionStore.setState(s => { s.discussion.entities[discussion.id] = discussion });
-    if (user) useUserStore.getState().setUsers(user);
+    if (discussion) discussionStore().setState(s => { s.discussion.entities[discussion.id] = discussion });
+    if (user) userStore().getState().setUsers(user);
     if (argumentsOrComments) {
       if (state.show === "arguments") {
         const _arguments = argumentsOrComments as IArgument[];
-        useDiscussionStore.getState().setArguments(discussionId, _arguments, state.argumentOrder);
+        discussionStore().getState().setArguments(discussionId, _arguments, state.argumentOrder);
       }
       else if (state.show === "comments") {
         const comments = argumentsOrComments as IComment[];
-        useDiscussionStore.getState().setComments(discussionId, comments);
+        discussionStore().getState().setComments(discussionId, comments);
       }
     }
-    if (users) useUserStore.getState().setUsers(users);
+    if (users) userStore().getState().setUsers(users);
 
     setDiscussionProps(s => ({ ...s, loading: false, status: status }));
     setFetchArgumentProps(s => ({ ...s, hasMore: true }));
@@ -138,12 +138,12 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
     const argument = res?.a.data;
     const user = res?.b.data?.[0];
 
-    useDiscussionStore.setState(s => {
+    discussionStore().setState(s => {
       if (!argument) return;
       s.argument.entities[argumentId] = argument;
     });
 
-    useUserStore.setState(s => {
+    userStore().setState(s => {
       if (!user) return;
       s.user.entities[user.id] = user;
     });
@@ -164,12 +164,12 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
     const comment = res?.a.data;
     const user = res?.b.data?.[0];
 
-    useDiscussionStore.setState(s => {
+    discussionStore().setState(s => {
       if (!comment) return;
       s.comment.entities[commentId] = comment;
     });
 
-    useUserStore.setState(s => {
+    userStore().setState(s => {
       if (!user) return;
       s.user.entities[user.id] = user;
     });
@@ -184,7 +184,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
 
   const changeShow = (value: string) => {
     if (value === "arguments" || value === "comments") {
-      useAppStore.setState(s => { s.options.discussion.show = value });
+      appStore().setState(s => { s.options.discussion.show = value });
     }
   }
 
@@ -196,16 +196,16 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
         value !== "top" &&
         value !== "bottom"
       ) return;
-      useAppStore.setState(s => { s.options.discussion.argumentOrder = value });
-      useDiscussionStore.setState(state => { discussionId && delete state.discussion.arguments[discussionId] });
+      appStore().setState(s => { s.options.discussion.argumentOrder = value });
+      discussionStore().setState(state => { discussionId && delete state.discussion.arguments[discussionId] });
     }
     else if (state.show === "comments") {
       if (
         value !== "newer" &&
         value !== "older"
       ) return;
-      useAppStore.setState(s => { s.options.discussion.commentOrder = value });
-      useDiscussionStore.setState(state => { discussionId && delete state.discussion.comments[discussionId] });
+      appStore().setState(s => { s.options.discussion.commentOrder = value });
+      discussionStore().setState(state => { discussionId && delete state.discussion.comments[discussionId] });
     }
   }
 

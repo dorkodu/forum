@@ -6,9 +6,9 @@ import { useFeedProps, wait } from "../components/hooks";
 import InfiniteScroll from "../components/InfiniteScroll";
 import Notification from "../components/Notification";
 import { request, sage } from "../stores/api";
-import { useAppStore } from "../stores/appStore";
-import { useAuthStore } from "../stores/authStore";
-import { useUserStore } from "../stores/userStore";
+import { appStore, useAppStore } from "../stores/appStore";
+import { authStore } from "../stores/authStore";
+import { userStore, useUserStore } from "../stores/userStore";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
 import Head from "next/head";
 
@@ -24,7 +24,7 @@ export default function NotificationsRoute() {
 
     setNotificationProps(s => ({ ...s, loading: true, status: undefined }));
 
-    const anchorId = useUserStore.getState().getNotificationsAnchor(type, refresh)
+    const anchorId = userStore().getState().getNotificationsAnchor(type, refresh)
     const res = await sage.get(
       {
         a: sage.query("getUserNotifications", { type, anchorId }, { ctx: "a" }),
@@ -36,13 +36,13 @@ export default function NotificationsRoute() {
     const notifications = res?.a.data;
     const users = res?.b.data;
 
-    if (refresh) useUserStore.setState(state => { state.user.notifications = {} });
-    if (notifications) useUserStore.getState().setNotifications(notifications);
-    if (users) useUserStore.getState().setUsers(users);
+    if (refresh) userStore().setState(state => { state.user.notifications = {} });
+    if (notifications) userStore().getState().setNotifications(notifications);
+    if (users) userStore().getState().setUsers(users);
 
     // Set user.hasNotification to false since notifications are viewed
-    const currentUserId = useAuthStore.getState().userId;
-    useUserStore.setState(s => {
+    const currentUserId = authStore().getState().userId;
+    userStore().setState(s => {
       if (!currentUserId) return;
       const currentUser = s.user.entities[currentUserId]
       if (currentUser) currentUser.hasNotification = false;
@@ -56,10 +56,10 @@ export default function NotificationsRoute() {
     if (notificationProps.loading) return;
 
     if (value === "newer" || value === "older") {
-      useAppStore.setState(s => { s.options.notifications.order = value });
+      appStore().setState(s => { s.options.notifications.order = value });
 
       // Clear notifications when changing the order
-      useUserStore.setState(state => { state.user.notifications = {} });
+      userStore().setState(state => { state.user.notifications = {} });
     }
   }
 

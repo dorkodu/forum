@@ -11,6 +11,10 @@ import { appWithTranslation } from 'next-i18next';
 import { NextApiRequest, NextApiResponse } from 'next';
 import type auth from '@/lib/api/controllers/auth';
 import { IUser } from '@/types/user';
+import { AppProvider } from '@/stores/appStore';
+import { AuthProvider } from '@/stores/authStore';
+import { DiscussionProvider } from '@/stores/discussionStore';
+import { UserProvider } from '@/stores/userStore';
 
 type CustomAppProps = { user?: IUser, theme?: ColorScheme }
 
@@ -27,30 +31,49 @@ export function CustomApp(props: AppProps & CustomAppProps) {
     setCookie('theme', scheme, { maxAge: 60 * 60 * 24 * 365 });
   }
 
+  const initialUser: Parameters<typeof UserProvider>["0"]["user"] = {
+    entities: {},
+    followers: {},
+    following: {},
+    search: [],
+    notifications: {},
+  }
+  if (props.user) { initialUser.entities[props.user.id] = props.user };
+
   return (
     <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
       <MantineProvider emotionCache={emotionCache} theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
 
-        <Head>
-          <meta
-            name='viewport'
-            content='minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover'
-          />
+        <AppProvider>
+          <AuthProvider userId={props.user?.id}>
+            <DiscussionProvider>
+              <UserProvider user={initialUser}>
 
-          <link rel="icon" type="image/svg+xml" href="/forum.svg" />
-          <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-          <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-          <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-          <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#00cc30" />
-          <meta name="msapplication-TileColor" content="#ffffff" />
-          <meta name="theme-color" content={colorScheme === "light" ? "#fff" : "#1A1B1E"} />
-        </Head>
+                <Head>
+                  <meta
+                    name='viewport'
+                    content='minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover'
+                  />
 
-        <Script id="theme" strategy="beforeInteractive">
-          {'let a=`; ${document.cookie}`.split("; theme="),b=2===a.length&&a.pop().split(";").shift(),c="dark"===b?"#1A1B1E":"#fff";document.documentElement.style.backgroundColor=c'}
-        </Script>
+                  <link rel="icon" type="image/svg+xml" href="/forum.svg" />
+                  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+                  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+                  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+                  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#00cc30" />
+                  <meta name="msapplication-TileColor" content="#ffffff" />
+                  <meta name="theme-color" content={colorScheme === "light" ? "#fff" : "#1A1B1E"} />
+                </Head>
 
-        <Component {...pageProps} />
+                <Script id="theme" strategy="beforeInteractive">
+                  {'let a=`; ${document.cookie}`.split("; theme="),b=2===a.length&&a.pop().split(";").shift(),c="dark"===b?"#1A1B1E":"#fff";document.documentElement.style.backgroundColor=c'}
+                </Script>
+
+                <Component {...pageProps} />
+
+              </UserProvider>
+            </DiscussionProvider>
+          </AuthProvider>
+        </AppProvider>
 
       </MantineProvider>
     </ColorSchemeProvider>

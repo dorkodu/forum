@@ -5,11 +5,11 @@ import InfiniteScroll from '@/components/InfiniteScroll';
 import CardPanel from '@/components/cards/CardPanel';
 import DiscussionSummary from '@/components/DiscussionSummary';
 import { useEffect } from 'react';
-import { useAppStore } from '@/stores/appStore';
-import { useDiscussionStore } from '@/stores/discussionStore';
+import { appStore, useAppStore } from '@/stores/appStore';
+import { discussionStore, useDiscussionStore } from '@/stores/discussionStore';
 import { useFeedProps, wait } from '@/components/hooks';
 import { request, sage } from '@/stores/api';
-import { useUserStore } from '@/stores/userStore';
+import { userStore } from '@/stores/userStore';
 import { useTranslation } from 'next-i18next';
 
 export default function Home() {
@@ -29,7 +29,7 @@ export default function Home() {
 
     setUserFeedProps(s => ({ ...s, loading: true, status: undefined }));
 
-    const anchorId = useDiscussionStore.getState().getUserFeedAnchor(type, refresh);
+    const anchorId = discussionStore().getState().getUserFeedAnchor(type, refresh);
     const res = await sage.get(
       {
         a: sage.query("getUserDiscussionFeed", { anchorId, type }, { ctx: "a" }),
@@ -41,9 +41,9 @@ export default function Home() {
     const discussions = res?.a.data;
     const users = res?.b.data;
 
-    if (refresh) useDiscussionStore.setState(state => { state.userFeed = {} });
-    if (discussions) useDiscussionStore.getState().addUserFeedDiscussions(discussions);
-    if (users) useUserStore.getState().setUsers(users);
+    if (refresh) discussionStore().setState(state => { state.userFeed = {} });
+    if (discussions) discussionStore().getState().addUserFeedDiscussions(discussions);
+    if (users) userStore().getState().setUsers(users);
 
     setUserFeedProps(s => ({ ...s, loading: false, status, hasMore: discussions?.length !== 0 }));
   }
@@ -53,7 +53,7 @@ export default function Home() {
 
     setFavouriteFeedProps(s => ({ ...s, loading: true, status: undefined }));
 
-    const anchorId = useDiscussionStore.getState().getFavouriteFeedAnchor(type, refresh);
+    const anchorId = discussionStore().getState().getFavouriteFeedAnchor(type, refresh);
     const res = await sage.get(
       {
         a: sage.query("getFavouriteDiscussionFeed", { anchorId, type }, { ctx: "a" }),
@@ -65,9 +65,9 @@ export default function Home() {
     const discussions = res?.a.data;
     const users = res?.b.data;
 
-    if (refresh) useDiscussionStore.setState(state => { state.favouriteFeed = {} });
-    if (discussions) useDiscussionStore.getState().addFavouriteFeedDiscussions(discussions);
-    if (users) useUserStore.getState().setUsers(users);
+    if (refresh) discussionStore().setState(state => { state.favouriteFeed = {} });
+    if (discussions) discussionStore().getState().addFavouriteFeedDiscussions(discussions);
+    if (users) userStore().getState().setUsers(users);
 
     setFavouriteFeedProps(s => ({ ...s, loading: false, status, hasMore: discussions?.length !== 0 }));
   }
@@ -77,7 +77,7 @@ export default function Home() {
 
     setGuestFeedProps(s => ({ ...s, loading: true, status: undefined }));
 
-    const anchorId = useDiscussionStore.getState().getGuestFeedAnchor(type, refresh);
+    const anchorId = discussionStore().getState().getGuestFeedAnchor(type, refresh);
     const res = await sage.get(
       {
         a: sage.query("getGuestDiscussionFeed", { anchorId, type }, { ctx: "a" }),
@@ -89,9 +89,9 @@ export default function Home() {
     const discussions = res?.a.data;
     const users = res?.b.data;
 
-    if (refresh) useDiscussionStore.setState(state => { state.guestFeed = {} });
-    if (discussions) useDiscussionStore.getState().addGuestFeedDiscussions(discussions);
-    if (users) useUserStore.getState().setUsers(users);
+    if (refresh) discussionStore().setState(state => { state.guestFeed = {} });
+    if (discussions) discussionStore().getState().addGuestFeedDiscussions(discussions);
+    if (users) userStore().getState().setUsers(users);
 
     setGuestFeedProps(s => ({ ...s, loading: false, status, hasMore: discussions?.length !== 0 }));
   }
@@ -114,7 +114,7 @@ export default function Home() {
 
   const changeFeed = (value: string) => {
     if (value === "user" || value === "favourite" || value === "guest") {
-      useAppStore.setState(s => { s.options.home.feed = value });
+      appStore().setState(s => { s.options.home.feed = value });
     }
   }
 
@@ -136,7 +136,7 @@ export default function Home() {
     if (getLoading(state.feed)) return;
 
     if (value === "newer" || value === "older") {
-      useAppStore.setState(s => {
+      appStore().setState(s => {
         switch (state.feed) {
           case "user": s.options.home.userOrder = value; break;
           case "favourite": s.options.home.favouriteOrder = value; break;
@@ -145,7 +145,7 @@ export default function Home() {
       });
 
       // Clear feed when changing the order
-      useDiscussionStore.setState(_state => {
+      discussionStore().setState(_state => {
         switch (state.feed) {
           case "user": _state.userFeed = {}; break;
           case "favourite": _state.favouriteFeed = {}; break;

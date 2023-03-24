@@ -3,7 +3,7 @@ import { useFocusWithin } from "@mantine/hooks";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "next-i18next"
-import { useAppStore } from "../stores/appStore";
+import { appStore, useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { wrapContent } from "../styles/css";
@@ -45,12 +45,12 @@ function CreateArgument({ discussionId }: Props) {
     // directly with a setArgument call, instead it's html property must be changed
     inputReady.current = false;
     if (argumentRef.current) argumentRef.current.value = "";
-    useAppStore.setState(s => { s.options.discussion.argument = "" });
+    appStore().setState(s => { s.options.discussion.argument = "" });
   }
 
   const changeMode = (value: string) => {
     if (value === "edit" || value === "preview") {
-      useAppStore.setState(s => { s.options.discussion.argumentMode = value });
+      appStore().setState(s => { s.options.discussion.argumentMode = value });
     }
   }
 
@@ -89,7 +89,7 @@ function CreateArgument({ discussionId }: Props) {
                 label={`${t("argument.title")} (${state.argument.length} / 500)`}
                 placeholder={t("argument.write")}
                 defaultValue={state.argument}
-                onChange={ev => useAppStore.setState(s => { s.options.discussion.argument = ev.target.value })}
+                onChange={ev => appStore().setState(s => { s.options.discussion.argument = ev.target.value })}
                 autosize
                 error={inputReady.current && getRequirementError(t, "argument", state.argument, argumentFocused)}
                 ref={argumentRef}
@@ -101,7 +101,7 @@ function CreateArgument({ discussionId }: Props) {
 
               <SegmentedControl radius="md"
                 value={state.argumentType ? "+" : "-"}
-                onChange={(type: "+" | "-") => useAppStore.setState(s => { s.options.discussion.argumentType = type === "+" })}
+                onChange={(type: "+" | "-") => appStore().setState(s => { s.options.discussion.argumentType = type === "+" })}
                 data={[
                   { label: "+", value: "+" },
                   { label: "-", value: "-" },

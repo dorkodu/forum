@@ -8,8 +8,8 @@ import InfiniteScroll from "@/components/InfiniteScroll";
 import Profile from "@/components/Profile"
 import ProfileSummary from "@/components/ProfileSummary"
 import { request, sage } from "@/stores/api";
-import { useAppStore } from "@/stores/appStore";
-import { useUserStore } from "@/stores/userStore";
+import { appStore, useAppStore } from "@/stores/appStore";
+import { userStore, useUserStore } from "@/stores/userStore";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
@@ -33,7 +33,7 @@ export default function Follower() {
 
     setFollowerProps(s => ({ ...s, loading: true, status: undefined }));
 
-    const anchorId = useUserStore.getState().getUserFollowersAnchor(user, type, refresh)
+    const anchorId = userStore().getState().getUserFollowersAnchor(user, type, refresh)
     const res = await sage.get(
       { a: sage.query("getUserFollowers", { userId: user.id, type, anchorId }), },
       (query) => wait(() => request(query))()
@@ -41,10 +41,10 @@ export default function Follower() {
     const status = !(!res?.a.data || res.a.error);
     const followers = res?.a.data;
 
-    if (refresh) useUserStore.setState(state => { user && delete state.user.followers[user.id] });
+    if (refresh) userStore().setState(state => { user && delete state.user.followers[user.id] });
     if (followers) {
-      useUserStore.getState().setUsers(followers);
-      useUserStore.getState().addUserFollowers(user, followers);
+      userStore().getState().setUsers(followers);
+      userStore().getState().addUserFollowers(user, followers);
     }
 
     setFollowerProps(s => ({ ...s, loading: false, status, hasMore: followers?.length !== 0 }));
@@ -66,11 +66,11 @@ export default function Follower() {
     const followers = res?.b.data;
 
     // Clear feed when fetching route since it's used by infinite scroll
-    useUserStore.setState(state => { user && delete state.user.followers[user.id] });
+    userStore().setState(state => { user && delete state.user.followers[user.id] });
 
-    if (user) useUserStore.getState().setUsers([user]);
-    if (followers) useUserStore.getState().setUsers(followers);
-    if (user && followers) useUserStore.getState().addUserFollowers(user, followers);
+    if (user) userStore().getState().setUsers([user]);
+    if (followers) userStore().getState().setUsers(followers);
+    if (user && followers) userStore().getState().addUserFollowers(user, followers);
 
     setUserProps(s => ({ ...s, loading: false, status: status }));
     setFollowerProps(s => ({ ...s, hasMore: true }));
@@ -81,10 +81,10 @@ export default function Follower() {
     if (followerProps.loading) return;
 
     if (value === "newer" || value === "older") {
-      useAppStore.setState(s => { s.options.followers.order = value });
+      appStore().setState(s => { s.options.followers.order = value });
 
       // Clear followers when changing the order
-      useUserStore.setState(state => { user && delete state.user.followers[user.id] });
+      userStore().setState(state => { user && delete state.user.followers[user.id] });
     }
   }
 

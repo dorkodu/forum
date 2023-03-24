@@ -8,8 +8,8 @@ import ProfileSummary from "../components/ProfileSummary";
 import { array } from "@/lib/web/array";
 import { util } from "@/lib/web/util";
 import { request, sage } from "../stores/api";
-import { useAppStore } from "../stores/appStore";
-import { useUserStore } from "../stores/userStore";
+import { appStore, useAppStore } from "../stores/appStore";
+import { userStore, useUserStore } from "../stores/userStore";
 import { useRouter } from "next/router";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
@@ -50,10 +50,10 @@ export default function Search() {
     const status = !(!res?.a.data || res.a.error);
     const users = res?.a.data;
 
-    if (refresh) useUserStore.getState().addSearchUsers([], true);
+    if (refresh) userStore().getState().addSearchUsers([], true);
     if (users) {
-      useUserStore.getState().setUsers(users);
-      useUserStore.getState().addSearchUsers(users, refresh);
+      userStore().getState().setUsers(users);
+      userStore().getState().addSearchUsers(users, refresh);
     }
 
     setSearchFeedProps(s => ({ ...s, loading: false, status, hasMore: users?.length !== 0 }));
@@ -64,10 +64,10 @@ export default function Search() {
     if (searchFeedProps.loading) return;
 
     if (value === "newer" || value === "older") {
-      useAppStore.setState(s => { s.options.search.order = value });
+      appStore().setState(s => { s.options.search.order = value });
 
       // Clear feed when changing the order
-      useUserStore.getState().addSearchUsers([], true);
+      userStore().getState().addSearchUsers([], true);
       fetchUsers(state.order, true);
     }
   }
@@ -78,7 +78,7 @@ export default function Search() {
     // On initial render, use the query param from url if exists
     if (initial) {
       if (u && u !== "") {
-        useAppStore.setState(s => { s.options.search.search = u });
+        appStore().setState(s => { s.options.search.search = u });
         fetchUsers(state.order, true);
       }
 
@@ -88,7 +88,7 @@ export default function Search() {
 
     // If search input is empty, clear results & params in url
     if (state.search === "" || state.search === "@") {
-      useUserStore.getState().addSearchUsers([], true);
+      userStore().getState().addSearchUsers([], true);
       router.replace({ query: {} }, undefined, { shallow: true });
       return;
     }
@@ -122,7 +122,7 @@ export default function Search() {
                 description={t("user.searchDescription")}
                 placeholder={t("user.search")}
                 defaultValue={state.search}
-                onChange={ev => useAppStore.setState(s => { s.options.search.search = ev.target.value })}
+                onChange={ev => appStore().setState(s => { s.options.search.search = ev.target.value })}
                 pb="md"
               />
 

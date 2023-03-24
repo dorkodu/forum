@@ -1,4 +1,5 @@
-import { create } from "zustand"
+import { createContext, useContext } from "react";
+import { createStore, useStore } from "zustand"
 import { immer } from 'zustand/middleware/immer'
 
 interface State {
@@ -90,14 +91,47 @@ const initialState: State = {
   },
 }
 
-export const useAppStore = create(immer<State & Action>((set, _get) => ({
-  ...initialState,
+export const createAppStore = (props?: Partial<State>) => {
+  return createStore(immer<State & Action>((set, _get) => ({
+    ...initialState,
+    ...props,
 
-  setRequestLogin: (status) => {
-    set(state => { state.requestLogin = status });
-  },
+    setRequestLogin: (status) => {
+      set(state => { state.requestLogin = status });
+    },
 
-  reset: () => {
-    set(initialState);
-  }
-})))
+    reset: () => {
+      set(initialState);
+    }
+  })))
+}
+
+type AppStore = ReturnType<typeof createAppStore>
+type AppProviderProps = React.PropsWithChildren<Partial<State>>
+
+const AppContext = createContext<AppStore | null>(null);
+let store: AppStore | undefined = undefined;
+
+export function AppProvider({ children, ...props }: AppProviderProps) {
+  if (!store) store = createAppStore(props);
+
+  return (
+    <AppContext.Provider value={store}>
+      {children}
+    </AppContext.Provider>
+  )
+}
+
+export function useAppStore<T>(
+  selector: (state: State & Action) => T,
+  equalityFn?: (left: T, right: T) => boolean
+): T {
+  const store = useContext(AppContext);
+  if (!store) throw new Error('Missing AppContext.Provider in the tree');
+  return useStore(store, selector, equalityFn);
+}
+
+export function appStore() {
+  if (!store) throw new Error('Missing AppContext.Provider in the tree');
+  return store;
+}

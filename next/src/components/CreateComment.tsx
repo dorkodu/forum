@@ -3,7 +3,7 @@ import { useFocusWithin } from "@mantine/hooks";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "next-i18next";
-import { useAppStore } from "../stores/appStore";
+import { appStore, useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { wrapContent } from "../styles/css";
@@ -45,12 +45,12 @@ function CreateComment({ discussionId }: Props) {
     // directly with a setComment call, instead it's html property must be changed
     inputReady.current = false;
     if (commentRef.current) commentRef.current.value = "";
-    useAppStore.setState(s => { s.options.discussion.comment = "" });
+    appStore().setState(s => { s.options.discussion.comment = "" });
   }
 
   const changeMode = (value: string) => {
     if (value === "edit" || value === "preview") {
-      useAppStore.setState(s => { s.options.discussion.commentMode = value });
+      appStore().setState(s => { s.options.discussion.commentMode = value });
     }
   }
 
@@ -89,7 +89,7 @@ function CreateComment({ discussionId }: Props) {
                 label={`${t("comment.title")} (${state.comment.length} / 500)`}
                 placeholder={t("comment.write")}
                 defaultValue={state.comment}
-                onChange={ev => useAppStore.setState(s => { s.options.discussion.comment = ev.target.value })}
+                onChange={ev => appStore().setState(s => { s.options.discussion.comment = ev.target.value })}
                 autosize
                 error={inputReady.current && getRequirementError(t, "comment", state.comment, commentFocused)}
                 ref={commentRef}

@@ -9,9 +9,9 @@ import { useFeedProps, wait } from "../../components/hooks";
 import InfiniteScroll from "../../components/InfiniteScroll";
 import Profile from "../../components/Profile"
 import { request, sage } from "../../stores/api";
-import { useAppStore } from "../../stores/appStore";
-import { useDiscussionStore } from "../../stores/discussionStore";
-import { useUserStore } from "../../stores/userStore";
+import { appStore, useAppStore } from "../../stores/appStore";
+import { discussionStore, useDiscussionStore } from "../../stores/discussionStore";
+import { userStore, useUserStore } from "../../stores/userStore";
 import Head from "next/head";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
 import { GetStaticPaths } from "next";
@@ -34,7 +34,7 @@ export default function ProfileRoute() {
 
     setDiscussionProps(s => ({ ...s, loading: true, status: undefined }));
 
-    const anchorId = useDiscussionStore.getState().getUserDiscussionAnchor(user.id, type, refresh)
+    const anchorId = discussionStore().getState().getUserDiscussionAnchor(user.id, type, refresh)
     const res = await sage.get(
       { a: sage.query("getUserDiscussions", { userId: user.id, type, anchorId }), },
       (query) => wait(() => request(query))()
@@ -42,8 +42,8 @@ export default function ProfileRoute() {
     const status = !(!res?.a.data || res.a.error);
     const discussions = res?.a.data;
 
-    if (refresh) useDiscussionStore.setState(state => { user && delete state.discussion.users[user.id] });
-    if (discussions) useDiscussionStore.getState().setUserDiscussions(user.id, discussions);
+    if (refresh) discussionStore().setState(state => { user && delete state.discussion.users[user.id] });
+    if (discussions) discussionStore().getState().setUserDiscussions(user.id, discussions);
 
     setDiscussionProps(s => ({ ...s, loading: false, status, hasMore: discussions?.length !== 0 }));
   }
@@ -64,10 +64,10 @@ export default function ProfileRoute() {
     const discussions = res?.b.data;
 
     // Clear feed when fetching route since it's used by infinite scroll
-    useDiscussionStore.setState(state => { user && delete state.discussion.users[user.id] });
+    discussionStore().setState(state => { user && delete state.discussion.users[user.id] });
 
-    if (user) useUserStore.getState().setUsers([user]);
-    if (user && discussions) useDiscussionStore.getState().setUserDiscussions(user.id, discussions);
+    if (user) userStore().getState().setUsers([user]);
+    if (user && discussions) discussionStore().getState().setUserDiscussions(user.id, discussions);
 
     setUserProps(s => ({ ...s, loading: false, status: status }));
     setDiscussionProps(s => ({ ...s, hasMore: true }));
@@ -78,10 +78,10 @@ export default function ProfileRoute() {
     if (discussionProps.loading) return;
 
     if (value === "newer" || value === "older") {
-      useAppStore.setState(s => { s.options.profile.order = value });
+      appStore().setState(s => { s.options.profile.order = value });
 
       // Clear feed when changing the order
-      useDiscussionStore.setState(state => { user && delete state.discussion.users[user.id] });
+      discussionStore().setState(state => { user && delete state.discussion.users[user.id] });
     }
   }
 

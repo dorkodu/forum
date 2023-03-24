@@ -4,7 +4,7 @@ import { IconAlertCircle } from "@tabler/icons-react";
 import { useEffect, useState } from "react"
 import { useTranslation } from "next-i18next";
 import { request, sage } from "../stores/api";
-import { useAppStore } from "../stores/appStore";
+import { appStore, useAppStore } from "../stores/appStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { wrapContent } from "../styles/css";
 import CardLoader from "./loaders/CardLoader";
@@ -81,7 +81,7 @@ function DiscussionEditor({ id }: Props) {
     const out = await wait(() => fetchDiscussion(id))();
     setState(s => ({ ...s, loading: false, status: out.status }));
 
-    useAppStore.setState(s => {
+    appStore().setState(s => {
       s.options.discussionEditor.id = id;
       s.options.discussionEditor.title = out.title;
       s.options.discussionEditor.readme = out.readme;
@@ -90,7 +90,7 @@ function DiscussionEditor({ id }: Props) {
 
   const changeMode = (value: string) => {
     if (value === "edit" || value === "preview") {
-      useAppStore.setState(s => { s.options.discussionEditor.mode = value });
+      appStore().setState(s => { s.options.discussionEditor.mode = value });
     }
   }
 
@@ -140,7 +140,7 @@ function DiscussionEditor({ id }: Props) {
                 label={`${t("discussion.titleLabel")} (${discussion.title.length} / 100)`}
                 placeholder={t("discussion.title")}
                 defaultValue={discussion.title}
-                onChange={(ev) => useAppStore.setState(s => { s.options.discussionEditor.title = ev.target.value })}
+                onChange={(ev) => appStore().setState(s => { s.options.discussionEditor.title = ev.target.value })}
                 error={inputReady.title && getRequirementError(t, "title", discussion.title, titleFocused)}
                 ref={titleRef}
               />
@@ -155,7 +155,7 @@ function DiscussionEditor({ id }: Props) {
                 label={`${t("discussion.readmeLabel")} (${discussion.readme.length} / 100000)`}
                 placeholder={t("discussion.readme")}
                 defaultValue={discussion.readme}
-                onChange={(ev) => useAppStore.setState(s => { s.options.discussionEditor.readme = ev.target.value })}
+                onChange={(ev) => appStore().setState(s => { s.options.discussionEditor.readme = ev.target.value })}
                 autosize
                 error={inputReady.readme && getRequirementError(t, "readme", discussion.readme, readmeFocused)}
                 ref={readmeRef}
