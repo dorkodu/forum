@@ -1,7 +1,7 @@
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import CardAlert from "../../components/cards/CardAlert";
 import CardPanel from "../../components/cards/CardPanel";
 import DiscussionSummary from "../../components/DiscussionSummary";

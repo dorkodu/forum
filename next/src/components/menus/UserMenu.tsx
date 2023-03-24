@@ -2,7 +2,7 @@ import { IUser } from "@/types/user";
 import { ActionIcon, Menu } from "@mantine/core"
 import { IconClipboardText, IconDots, IconHandOff, IconHandStop, IconShare } from "@tabler/icons-react"
 import { MouseEvent, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { util } from "@/lib/web/util";
 import { useAuthStore } from "../../stores/authStore";
 import { useUserStore } from "../../stores/userStore";

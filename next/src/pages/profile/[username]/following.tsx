@@ -1,6 +1,6 @@
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import CardAlert from "@/components/cards/CardAlert";
 import CardPanel from "@/components/cards/CardPanel";
 import { useFeedProps, wait } from "@/components/hooks";

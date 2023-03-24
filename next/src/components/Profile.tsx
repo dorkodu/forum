@@ -2,7 +2,7 @@ import { IUser } from "@/types/user";
 import { Anchor, Avatar, Button, Card, Flex, Text, useMantineTheme, } from "@mantine/core";
 import { IconCalendar, IconHandOff, IconUsers } from "@tabler/icons-react";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import { colorBW, wrapContent } from "../styles/css";

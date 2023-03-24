@@ -1,6 +1,6 @@
 import { IUser } from "@/types/user";
 import { Anchor, Avatar, Card, Flex, Text, useMantineTheme } from "@mantine/core"
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { autoGrid, bgColorHover, colorBW, flexGrow, wrapContent } from "../../styles/css"
 import AvatarWebp from "../../assets/avatar.webp";
 import TextParser, { PieceType } from "../TextParser";

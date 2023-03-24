@@ -1,5 +1,5 @@
 import { INotification } from "@/types/notification"
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { useUserStore } from "../stores/userStore";
 import CardEntity from "./cards/CardEntity";
 import CustomLink from "./custom/CustomLink";

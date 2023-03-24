@@ -2,7 +2,7 @@ import { Alert, Button, Card, Flex, Text, Textarea, TextInput } from "@mantine/c
 import { useFocusWithin } from "@mantine/hooks";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { request, sage } from "../stores/api";
 import { useAppStore } from "../stores/appStore";
 import { useDiscussionStore } from "../stores/discussionStore";

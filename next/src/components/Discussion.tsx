@@ -2,7 +2,7 @@ import { IArgument } from "@/types/argument";
 import { IComment } from "@/types/comment";
 import { Card, Divider, Flex } from "@mantine/core";
 import { useEffect } from "react"
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { request, sage } from "../stores/api";
 import { useAppStore } from "../stores/appStore";
 import { useDiscussionStore } from "../stores/discussionStore";

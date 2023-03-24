@@ -3,7 +3,7 @@ import { Button, Card, Divider, Flex } from "@mantine/core"
 import { IconLogin, IconLogout } from "@tabler/icons-react"
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Head from "next/head";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { ColorToggleSegmented } from "../components/ColorToggle";
 import { useAuthStore } from "../stores/authStore";
 
