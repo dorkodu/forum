@@ -14,15 +14,19 @@ import { discussionStore, useDiscussionStore } from "../../stores/discussionStor
 import { userStore, useUserStore } from "../../stores/userStore";
 import Head from "next/head";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
-import { GetStaticPaths } from "next";
+import { GetServerSideProps, NextApiRequest, NextApiResponse } from "next";
+import { IUser } from "@/types/user";
+import user from "@/lib/api/controllers/user";
 
-export default function ProfileRoute() {
+type CustomProps = { user: IUser | null }
+
+export default function ProfileRoute(props: CustomProps) {
   const router = useRouter();
   const { t } = useTranslation();
 
   const state = useAppStore(state => state.options.profile);
   const username = typeof router.query.username === "string" ? router.query.username : undefined;
-  const user = useUserStore(state => state.getUserByUsername(username));
+  const user = useUserStore(state => state.getUserByUsername(username)) ?? props.user ?? undefined;
   const discussions = useDiscussionStore(_state => _state.getUserDiscussions(user?.id, state.order));
 
   const [userProps, setUserProps] = useFeedProps({ loading: !user });
@@ -86,9 +90,11 @@ export default function ProfileRoute() {
   }
 
   useEffect(() => {
-    if (!user) fetchRoute();
+    if (!user && !props.user) fetchRoute();
     else discussions.length === 0 && fetchDiscussions(state.order, false);
   }, [state.order]);
+
+  useEffect(() => { props.user && userStore().getState().setUsers([props.user]) }, []);
 
   return (
     <>
@@ -140,17 +146,23 @@ export default function ProfileRoute() {
   )
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: "blocking",
-  }
-}
+export const getServerSideProps: GetServerSideProps = async (props) => {
+  const req = props.req as NextApiRequest;
+  const res = props.res as NextApiResponse;
 
-export const getStaticProps = async ({ locale }: { locale: string }) => {
+  let userOutput: IUser | null = null;
+  const username = typeof props.query.username === "string" ? props.query.username : undefined;
+
+  if (username) {
+    const input: typeof user.getUser.arg = { username };
+    const result = await user.getUser.executor(input, { req, res, shared: {} });
+    userOutput = result.data?.[0] ?? null;
+  }
+
   return {
     props: {
-      ...(await serverSideTranslations(locale, ['common'])),
-    },
-  }
+      ...(await serverSideTranslations(props.locale || "en", ['common'])),
+      user: userOutput,
+    }
+  } satisfies { props: CustomProps }
 }
