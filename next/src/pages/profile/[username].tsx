@@ -14,6 +14,7 @@ import { useDiscussionStore } from "../../stores/discussionStore";
 import { useUserStore } from "../../stores/userStore";
 import Head from "next/head";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
+import { GetStaticPaths } from "next";
 
 export default function ProfileRoute() {
   const router = useRouter();
@@ -137,6 +138,13 @@ export default function ProfileRoute() {
       </main>
     </>
   )
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: "blocking",
+  }
 }
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {

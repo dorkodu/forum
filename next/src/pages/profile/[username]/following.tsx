@@ -13,6 +13,7 @@ import { useUserStore } from "@/stores/userStore";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
+import { GetStaticPaths } from "next";
 
 export default function Following() {
   const router = useRouter();
@@ -140,6 +141,13 @@ export default function Following() {
       </main>
     </>
   )
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: "blocking",
+  }
 }
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
