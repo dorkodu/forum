@@ -1,9 +1,10 @@
 import DiscussionEditor from "@/components/DiscussionEditor"
 import DefaultLayout from "@/components/layouts/DefaultLayout";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Head from "next/head";
 import { useRouter } from "next/router"
 
-function DiscussionEditorRoute() {
+export default function DiscussionEditorRoute() {
   const router = useRouter();
   const id = typeof router.query.id === "string" ? router.query.id : undefined;
 
@@ -23,4 +24,10 @@ function DiscussionEditorRoute() {
   )
 }
 
-export default DiscussionEditorRoute
+export const getStaticProps = async ({ locale }: { locale: string }) => {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
+  }
+}
