@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 import { util } from "@/lib/web/util";
 import CustomLink from "../custom/CustomLink";
 
-interface Props {
+interface Props extends React.ComponentPropsWithoutRef<"div"> {
   user: IUser;
   entity: {
     date?: number,
@@ -21,13 +21,13 @@ interface Props {
   componentBottom?: React.ReactNode;
 }
 
-function CardEntity({ user, entity, componentMenu, componentBottom }: Props) {
+function CardEntity({ user, entity, componentMenu, componentBottom, ...props }: Props) {
   const router = useRouter();
   const { t } = useTranslation();
   const theme = useMantineTheme();
 
   return (
-    <Card sx={{ overflow: "visible", ...bgColorHover(theme) }} shadow="sm" p="md" m="md" radius="md" withBorder>
+    <Card sx={{ overflow: "visible", ...bgColorHover(theme) }} shadow="sm" p="md" m="md" radius="md" withBorder {...props}>
       <Flex direction="row" gap="md">
         <Avatar src={AvatarWebp.src} alt="Avatar" radius="xl" />
 

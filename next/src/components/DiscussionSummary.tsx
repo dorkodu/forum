@@ -10,7 +10,6 @@ import { util } from "@/lib/web/util";
 import CardEntity from "./cards/CardEntity";
 import CustomTooltip from "./custom/CustomTooltip";
 import { useRouter } from "next/router";
-import CustomLink from "./custom/CustomLink";
 
 interface Props {
   discussionId: string | undefined;
@@ -31,6 +30,13 @@ function DiscussionSummary({ discussionId }: Props) {
   const user = useUserStore(state => state.getUserById(discussion?.userId));
   const currentUserId = useAuthStore(state => state.userId);
 
+  const gotoDiscussion = () => {
+    if (!discussion) return;
+    if (router.pathname !== "/discussion/[id]") {
+      router.push(`/discussion/${discussion.id}`);
+    }
+  }
+
   const favouriteDiscussion = async (ev: MouseEvent) => {
     ev.stopPropagation();
     ev.preventDefault();
@@ -49,47 +55,47 @@ function DiscussionSummary({ discussionId }: Props) {
   if (!discussion || !user) return (<></>)
 
   return (
-    <CustomLink href={`/discussion/${discussion.id}`}>
-      <CardEntity
-        user={user}
-        entity={{
-          content: discussion.title,
-          date: discussion.date,
-          updateDate: discussion.lastUpdateDate,
-        }}
+    <CardEntity
+      onClick={gotoDiscussion}
 
-        componentMenu={<DiscussionMenu user={user} discussion={discussion} />}
-        componentBottom={
-          <Flex direction="row" gap="xs">
-            <Flex align="center">
-              <ActionIcon color="dark" onClick={favouriteDiscussion}>
-                <IconStar fill={discussion.favourited ? "currentColor" : "none"} />
-              </ActionIcon>
+      user={user}
+      entity={{
+        content: discussion.title,
+        date: discussion.date,
+        updateDate: discussion.lastUpdateDate,
+      }}
 
-              <CustomTooltip label={util.formatNumber(router.locale || "en", discussion.favouriteCount, true)}>
-                <Text>{util.formatNumber(router.locale || "en", discussion.favouriteCount)}</Text>
-              </CustomTooltip>
-            </Flex>
+      componentMenu={<DiscussionMenu user={user} discussion={discussion} />}
+      componentBottom={
+        <Flex direction="row" gap="xs">
+          <Flex align="center">
+            <ActionIcon color="dark" onClick={favouriteDiscussion}>
+              <IconStar fill={discussion.favourited ? "currentColor" : "none"} />
+            </ActionIcon>
 
-            <Flex align="center">
-              <IconMessages />
-
-              <CustomTooltip label={util.formatNumber(router.locale || "en", discussion.argumentCount, true)}>
-                <Text>{util.formatNumber(router.locale || "en", discussion.argumentCount)}</Text>
-              </CustomTooltip>
-            </Flex>
-
-            <Flex align="center">
-              <IconMessage />
-
-              <CustomTooltip label={util.formatNumber(router.locale || "en", discussion.commentCount, true)}>
-                <Text>{util.formatNumber(router.locale || "en", discussion.commentCount)}</Text>
-              </CustomTooltip>
-            </Flex>
+            <CustomTooltip label={util.formatNumber(router.locale || "en", discussion.favouriteCount, true)}>
+              <Text>{util.formatNumber(router.locale || "en", discussion.favouriteCount)}</Text>
+            </CustomTooltip>
           </Flex>
-        }
-      />
-    </CustomLink>
+
+          <Flex align="center">
+            <IconMessages />
+
+            <CustomTooltip label={util.formatNumber(router.locale || "en", discussion.argumentCount, true)}>
+              <Text>{util.formatNumber(router.locale || "en", discussion.argumentCount)}</Text>
+            </CustomTooltip>
+          </Flex>
+
+          <Flex align="center">
+            <IconMessage />
+
+            <CustomTooltip label={util.formatNumber(router.locale || "en", discussion.commentCount, true)}>
+              <Text>{util.formatNumber(router.locale || "en", discussion.commentCount)}</Text>
+            </CustomTooltip>
+          </Flex>
+        </Flex>
+      }
+    />
   )
 }
 
