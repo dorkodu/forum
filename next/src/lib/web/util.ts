@@ -74,15 +74,15 @@ function formatDate(locale: string | undefined, date: number, long?: boolean) {
   const target = new Date(date);
   let diff = 0;
 
-  if (current.getFullYear() - target.getFullYear() >= 1)
+  if (current.getUTCFullYear() - target.getUTCFullYear() >= 1)
     return new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", year: "numeric" }).format(date);
-  else if (current.getDay() - target.getDay() >= 1)
+  else if (current.getUTCDate() - target.getUTCDate() >= 1)
     return new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" }).format(date);
-  else if ((diff = current.getHours() - target.getHours()) >= 1)
+  else if ((diff = current.getUTCHours() - target.getUTCHours()) >= 1)
     return new Intl.RelativeTimeFormat(locale, { numeric: "always", style: "narrow" }).format(-diff, "hours");
-  else if ((diff = current.getMinutes() - target.getMinutes()) >= 1)
+  else if ((diff = current.getUTCMinutes() - target.getUTCMinutes()) >= 1)
     return new Intl.RelativeTimeFormat(locale, { numeric: "always", style: "narrow" }).format(-diff, "minutes");
-  else if ((diff = current.getSeconds() - target.getSeconds()) >= 1)
+  else if ((diff = current.getUTCSeconds() - target.getUTCSeconds()) >= 1)
     return new Intl.RelativeTimeFormat(locale, { numeric: "always", style: "narrow" }).format(-diff, "seconds");
   else return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(0, "seconds");
 }
