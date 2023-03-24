@@ -89,13 +89,13 @@ export default function Search() {
     // If search input is empty, clear results & params in url
     if (state.search === "" || state.search === "@") {
       useUserStore.getState().addSearchUsers([], true);
-      router.replace({ query: {} });
+      router.replace({ query: {} }, undefined, { shallow: true });
       return;
     }
 
     // Wait 1 second, then change url param & fetch users
     const timeout = setTimeout(() => {
-      router.replace({ query: { u: state.search } });
+      router.replace({ query: { u: state.search } }, undefined, { shallow: true });
       fetchUsers(state.order, true);
     }, 1000);
     return () => { clearTimeout(timeout) };
