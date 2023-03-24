@@ -12,6 +12,8 @@ import { useAppStore } from "../stores/appStore";
 import { useUserStore } from "../stores/userStore";
 import { useRouter } from "next/router";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import DefaultLayout from "@/components/layouts/DefaultLayout";
+import Head from "next/head";
 
 export default function Search() {
   const router = useRouter();
@@ -100,39 +102,50 @@ export default function Search() {
   }, [state.search])
 
   return (
-    <InfiniteScroll
-      refresh={() => fetchUsers(state.order, true)}
-      next={() => fetchUsers(state.order, false, true)}
-      hasMore={searchFeedProps.hasMore}
-    >
-      <Card shadow="sm" p="md" m="md" radius="md" withBorder>
-        <TextInput
-          radius="md"
-          label={t("user.searchLabel")}
-          description={t("user.searchDescription")}
-          placeholder={t("user.search")}
-          defaultValue={state.search}
-          onChange={ev => useAppStore.setState(s => { s.options.search.search = ev.target.value })}
-          pb="md"
-        />
+    <>
+      <Head>
+        <title>Forum</title>
+        <meta name="title" content="Forum" />
+        <meta name="description" content="Social Discourse @ Dorkodu" />
+      </Head>
+      <main>
+        <DefaultLayout>
+          <InfiniteScroll
+            refresh={() => fetchUsers(state.order, true)}
+            next={() => fetchUsers(state.order, false, true)}
+            hasMore={searchFeedProps.hasMore}
+          >
+            <Card shadow="sm" p="md" m="md" radius="md" withBorder>
+              <TextInput
+                radius="md"
+                label={t("user.searchLabel")}
+                description={t("user.searchDescription")}
+                placeholder={t("user.search")}
+                defaultValue={state.search}
+                onChange={ev => useAppStore.setState(s => { s.options.search.search = ev.target.value })}
+                pb="md"
+              />
 
-        <CardPanel.Segments
-          segments={
-            [{
-              value: state.order,
-              setValue: changeOrder,
-              label: t("order"),
-              data: [
-                { label: t("newer"), value: "newer" },
-                { label: t("older"), value: "older" },
-              ]
-            }]
-          }
-        />
-      </Card>
+              <CardPanel.Segments
+                segments={
+                  [{
+                    value: state.order,
+                    setValue: changeOrder,
+                    label: t("order"),
+                    data: [
+                      { label: t("newer"), value: "newer" },
+                      { label: t("older"), value: "older" },
+                    ]
+                  }]
+                }
+              />
+            </Card>
 
-      {getSorted(state.order).map((user) => <ProfileSummary key={user.id} user={user} />)}
-    </InfiniteScroll>
+            {getSorted(state.order).map((user) => <ProfileSummary key={user.id} user={user} />)}
+          </InfiniteScroll>
+        </DefaultLayout>
+      </main>
+    </>
   )
 }
 

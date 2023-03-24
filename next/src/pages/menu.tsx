@@ -6,6 +6,7 @@ import Head from "next/head";
 import { useTranslation } from "next-i18next";
 import { ColorToggleSegmented } from "../components/ColorToggle";
 import { useAuthStore } from "../stores/authStore";
+import DefaultLayout from "@/components/layouts/DefaultLayout";
 
 export default function Menu() {
   const { t } = useTranslation();
@@ -26,39 +27,41 @@ export default function Menu() {
         <meta name="description" content="Social Discourse @ Dorkodu" />
       </Head>
       <main>
-        <Card shadow="sm" p="md" m="md" radius="md" withBorder>
-          <Flex direction="column" gap="md">
-            <LanguagePicker />
+        <DefaultLayout>
+          <Card shadow="sm" p="md" m="md" radius="md" withBorder>
+            <Flex direction="column" gap="md">
+              <LanguagePicker />
 
-            <ColorToggleSegmented />
+              <ColorToggleSegmented />
 
-            <Divider my={0} />
+              <Divider my={0} />
 
-            {!currentUserId &&
-              <Button
-                radius="md"
-                fullWidth
-                variant="default"
-                leftIcon={<IconLogin />}
-                onClick={login}
-              >
-                {t("login")}
-              </Button>
-            }
+              {!currentUserId &&
+                <Button
+                  radius="md"
+                  fullWidth
+                  variant="default"
+                  leftIcon={<IconLogin />}
+                  onClick={login}
+                >
+                  {t("login")}
+                </Button>
+              }
 
-            {currentUserId &&
-              <Button
-                radius="md"
-                fullWidth
-                variant="default"
-                leftIcon={<IconLogout />}
-                onClick={logout}
-              >
-                {t("logout")}
-              </Button>
-            }
-          </Flex>
-        </Card>
+              {currentUserId &&
+                <Button
+                  radius="md"
+                  fullWidth
+                  variant="default"
+                  leftIcon={<IconLogout />}
+                  onClick={logout}
+                >
+                  {t("logout")}
+                </Button>
+              }
+            </Flex>
+          </Card>
+        </DefaultLayout>
       </main>
     </>
   )

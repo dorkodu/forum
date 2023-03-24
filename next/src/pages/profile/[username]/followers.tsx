@@ -11,6 +11,8 @@ import { request, sage } from "@/stores/api";
 import { useAppStore } from "@/stores/appStore";
 import { useUserStore } from "@/stores/userStore";
 import { useRouter } from "next/router";
+import Head from "next/head";
+import DefaultLayout from "@/components/layouts/DefaultLayout";
 
 export default function Follower() {
   const router = useRouter();
@@ -91,41 +93,52 @@ export default function Follower() {
   }, [state.order]);
 
   return (
-    <InfiniteScroll
-      refresh={fetchRoute}
-      next={() => fetchFollowers(state.order, false, true)}
-      hasMore={followerProps.hasMore}
-    >
-      {!user ?
-        <>
-          {userProps.status === false &&
-            <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
-          }
-        </>
+    <>
+      <Head>
+        <title>Forum</title>
+        <meta name="title" content="Forum" />
+        <meta name="description" content="Social Discourse @ Dorkodu" />
+      </Head>
+      <main>
+        <DefaultLayout>
+          <InfiniteScroll
+            refresh={fetchRoute}
+            next={() => fetchFollowers(state.order, false, true)}
+            hasMore={followerProps.hasMore}
+          >
+            {!user ?
+              <>
+                {userProps.status === false &&
+                  <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
+                }
+              </>
 
-        :
+              :
 
-        <>
-          <Profile user={user} />
+              <>
+                <Profile user={user} />
 
-          <CardPanel
-            segments={[
-              {
-                value: state.order,
-                setValue: changeOrder,
-                label: t("followersOrder"),
-                data: [
-                  { label: t("newer"), value: "newer" },
-                  { label: t("older"), value: "older" },
-                ]
-              },
-            ]}
-          />
+                <CardPanel
+                  segments={[
+                    {
+                      value: state.order,
+                      setValue: changeOrder,
+                      label: t("followersOrder"),
+                      data: [
+                        { label: t("newer"), value: "newer" },
+                        { label: t("older"), value: "older" },
+                      ]
+                    },
+                  ]}
+                />
 
-          {followers.map((follower) => <ProfileSummary key={follower.id} user={follower} />)}
-        </>
-      }
-    </InfiniteScroll>
+                {followers.map((follower) => <ProfileSummary key={follower.id} user={follower} />)}
+              </>
+            }
+          </InfiniteScroll>
+        </DefaultLayout>
+      </main>
+    </>
   )
 }
 

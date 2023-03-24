@@ -9,6 +9,8 @@ import { request, sage } from "../stores/api";
 import { useAppStore } from "../stores/appStore";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
+import DefaultLayout from "@/components/layouts/DefaultLayout";
+import Head from "next/head";
 
 export default function NotificationsRoute() {
   const { t } = useTranslation();
@@ -66,27 +68,38 @@ export default function NotificationsRoute() {
   }, [state.order]);
 
   return (
-    <InfiniteScroll
-      refresh={() => fetchNotifications(state.order, true)}
-      next={() => fetchNotifications(state.order, false, true)}
-      hasMore={notificationProps.hasMore}
-    >
-      <CardPanel
-        segments={[
-          {
-            value: state.order,
-            setValue: changeOrder,
-            label: t("notificationsOrder"),
-            data: [
-              { label: t("newer"), value: "newer" },
-              { label: t("older"), value: "older" },
-            ]
-          },
-        ]}
-      />
+    <>
+      <Head>
+        <title>Forum</title>
+        <meta name="title" content="Forum" />
+        <meta name="description" content="Social Discourse @ Dorkodu" />
+      </Head>
+      <main>
+        <DefaultLayout>
+          <InfiniteScroll
+            refresh={() => fetchNotifications(state.order, true)}
+            next={() => fetchNotifications(state.order, false, true)}
+            hasMore={notificationProps.hasMore}
+          >
+            <CardPanel
+              segments={[
+                {
+                  value: state.order,
+                  setValue: changeOrder,
+                  label: t("notificationsOrder"),
+                  data: [
+                    { label: t("newer"), value: "newer" },
+                    { label: t("older"), value: "older" },
+                  ]
+                },
+              ]}
+            />
 
-      {notifications.map((notification) => <Notification key={notification.id} notification={notification} />)}
-    </InfiniteScroll>
+            {notifications.map((notification) => <Notification key={notification.id} notification={notification} />)}
+          </InfiniteScroll>
+        </DefaultLayout>
+      </main>
+    </>
   )
 }
 

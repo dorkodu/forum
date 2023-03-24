@@ -12,6 +12,8 @@ import { request, sage } from "../../stores/api";
 import { useAppStore } from "../../stores/appStore";
 import { useDiscussionStore } from "../../stores/discussionStore";
 import { useUserStore } from "../../stores/userStore";
+import Head from "next/head";
+import DefaultLayout from "@/components/layouts/DefaultLayout";
 
 export default function ProfileRoute() {
   const router = useRouter();
@@ -88,41 +90,52 @@ export default function ProfileRoute() {
   }, [state.order]);
 
   return (
-    <InfiniteScroll
-      refresh={fetchRoute}
-      next={() => fetchDiscussions(state.order, false, true)}
-      hasMore={discussionProps.hasMore}
-    >
-      {!user ?
-        <>
-          {userProps.status === false &&
-            <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
-          }
-        </>
+    <>
+      <Head>
+        <title>Forum</title>
+        <meta name="title" content="Forum" />
+        <meta name="description" content="Social Discourse @ Dorkodu" />
+      </Head>
+      <main>
+        <DefaultLayout>
+          <InfiniteScroll
+            refresh={fetchRoute}
+            next={() => fetchDiscussions(state.order, false, true)}
+            hasMore={discussionProps.hasMore}
+          >
+            {!user ?
+              <>
+                {userProps.status === false &&
+                  <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
+                }
+              </>
 
-        :
+              :
 
-        <>
-          <Profile user={user} />
+              <>
+                <Profile user={user} />
 
-          <CardPanel
-            segments={[
-              {
-                value: state.order,
-                setValue: changeOrder,
-                label: t("discussionOrder"),
-                data: [
-                  { label: t("newer"), value: "newer" },
-                  { label: t("older"), value: "older" },
-                ]
-              },
-            ]}
-          />
+                <CardPanel
+                  segments={[
+                    {
+                      value: state.order,
+                      setValue: changeOrder,
+                      label: t("discussionOrder"),
+                      data: [
+                        { label: t("newer"), value: "newer" },
+                        { label: t("older"), value: "older" },
+                      ]
+                    },
+                  ]}
+                />
 
-          {discussions.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
-        </>
-      }
-    </InfiniteScroll>
+                {discussions.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+              </>
+            }
+          </InfiniteScroll>
+        </DefaultLayout>
+      </main>
+    </>
   )
 }
 
