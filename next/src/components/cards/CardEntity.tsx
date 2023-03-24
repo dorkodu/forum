@@ -7,6 +7,7 @@ import TextParser, { PieceType } from "../TextParser";
 import CustomTooltip from "../custom/CustomTooltip";
 import { useRouter } from "next/router";
 import { util } from "@/lib/web/util";
+import CustomLink from "../custom/CustomLink";
 
 interface Props {
   user: IUser;
@@ -34,13 +35,15 @@ function CardEntity({ user, entity, componentMenu, componentBottom }: Props) {
           <Flex direction="column">
             <Flex align="center" justify="space-between">
               <Flex miw={0} mr={4}>
-                <Anchor href={`/profile/${user.username}`} sx={colorBW(theme)}>
-                  <Flex miw={0} sx={autoGrid}>
-                    <Text truncate pr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
-                    <Text>@</Text>
-                    <Text truncate>{user.username}</Text>
-                  </Flex>
-                </Anchor>
+                <CustomLink href={`/profile/${user.username}`}>
+                  <Anchor sx={colorBW(theme)} component="div">
+                    <Flex miw={0} sx={autoGrid}>
+                      <Text truncate pr={4}><TextParser text={user.name} types={[PieceType.Emoji]} /></Text>
+                      <Text>@</Text>
+                      <Text truncate>{user.username}</Text>
+                    </Flex>
+                  </Anchor>
+                </CustomLink>
               </Flex>
 
               {componentMenu}

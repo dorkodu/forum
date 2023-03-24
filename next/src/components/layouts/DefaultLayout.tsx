@@ -68,29 +68,44 @@ function DefaultFooter() {
     <Footer sx={width} px="md" pb="md" height={64} withBorder={false}>
       <Card sx={height100} shadow="sm" p="md" radius="md" withBorder>
         <Flex sx={height100} align="center" justify="space-evenly">
-          <ActionIcon color={router.pathname === "/home" ? "green" : "dark"}>
-            <IconHome />
-          </ActionIcon>
-          <ActionIcon color={router.pathname === "/search" ? "green" : "dark"}>
-            <IconSearch />
-          </ActionIcon>
-          <ActionIcon color={router.pathname === "/profile" ? "green" : "dark"}>
-            <IconUser />
-          </ActionIcon>
 
-          {/* 
-            Set indicator z-index to 101 (1 higher than appshell's footer).
-            Causes rendering order bug in SM-M236B Android 12 (and other?).
-          */}
-          <Indicator color="red" disabled={!currentUser?.hasNotification} zIndex={101}>
-            <ActionIcon color={router.pathname === "/notifications" ? "green" : "dark"} >
-              <IconBell />
+          <CustomLink href="/">
+            <ActionIcon color={router.pathname === "/" ? "green" : "dark"}>
+              <IconHome />
             </ActionIcon>
-          </Indicator>
+          </CustomLink>
 
-          <ActionIcon color={router.pathname.startsWith("/discussion-editor") ? "green" : "dark"} >
-            <IconPencilPlus />
-          </ActionIcon>
+          <CustomLink href="/search">
+            <ActionIcon color={router.pathname === "/search" ? "green" : "dark"}>
+              <IconSearch />
+            </ActionIcon>
+          </CustomLink>
+
+          <CustomLink href={`/profile/${currentUser?.username}`}>
+            <ActionIcon color={router.pathname === "/profile" ? "green" : "dark"}>
+              <IconUser />
+            </ActionIcon>
+          </CustomLink>
+
+
+          <CustomLink href="/notifications">
+            {/* 
+              Set indicator z-index to 101 (1 higher than appshell's footer).
+              Causes rendering order bug in SM-M236B Android 12 (and other?).
+            */}
+            <Indicator color="red" disabled={!currentUser?.hasNotification} zIndex={101}>
+              <ActionIcon color={router.pathname === "/notifications" ? "green" : "dark"} >
+                <IconBell />
+              </ActionIcon>
+            </Indicator>
+          </CustomLink>
+
+          <CustomLink href="/discussion-editor">
+            <ActionIcon color={router.pathname.startsWith("/discussion-editor") ? "green" : "dark"} >
+              <IconPencilPlus />
+            </ActionIcon>
+          </CustomLink>
+
         </Flex>
       </Card>
     </Footer>

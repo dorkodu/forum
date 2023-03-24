@@ -123,7 +123,11 @@ function DiscussionPiece({ discussion }: { discussion: string }) {
 }
 
 function UrlPiece({ url }: { url: string }) {
-  return <Anchor href={url}>{url}</Anchor>
+  return (
+    <CustomLink href={url}>
+      <Anchor component="div">{url}</Anchor>
+    </CustomLink>
+  )
 }
 
 function EmojiPiece({ emoji }: { emoji: string }) {
