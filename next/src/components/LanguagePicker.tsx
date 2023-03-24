@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import CustomLink from "./custom/CustomLink";
 
-import en from "@assets/locales/en.svg";
-import tr from "@assets/locales/tr.svg";
+import en from "@/assets/locales/en.svg";
+import tr from "@/assets/locales/tr.svg";
 
 const data = [
   { label: 'English', locale: "en", image: en },
