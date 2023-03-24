@@ -47,6 +47,7 @@ interface State {
 
 interface Action {
   setRequestLogin: (status: boolean) => void;
+  reset: () => void;
 }
 
 const initialState: State = {
@@ -95,4 +96,8 @@ export const useAppStore = create(immer<State & Action>((set, _get) => ({
   setRequestLogin: (status) => {
     set(state => { state.requestLogin = status });
   },
+
+  reset: () => {
+    set(initialState);
+  }
 })))

@@ -2,6 +2,7 @@ import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
 import { wait } from "../components/hooks";
 import { request, sage } from "./api";
+import { useAppStore } from "./appStore";
 import { useDiscussionStore } from "./discussionStore";
 import { useUserStore } from "./userStore";
 
@@ -48,6 +49,7 @@ export const useAuthStore = create(immer<State & Action>((set, _get) => ({
     const status = !(!res?.a.data || res.a.error);
 
     if (status) {
+      useAppStore.getState().reset();
       useAuthStore.getState().reset();
       useDiscussionStore.getState().reset();
       useUserStore.getState().reset();
