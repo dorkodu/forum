@@ -1,10 +1,12 @@
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
-import { ActionIcon, AppShell, Card, CSSObject, Flex, Footer, Header, Indicator } from "@mantine/core";
+import { ActionIcon, AppShell, Card, CSSObject, Flex, Footer, Header, Indicator, useMantineTheme } from "@mantine/core";
 import { IconArrowLeft, IconBell, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons-react";
 import { useRouter } from "next/router";
-import ForumIcon from "@/../public/forum.svg";
 import CustomLink from "../custom/CustomLink";
+import Image from "next/image";
+import ForumBrandLight from "@/../public/forum_brand-light.svg";
+import ForumBrandDark from "@/../public/forum_brand-dark.svg";
 
 const width = { maxWidth: "768px", margin: "0 auto" } satisfies CSSObject
 const height100 = { height: "100%" } satisfies CSSObject
@@ -21,6 +23,8 @@ export default DefaultLayout
 
 function DefaultHeader() {
   const router = useRouter();
+  const theme = useMantineTheme();
+  const image = theme.colorScheme === "light" ? ForumBrandDark : ForumBrandLight;
 
   return (
     <Header sx={width} px="md" pt="md" height={64} withBorder={false}>
@@ -34,10 +38,11 @@ function DefaultHeader() {
           </ActionIcon>
 
           <CustomLink href="/">
-            <ActionIcon size={28}>
-              <img
-                src={ForumIcon.src} alt="Forum"
-                width={28} height={28}
+            <ActionIcon w={image.width / 7.5} h={image.height / 7.5}>
+              <Image
+                src={image.src}
+                alt="Forum"
+                width={image.width / 7.5} height={image.height / 7.5}
                 draggable={false}
               />
             </ActionIcon>
