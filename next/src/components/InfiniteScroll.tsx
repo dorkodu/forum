@@ -26,6 +26,7 @@ function InfiniteScroll({ children, refresh, next, hasMore }: Props) {
   }
 
   const doNext = async () => {
+    if (scrollY <= 0) return;
     if (working.current || !next) return promise.current;
     working.current = true;
     await (promise.current = next());
