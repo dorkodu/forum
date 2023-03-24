@@ -351,7 +351,7 @@ const getUserDiscussions = sage.resource(
 
     const result0 = await pg<IDiscussionRaw[]>`
       SELECT
-        d.id, d.user_id, d.date, d.title, d.readme,
+        d.id, d.user_id, d.date, d.title,
         d.favourite_count, d.argument_count, d.comment_count,
         d.last_update_date,
       ${info ? pg`(df.user_id IS NOT NULL) AS favourited` : pg`FALSE AS favourited`}
