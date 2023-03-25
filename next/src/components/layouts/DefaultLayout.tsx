@@ -8,6 +8,7 @@ import Image from "next/image";
 import ForumBrandLight from "@/../public/forum_brand-light.svg";
 import ForumBrandDark from "@/../public/forum_brand-dark.svg";
 import DorkoduLogo from "@/../public/dorkodu_logo.svg";
+import RequestLogin from "../modals/RequestLogin";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -51,18 +52,22 @@ const useStyles = createStyles((theme) => ({
 
 export default function DefaultLayout({ children }: React.PropsWithChildren) {
   return (
-    <AppShell
-      header={<DefaultHeader />}
-      footer={<DefaultFooter />}
-      padding={0}
-    >
-      <Flex direction="row">
-        <DefaultNavbar />
-        <Flex direction="column" style={{ flexGrow: 1 }}>{children}</Flex>
-        <DefaultAside />
-      </Flex>
-    </AppShell>
-  );
+    <>
+      <AppShell
+        header={<DefaultHeader />}
+        footer={<DefaultFooter />}
+        padding={0}
+      >
+        <Flex direction="row">
+          <DefaultNavbar />
+          <Flex direction="column" style={{ flexGrow: 1 }}>{children}</Flex>
+          <DefaultAside />
+        </Flex>
+      </AppShell>
+
+      <RequestLogin />
+    </>
+  )
 }
 
 function DefaultHeader() {
