@@ -78,7 +78,7 @@ function DefaultHeader() {
           <ActionIcon
             color="dark"
             onClick={() => router.back()}
-            sx={router.pathname === "/home" ? { visibility: "hidden" } : undefined}>
+            sx={router.pathname === "/" ? { visibility: "hidden" } : undefined}>
             <IconArrowLeft />
           </ActionIcon>
 
