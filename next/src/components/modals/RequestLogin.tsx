@@ -1,7 +1,7 @@
 import { Button, Flex, Modal, Title } from "@mantine/core";
 import { useAppStore } from "../../stores/appStore";
 import ForumIcon from "@/../public/forum.svg";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import CustomLink from "../custom/CustomLink";
 import Image from "next/image";
 
