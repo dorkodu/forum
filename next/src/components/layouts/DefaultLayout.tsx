@@ -1,22 +1,23 @@
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
-import { ActionIcon, AppShell, Button, Card, createStyles, CSSObject, Flex, Footer, Header, Indicator, MantineTheme, MediaQuery, Text, useMantineTheme } from "@mantine/core";
+import { ActionIcon, AppShell, Button, Card, createStyles, Flex, Footer, Header, Indicator, MediaQuery, Text, useMantineTheme } from "@mantine/core";
 import { IconArrowLeft, IconBell, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import CustomLink from "../custom/CustomLink";
 import Image from "next/image";
 import ForumBrandLight from "@/../public/forum_brand-light.svg";
 import ForumBrandDark from "@/../public/forum_brand-dark.svg";
+import DorkoduLogo from "@/../public/dorkodu_logo.svg";
 
-const height100 = { height: "100%" } satisfies CSSObject
-const width = (theme: MantineTheme) => ({
-  maxWidth: theme.breakpoints.lg,
-  margin: "0 auto"
-}) satisfies CSSObject
-
-const useStyles = createStyles((_theme) => ({
+const useStyles = createStyles((theme) => ({
+  header: {
+    maxWidth: theme.breakpoints.lg,
+    margin: "0 auto"
+  },
   footer: {
     display: "none",
+    maxWidth: theme.breakpoints.lg,
+    margin: "0 auto",
 
     [`@media (max-width: 640px)`]: {
       display: "block",
@@ -38,7 +39,7 @@ const useStyles = createStyles((_theme) => ({
     width: 300,
     flexShrink: 0,
 
-    [`@media (max-width: 960px)`]: {
+    [`@media (max-width: 840px)`]: {
       width: 200,
     },
 
@@ -46,12 +47,6 @@ const useStyles = createStyles((_theme) => ({
       display: "none",
     },
   },
-  maxWidth: {
-
-  },
-  minWidth: {
-
-  }
 }))
 
 export default function DefaultLayout({ children }: React.PropsWithChildren) {
@@ -71,14 +66,15 @@ export default function DefaultLayout({ children }: React.PropsWithChildren) {
 }
 
 function DefaultHeader() {
+  const { classes } = useStyles();
   const router = useRouter();
   const theme = useMantineTheme();
   const image = theme.colorScheme === "light" ? ForumBrandDark : ForumBrandLight;
 
   return (
-    <Header sx={width} px="md" pt="md" height={64} withBorder={false}>
-      <Card sx={height100} shadow="sm" radius="md" withBorder>
-        <Flex sx={height100} align="center" justify="space-between">
+    <Header className={classes.header} px="md" pt="md" height={64} withBorder={false}>
+      <Card sx={{ height: "100%" }} shadow="sm" radius="md" withBorder>
+        <Flex sx={{ height: "100%" }} align="center" justify="space-between">
           <ActionIcon
             color="dark"
             onClick={() => router.back()}
@@ -115,9 +111,9 @@ function DefaultFooter() {
   const currentUser = useUserStore(state => state.getUserById(currentUserId));
 
   return (
-    <Footer className={classes.footer} sx={width} px="md" pb="md" height={64} withBorder={false}>
-      <Card sx={height100} shadow="sm" p="md" radius="md" withBorder>
-        <Flex sx={height100} align="center" justify="space-evenly">
+    <Footer className={classes.footer} px="md" pb="md" height={64} withBorder={false}>
+      <Card sx={{ height: "100%" }} shadow="sm" p="md" radius="md" withBorder>
+        <Flex sx={{ height: "100%" }} align="center" justify="space-evenly">
 
           <CustomLink href="/">
             <ActionIcon color={router.pathname === "/" ? "green" : "dark"}>
@@ -185,7 +181,18 @@ function DefaultAside() {
 
   return (
     <Flex direction="column" w={300} className={classes.aside}>
-      aside
+      <Flex direction="column" py="md" pr="md" gap="xs">
+        <Card withBorder>
+          <Flex direction="column" gap="md" align="center">
+            <CustomLink href="https://dorkodu.com">
+              <Image src={DorkoduLogo.src} alt="Dorkodu" width={DorkoduLogo.width / 7.5} height={DorkoduLogo.height / 7.5} />
+            </CustomLink>
+            <Text color="dimmed" weight={450}>
+              <b>Dorkodu</b> &copy; {new Date().getFullYear()}
+            </Text>
+          </Flex>
+        </Card>
+      </Flex>
     </Flex>
   )
 }
@@ -217,10 +224,17 @@ interface ButtonDesktopProps extends React.ComponentPropsWithoutRef<"button"> {
 }
 
 function ButtonDesktop({ icon, path, name, ...props }: ButtonDesktopProps) {
+  const router = useRouter();
   const theme = useMantineTheme();
 
   return (
-    <Button {...props} styles={{ label: { display: "flex", gap: theme.spacing.md, flexGrow: 1 } }} fullWidth variant="subtle">
+    <Button
+      {...props}
+      styles={{ label: { display: "flex", gap: theme.spacing.md, flexGrow: 1 } }}
+      fullWidth
+      variant="subtle"
+      color={router.pathname === path ? "green" : "dark"}
+    >
       {icon}
       <Text truncate>{name}</Text>
     </Button>

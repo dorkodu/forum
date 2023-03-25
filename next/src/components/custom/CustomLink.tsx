@@ -9,7 +9,7 @@ interface Props {
 
 function CustomLink({ children, href, locale, ...props }: React.ComponentPropsWithoutRef<"a"> & Props) {
   const { locale: routerLocale } = useRouter();
-  console.log(props)
+
   return (
     <Link
       href={href}
