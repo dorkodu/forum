@@ -7,7 +7,7 @@ export const theme: MantineThemeOverride = {
   globalStyles: (_theme: MantineTheme) => ({
     body: {
       overflowY: "scroll",
-      maxWidth: 768,
+      maxWidth: _theme.breakpoints.lg,
       margin: "0 auto",
     }
   }),
