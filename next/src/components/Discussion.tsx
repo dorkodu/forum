@@ -19,16 +19,24 @@ import DiscussionSummary from "./DiscussionSummary";
 import { useFeedProps, wait } from "./hooks";
 import InfiniteScroll from "./InfiniteScroll";
 import TextParser from "./TextParser";
+import { IDiscussion } from "@/types/discussion";
+import { IUser } from "@/types/user";
 
 interface Props {
-  discussionId: string | undefined;
+  discussion: IDiscussion | undefined;
 
   // Highlights particular argument/comment. Mainly used by notifications.
-  argumentId?: string;
-  commentId?: string;
+  argument?: IArgument;
+  comment?: IComment;
+
+  user?: IUser;
 }
 
-function Discussion({ discussionId, argumentId, commentId }: Props) {
+function Discussion(props: Props) {
+  const discussionId = props.discussion?.id;
+  const argumentId = props.argument?.id;
+  const commentId = props.comment?.id;
+
   const { t } = useTranslation();
 
   const state = useAppStore(
@@ -39,11 +47,11 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
   const queryGetArguments = useDiscussionStore(state => state.queryGetArguments);
   const queryGetComments = useDiscussionStore(state => state.queryGetComments);
 
-  const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
+  const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId)) ?? props.discussion;
   const comments = useDiscussionStore(_state => _state.getComments(discussionId, state.commentOrder));
   const _arguments = useDiscussionStore(_state => _state.getArguments(discussionId, state.argumentOrder));
-  const discussionArgument = useDiscussionStore(state => argumentId ? state.argument.entities[argumentId] : undefined);
-  const discussionComment = useDiscussionStore(state => commentId ? state.comment.entities[commentId] : undefined);
+  const discussionArgument = useDiscussionStore(state => argumentId ? state.argument.entities[argumentId] : undefined) ?? props.argument;
+  const discussionComment = useDiscussionStore(state => commentId ? state.comment.entities[commentId] : undefined) ?? props.comment;
 
   const [discussionProps, setDiscussionProps] = useFeedProps({ loading: !discussion?.readme });
 
@@ -247,7 +255,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
         :
 
         <>
-          <DiscussionSummary discussionId={discussionId} />
+          <DiscussionSummary discussion={discussion} user={props.user} />
 
           {(argumentId || commentId) &&
             <>

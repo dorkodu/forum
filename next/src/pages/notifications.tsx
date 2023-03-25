@@ -11,6 +11,7 @@ import { authStore } from "../stores/authStore";
 import { userStore, useUserStore } from "../stores/userStore";
 import DefaultLayout from "@/components/layouts/DefaultLayout";
 import Head from "next/head";
+import { INotification } from "@/types/notification";
 
 export default function NotificationsRoute() {
   const { t } = useTranslation();
@@ -33,7 +34,7 @@ export default function NotificationsRoute() {
       (query) => wait(() => request(query))()
     )
     const status = !(!res?.a.data || res.a.error);
-    const notifications = res?.a.data;
+    const notifications = res?.a.data as INotification[];
     const users = res?.b.data;
 
     if (refresh) userStore().setState(state => { state.user.notifications = {} });

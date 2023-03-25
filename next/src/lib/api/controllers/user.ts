@@ -8,7 +8,7 @@ import pg from "../pg";
 import { IUser, IUserParsed, IUserRaw, iUserSchema } from "@/types/user";
 import { IDiscussion, IDiscussionParsed, IDiscussionRaw, iDiscussionSchema } from "@/types/discussion";
 import { snowflake } from "../lib/snowflake";
-import { INotification, INotificationParsed, iNotificationSchema } from "@/types/notification";
+import { INotification, iNotificationSchema } from "@/types/notification";
 import { notificationTypes } from "@/types/types";
 import { date } from "../lib/date";
 
@@ -374,7 +374,7 @@ const getUserDiscussions = sage.resource(
       if (parsed.success) res.push(parsed.data);
     })
 
-    return { data: res };
+    return { data: res satisfies IDiscussion[] };
   }
 )
 
@@ -528,7 +528,7 @@ const getUserNotifications = sage.resource(
       pg`UPDATE users SET has_notification=false WHERE id=${info.userId}`,
     ]);
 
-    const res: INotificationParsed[] = [];
+    const res: INotification[] = [];
     result0.forEach(notification => {
       const parsed = iNotificationSchema.safeParse(notification);
       if (parsed.success) res.push(parsed.data);

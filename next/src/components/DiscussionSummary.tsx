@@ -10,9 +10,14 @@ import { util } from "@/lib/web/util";
 import CardEntity from "./cards/CardEntity";
 import CustomTooltip from "./custom/CustomTooltip";
 import { useRouter } from "next/router";
+import { IDiscussion } from "@/types/discussion";
+import { IUser } from "@/types/user";
 
 interface Props {
-  discussionId: string | undefined;
+  discussionId?: string;
+  
+  discussion?: IDiscussion;
+  user?: IUser;
 }
 
 interface State {
@@ -20,14 +25,15 @@ interface State {
   status: boolean | undefined,
 }
 
-function DiscussionSummary({ discussionId }: Props) {
+function DiscussionSummary(props: Props) {
   const [state, setState] = useState<State>({ loading: false, status: undefined });
+  const discussionId = props.discussionId;
 
   const router = useRouter();
   const setRequestLogin = useAppStore(state => state.setRequestLogin);
   const queryFavouriteDiscussion = useDiscussionStore(state => state.queryFavouriteDiscussion);
-  const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId));
-  const user = useUserStore(state => state.getUserById(discussion?.userId));
+  const discussion = useDiscussionStore(state => state.getDiscussionById(discussionId)) ?? props.discussion;
+  const user = useUserStore(state => state.getUserById(discussion?.userId)) ?? props.user;
   const currentUserId = useAuthStore(state => state.userId);
 
   const gotoDiscussion = () => {

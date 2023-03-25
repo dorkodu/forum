@@ -117,7 +117,7 @@ const getDiscussion = sage.resource(
     if (ctx.userIds === undefined) ctx.userIds = new Set([res.data.userId]);
     else ctx.userIds.add(res.data.userId);
 
-    return { data: res.data };
+    return { data: res.data satisfies IDiscussion };
   }
 )
 

@@ -13,7 +13,7 @@ export const iUserSchema = z.object({
   followingCount: z.string().transform((arg) => parseInt(arg)),
   follower: z.boolean(),
   following: z.boolean(),
-  blocker: z.boolean().optional().nullable().transform((arg) => arg === null ? undefined : arg),
-  blocking: z.boolean().optional().nullable().transform((arg) => arg === null ? undefined : arg),
-  hasNotification: z.boolean().optional().nullable().transform((arg) => arg === null ? undefined : arg),
+  blocker: z.boolean().optional().nullable(),
+  blocking: z.boolean().optional().nullable(),
+  hasNotification: z.boolean().optional().nullable(),
 }).strict();
