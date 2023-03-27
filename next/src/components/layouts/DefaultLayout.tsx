@@ -222,7 +222,7 @@ function ButtonNavbar({ icon, path, name }: ButtonProps) {
   )
 }
 
-interface ButtonDesktopProps extends React.ComponentPropsWithoutRef<"button"> {
+interface ButtonDesktopProps extends React.ComponentPropsWithoutRef<"a"> {
   icon: React.ReactNode;
   path: string;
   name: string;
@@ -233,16 +233,17 @@ function ButtonDesktop({ icon, path, name, ...props }: ButtonDesktopProps) {
   const theme = useMantineTheme();
 
   return (
-    <Button
-      {...props}
-      styles={{ label: { display: "flex", gap: theme.spacing.md, flexGrow: 1 } }}
-      fullWidth
-      variant="subtle"
-      color={router.pathname === path ? "green" : "dark"}
-    >
-      {icon}
-      <Text truncate>{name}</Text>
-    </Button>
+    <CustomLink {...props} href={path}>
+      <Button
+        styles={{ label: { display: "flex", gap: theme.spacing.md, flexGrow: 1 } }}
+        fullWidth
+        variant="subtle"
+        color={router.pathname === path ? "green" : "dark"}
+      >
+        {icon}
+        <Text truncate>{name}</Text>
+      </Button>
+    </CustomLink>
   )
 }
 
