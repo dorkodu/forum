@@ -21,7 +21,6 @@ const useStyles = createStyles((theme, { opened }: { opened: boolean }) => ({
     padding: `${theme.spacing.xs} ${theme.spacing.md}`,
     borderRadius: theme.radius.md,
     border: `${rem(1)} solid ${theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[2]}`,
-    transition: 'background-color 150ms ease',
     backgroundColor:
       theme.colorScheme === 'dark'
         ? theme.colors.dark[opened ? 5 : 6]
