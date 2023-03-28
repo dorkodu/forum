@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
-import { ActionIcon, AppShell, Button, Card, createStyles, Flex, Footer, Header, Indicator, MediaQuery, Text, useMantineTheme } from "@mantine/core";
+import { ActionIcon, Anchor, AppShell, Button, Card, createStyles, Flex, Footer, Header, Indicator, MediaQuery, Text, useMantineTheme } from "@mantine/core";
 import { IconArrowLeft, IconBell, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons-react";
 import RequestLogin from "../modals/RequestLogin";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -194,12 +194,14 @@ function DefaultAside() {
         <Card withBorder>
           <Flex direction="column" gap="md" align="center">
 
-            <img
-              src={DorkoduLogo}
-              alt="Dorkodu"
-              width={64}
-              height={64}
-            />
+            <Anchor href="https://dorkodu.com" align="center">
+              <img
+                src={DorkoduLogo}
+                alt="Dorkodu"
+                draggable={false}
+                style={{ width: "75%" }}
+              />
+            </Anchor>
 
             <Text color="dimmed" weight={450}>
               <b>Dorkodu</b> &copy; {new Date().getFullYear()}
