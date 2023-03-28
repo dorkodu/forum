@@ -47,7 +47,7 @@ const useStyles = createStyles((theme) => ({
       display: "none",
     },
   },
-}))
+}));
 
 export default function DefaultLayout({ children }: React.PropsWithChildren) {
   return (
@@ -175,10 +175,10 @@ function DefaultNavbar() {
   return (
     <Flex direction="column" w={300} className={classes.navbar}>
       <Flex direction="column" py="md" pl="md" gap="xs">
-        <ButtonNavbar icon={<IconHome />} path={"/"} name={"Home"} />
+        <ButtonNavbar icon={<IconHome />} path={"/home"} name={"Home"} />
         <ButtonNavbar icon={<IconSearch />} path={"/search"} name={"Search"} />
         <ButtonNavbar icon={<IconUser />} path={`/profile/${currentUser?.username}`} name={"Profile"} />
-        <ButtonNavbar icon={<IconBell />} path={"/notifications"} name={"Notifications"} />
+        <ButtonNavbar icon={<IconBell />} path={"/notifications"} name={"Notifications"} data={{ notification: currentUser?.hasNotification }} />
         <ButtonNavbar icon={<IconPencilPlus />} path={"/discussion-editor"} name={"Discussion Editor"} />
       </Flex>
     </Flex>
@@ -218,17 +218,18 @@ interface ButtonProps {
   icon: React.ReactNode;
   path: string;
   name: string;
+  data?: { notification?: boolean };
 }
 
-function ButtonNavbar({ icon, path, name }: ButtonProps) {
+function ButtonNavbar({ icon, path, name, data }: ButtonProps) {
   return (
     <>
       <MediaQuery query="(max-width: 1080px)" styles={{ display: 'none' }}>
-        <ButtonDesktop icon={icon} name={name} path={path} />
+        <ButtonDesktop icon={icon} name={name} path={path} data={data} />
       </MediaQuery>
 
       <MediaQuery query="(max-width: 1080px)" styles={{ display: 'block !important' }}>
-        <ButtonMobile icon={icon} path={path} style={{ display: "none" }} />
+        <ButtonMobile icon={icon} path={path} data={data} style={{ display: "none" }} />
       </MediaQuery>
     </>
   )
@@ -238,9 +239,10 @@ interface ButtonDesktopProps extends React.ComponentPropsWithoutRef<"button"> {
   icon: React.ReactNode;
   path: string;
   name: string;
+  data?: { notification?: boolean };
 }
 
-function ButtonDesktop({ icon, path, name, ...props }: ButtonDesktopProps) {
+function ButtonDesktop({ icon, path, name, data, ...props }: ButtonDesktopProps) {
   const theme = useMantineTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -254,7 +256,9 @@ function ButtonDesktop({ icon, path, name, ...props }: ButtonDesktopProps) {
       onClick={() => navigate(path)}
       {...props}
     >
-      {icon}
+      <Indicator color="red" disabled={!data?.notification} zIndex={101}>
+        {icon}
+      </Indicator>
       <Text truncate>{name}</Text>
     </Button>
   )
@@ -263,22 +267,27 @@ function ButtonDesktop({ icon, path, name, ...props }: ButtonDesktopProps) {
 interface ButtonMobileProps extends React.ComponentPropsWithoutRef<"button"> {
   icon: React.ReactNode;
   path: string;
+  data?: { notification?: boolean };
 }
 
-function ButtonMobile({ icon, path, style, ...props }: ButtonMobileProps) {
+function ButtonMobile({ icon, path, data, style, ...props }: ButtonMobileProps) {
   const theme = useMantineTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
   return (
     <ActionIcon
-      size={32}
+      size={24}
       color={location.pathname === path ? "green" : "dark"}
       onClick={() => navigate(path)}
       style={{ marginLeft: theme.spacing.md, width: "32px", height: "32px", ...style }}
       {...props}
     >
-      {icon}
+      <Flex direction="column" align="center" justify="center">
+        <Indicator color="red" disabled={!data?.notification} zIndex={101}>
+          {icon}
+        </Indicator>
+      </Flex>
     </ActionIcon>
   )
 }
