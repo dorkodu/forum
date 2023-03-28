@@ -1,4 +1,3 @@
-import { css } from "@emotion/react";
 import { Button, Card, createStyles, Flex, SegmentedControl, Tooltip, useMantineTheme } from "@mantine/core"
 import { useClickOutside } from "@mantine/hooks";
 import React, { useState } from "react";
@@ -78,7 +77,7 @@ function SingleSegment({ segment }: { segment: ISegment }) {
           classNames={{ root: classes.root, control: classes.control }}
           onClick={() => setOpened(true)}
           ref={ref}
-          css={css`flex-grow: 1;`}
+          sx={{ flexGrow: 1 }}
         />
       </Flex>
     </Tooltip>

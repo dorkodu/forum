@@ -69,11 +69,35 @@ function formatNumber(number: number, long?: boolean) {
   return Intl.NumberFormat(i18n.language, { notation: "compact", maximumFractionDigits: 1 }).format(number);
 }
 
+function formatDate(date: number, long?: boolean) {
+  if (long) return new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium", timeStyle: "short" }).format(date);
+
+  const current = new Date();
+  const target = new Date(date);
+  let diff = 0;
+
+  if (current.getUTCFullYear() - target.getUTCFullYear() >= 1)
+    return new Intl.DateTimeFormat(i18n.language, { month: "short", day: "numeric", year: "numeric" }).format(date);
+  else if (current.getUTCDate() - target.getUTCDate() >= 1)
+    return new Intl.DateTimeFormat(i18n.language, { month: "short", day: "numeric" }).format(date);
+  else if ((diff = current.getUTCHours() - target.getUTCHours()) >= 1)
+    return new Intl.RelativeTimeFormat(i18n.language, { numeric: "always", style: "narrow" }).format(-diff, "hours");
+  else if ((diff = current.getUTCMinutes() - target.getUTCMinutes()) >= 1)
+    return new Intl.RelativeTimeFormat(i18n.language, { numeric: "always", style: "narrow" }).format(-diff, "minutes");
+  else if ((diff = current.getUTCSeconds() - target.getUTCSeconds()) >= 1)
+    return new Intl.RelativeTimeFormat(i18n.language, { numeric: "always", style: "narrow" }).format(-diff, "seconds");
+  else return new Intl.RelativeTimeFormat(i18n.language, { numeric: "auto" }).format(0, "seconds");
+}
+
 export const util = {
   parseUserAgent,
+
   share,
   copyToClipboard,
+
   tryObjSwap,
   compareId,
+
   formatNumber,
+  formatDate,
 }

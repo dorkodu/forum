@@ -1,4 +1,3 @@
-import { css } from "@emotion/react";
 import { LoadingOverlay } from "@mantine/core";
 import { useDelay } from "../hooks";
 
@@ -14,7 +13,7 @@ function OverlayLoader({ full }: Props) {
     <LoadingOverlay
       visible={true}
       overlayBlur={2}
-      css={full ? css`position: fixed;` : null}
+      sx={full ? { position: "fixed" } : undefined}
     />
   )
 }

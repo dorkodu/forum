@@ -9,11 +9,13 @@ const Profile = React.lazy(useWait(() => import("./profile/Profile")));
 const Follower = React.lazy(useWait(() => import("./profile/Follower")));
 const Following = React.lazy(useWait(() => import("./profile/Following")));
 const Discussion = React.lazy(useWait(() => import("./Discussion")));
-const DiscussionEditor = React.lazy(useWait(() => import("./DiscussionEditor")));
 const Search = React.lazy(useWait(() => import("./Search")));
-const Notifications = React.lazy(useWait(() => import("./Notifications")));
 const Menu = React.lazy(useWait(() => import("./Menu")));
 const DorkoduID = React.lazy(useWait(() => import("./DorkoduID")));
+
+const DiscussionEditor = React.lazy(useWait(() => import("./DiscussionEditor")));
+const Notifications = React.lazy(useWait(() => import("./Notifications")));
+
 const NotFound = React.lazy(useWait(() => import("./NotFound")));
 
 export const router = createBrowserRouter(

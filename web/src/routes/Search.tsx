@@ -1,3 +1,4 @@
+import DefaultLayout from "@/components/layouts/DefaultLayout";
 import { Card, TextInput } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -99,39 +100,41 @@ function Search() {
   }, [state.search])
 
   return (
-    <InfiniteScroll
-      refresh={() => fetchUsers(state.order, true)}
-      next={() => fetchUsers(state.order, false, true)}
-      hasMore={searchFeedProps.hasMore}
-    >
-      <Card shadow="sm" p="md" m="md" radius="md" withBorder>
-        <TextInput
-          radius="md"
-          label={t("user.searchLabel")}
-          description={t("user.searchDescription")}
-          placeholder={t("user.search")}
-          defaultValue={state.search}
-          onChange={ev => useAppStore.setState(s => { s.options.search.search = ev.target.value })}
-          pb="md"
-        />
+    <DefaultLayout>
+      <InfiniteScroll
+        refresh={() => fetchUsers(state.order, true)}
+        next={() => fetchUsers(state.order, false, true)}
+        hasMore={searchFeedProps.hasMore}
+      >
+        <Card shadow="sm" p="md" m="md" radius="md" withBorder>
+          <TextInput
+            radius="md"
+            label={t("user.searchLabel")}
+            description={t("user.searchDescription")}
+            placeholder={t("user.search")}
+            defaultValue={state.search}
+            onChange={ev => useAppStore.setState(s => { s.options.search.search = ev.target.value })}
+            pb="md"
+          />
 
-        <CardPanel.Segments
-          segments={
-            [{
-              value: state.order,
-              setValue: changeOrder,
-              label: t("order"),
-              data: [
-                { label: t("newer"), value: "newer" },
-                { label: t("older"), value: "older" },
-              ]
-            }]
-          }
-        />
-      </Card>
+          <CardPanel.Segments
+            segments={
+              [{
+                value: state.order,
+                setValue: changeOrder,
+                label: t("order"),
+                data: [
+                  { label: t("newer"), value: "newer" },
+                  { label: t("older"), value: "older" },
+                ]
+              }]
+            }
+          />
+        </Card>
 
-      {getSorted(state.order).map((user) => <ProfileSummary key={user.id} user={user} />)}
-    </InfiniteScroll>
+        {getSorted(state.order).map((user) => <ProfileSummary key={user.id} user={user} />)}
+      </InfiniteScroll>
+    </DefaultLayout>
   )
 }
 

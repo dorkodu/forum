@@ -1,5 +1,5 @@
 import { Flex, Loader, Modal, Title } from "@mantine/core";
-import ForumIcon from "@assets/forum.svg";
+import ForumIcon from "@/assets/forum.svg";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { Piece } from "../TextParser";

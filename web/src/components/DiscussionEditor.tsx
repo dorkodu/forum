@@ -8,10 +8,10 @@ import { request, sage } from "../stores/api";
 import { useAppStore } from "../stores/appStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { wrapContent } from "../styles/css";
-import CardLoader from "./cards/CardLoader";
 import { CardPanel } from "./cards/CardPanel";
-import OverlayLoader from "./cards/OverlayLoader";
 import { useWait } from "./hooks";
+import CardLoader from "./loaders/CardLoader";
+import OverlayLoader from "./loaders/OverlayLoader";
 import InputRequirements, { getRequirement, getRequirementError } from "./popovers/InputRequirements";
 import TextParser from "./TextParser";
 
@@ -45,7 +45,7 @@ function DiscussionEditor({ id }: Props) {
     setState(s => ({ ...s, loading: true, status: undefined }));
     const res = await useWait(() => queryCreateDiscussion(discussion.title, discussion.readme))();
     setState(s => ({ ...s, loading: false, status: res.status }));
-    if (res.id) navigate(`/discussion/${res.id}`);
+    if (res.status && res.id) navigate(`/discussion/${res.id}`);
   }
 
   const editDiscussion = async () => {
@@ -60,7 +60,7 @@ function DiscussionEditor({ id }: Props) {
     setState(s => ({ ...s, loading: true, status: undefined }));
     const status = await useWait(() => queryEditDiscussion(id, discussion.title, discussion.readme))();
     setState(s => ({ ...s, loading: false, status: status }));
-    navigate(`/discussion/${id}`);
+    if (status) navigate(`/discussion/${id}`);
   }
 
   const fetchDiscussion = async (id: string) => {
@@ -187,7 +187,7 @@ function DiscussionEditor({ id }: Props) {
             <Flex direction="column">
               <Text weight={500} size="sm">{t("discussion.titleLabel")}</Text>
               <Card withBorder>
-                <Text css={wrapContent}>
+                <Text sx={wrapContent}>
                   <TextParser text={discussion.title} />
                 </Text>
               </Card>
@@ -196,7 +196,7 @@ function DiscussionEditor({ id }: Props) {
             <Flex direction="column">
               <Text weight={500} size="sm">{t("discussion.readmeLabel")}</Text>
               <Card withBorder>
-                <Text css={wrapContent}>
+                <Text sx={wrapContent}>
                   <TextParser text={discussion.readme} />
                 </Text>
               </Card>

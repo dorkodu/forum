@@ -1,7 +1,6 @@
 import { create } from "zustand"
 import { immer } from 'zustand/middleware/immer'
 import { useWait } from "../components/hooks"
-import { changeDateLanguage } from "../lib/date"
 import i18n from "../lib/i18n"
 
 interface State {
@@ -130,7 +129,7 @@ export const useAppStore = create(immer<State & Action>((set, _get) => ({
     set(state => { state.loading.locale = true })
 
     await useWait(async () => {
-      await Promise.all([i18n.changeLanguage(lang), changeDateLanguage(lang)]);
+      await i18n.changeLanguage(lang);
       document.documentElement.lang = lang;
     })();
 

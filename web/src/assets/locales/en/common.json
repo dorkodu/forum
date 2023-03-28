@@ -110,5 +110,13 @@
     "readmeLength": "1-100000 characters.",
     "argumentLength": "1-500 characters.",
     "commentLength": "1-500 characters."
+  },
+
+  "routes": {
+    "home": "Home",
+    "search": "Search",
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "discussionEditor": "Discussion Editor"
   }
 }

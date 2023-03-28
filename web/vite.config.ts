@@ -10,13 +10,7 @@ import { createHtmlPlugin as html } from "vite-plugin-html";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react({
-      jsxRuntime: "automatic",
-      jsxImportSource: "@emotion/react",
-      babel: {
-        plugins: ["@emotion/babel-plugin"],
-      },
-    }),
+    react({}),
     html({ minify: true }),
     viteCompression({ algorithm: "gzip" }),
     viteCompression({ algorithm: "brotliCompress" }),
@@ -80,7 +74,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@api": path.resolve(__dirname, "../api/src"),
-      "@assets": path.resolve(__dirname, "./src/assets"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   build: {
