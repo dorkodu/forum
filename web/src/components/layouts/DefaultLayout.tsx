@@ -177,6 +177,7 @@ function DefaultNavbar() {
   return (
     <Flex direction="column" w={300} className={classes.navbar}>
       <div style={{ position: "fixed", width: "inherit" }}>
+        {/* TODO: Magic number alert! 64px = header height */}
         <ScrollArea sx={{ height: "calc(100vh - 64px)" }}>
           <Flex direction="column" py="md" pl="md" gap="xs">
             <ButtonNavbar icon={<IconHome />} path={"/home"} name={"Home"} />
@@ -197,6 +198,7 @@ function DefaultAside() {
   return (
     <Flex direction="column" w={300} className={classes.aside}>
       <div style={{ position: "fixed", width: "inherit" }}>
+        {/* TODO: Magic number alert! 64px = header height */}
         <ScrollArea sx={{ height: "calc(100vh - 64px)" }}>
           <Flex direction="column" py="md" pr="md" gap="xs">
             <Card withBorder>
