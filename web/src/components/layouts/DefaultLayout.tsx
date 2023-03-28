@@ -9,6 +9,7 @@ import ForumBrandDark from "@/assets/forum_brand-dark.svg";
 import DorkoduLogo from "@/assets/dorkodu_logo.svg";
 import { clickable } from "@/styles/css";
 import { useMediaQuery } from "@mantine/hooks";
+import { useTranslation } from "react-i18next";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -175,6 +176,7 @@ function DefaultFooter() {
 
 function DefaultNavbar() {
   const { classes } = useStyles();
+  const { t } = useTranslation();
   const currentUserId = useAuthStore(state => state.userId);
   const currentUser = useUserStore(state => state.getUserById(currentUserId));
 
@@ -185,11 +187,11 @@ function DefaultNavbar() {
           {/* TODO: Magic number alert! 96px = header (64px) + padding y (16px * 2) */}
           <ScrollArea sx={{ height: "calc(100vh - 96px)" }}>
             <Flex direction="column" gap="xs">
-              <ButtonNavbar icon={<IconHome />} path={"/home"} name={"Home"} />
-              <ButtonNavbar icon={<IconSearch />} path={"/search"} name={"Search"} />
-              <ButtonNavbar icon={<IconUser />} path={`/profile/${currentUser?.username}`} name={"Profile"} />
-              <ButtonNavbar icon={<IconBell />} path={"/notifications"} name={"Notifications"} data={{ notification: currentUser?.hasNotification }} />
-              <ButtonNavbar icon={<IconPencilPlus />} path={"/discussion-editor"} name={"Discussion Editor"} />
+              <ButtonNavbar icon={<IconHome />} path={"/home"} name={t("routes.home")} />
+              <ButtonNavbar icon={<IconSearch />} path={"/search"} name={t("routes.search")} />
+              <ButtonNavbar icon={<IconUser />} path={`/profile/${currentUser?.username}`} name={t("routes.profile")} />
+              <ButtonNavbar icon={<IconBell />} path={"/notifications"} name={t("routes.notifications")} data={{ notification: currentUser?.hasNotification }} />
+              <ButtonNavbar icon={<IconPencilPlus />} path={"/discussion-editor"} name={t("routes.discussionEditor")} />
             </Flex>
           </ScrollArea>
         </Flex>
