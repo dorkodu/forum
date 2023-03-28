@@ -82,7 +82,7 @@ function DefaultHeader() {
           <ActionIcon
             color="dark"
             onClick={() => navigate(-1)}
-            sx={location.pathname === "/" ? { visibility: "hidden" } : undefined}>
+            sx={location.pathname === "/home" ? { visibility: "hidden" } : undefined}>
             <IconArrowLeft />
           </ActionIcon>
 
