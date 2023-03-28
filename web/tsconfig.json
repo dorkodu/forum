@@ -16,7 +16,6 @@
     "noEmit": true,
 
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react",
 
     "alwaysStrict": true,
     "allowUnreachableCode": false,
@@ -29,7 +28,7 @@
 
     "paths": {
       "@api/*": ["../api/src/*"],
-      "@assets/*": ["./src/assets/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"],

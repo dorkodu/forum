@@ -1,6 +1,6 @@
 import { Button, Flex, Modal, Title } from "@mantine/core";
 import { useAppStore } from "../../stores/appStore";
-import ForumIcon from "@assets/forum.svg";
+import ForumIcon from "@/assets/forum.svg";
 import { useTranslation } from "react-i18next";
 
 function RequestLogin() {

@@ -1,6 +1,7 @@
+import DefaultLayout from "@/components/layouts/DefaultLayout";
+import CardLoader from "@/components/loaders/CardLoader";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import CardLoader from "../components/cards/CardLoader";
 import { useWait } from "../components/hooks";
 import { useAuthStore } from "../stores/authStore";
 
@@ -18,7 +19,11 @@ function DorkoduID() {
     })()
   }, [])
 
-  return <CardLoader />
+  return (
+    <DefaultLayout>
+      <CardLoader />
+    </DefaultLayout>
+  )
 }
 
 export default DorkoduID

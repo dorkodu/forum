@@ -2,8 +2,7 @@ import InfiniteScrollComponent from "react-simple-pull-to-refresh";
 import React, { ReactElement, useLayoutEffect, useMemo, useRef } from "react";
 import { IconArrowBigDownLineFilled } from "@tabler/icons-react";
 import { Flex } from "@mantine/core";
-import DefaultLoader from "./cards/DefaultLoader";
-import { css } from "@emotion/react";
+import DefaultLoader from "./loaders/DefaultLoader";
 
 interface Props {
   children: React.ReactNode;
@@ -27,6 +26,7 @@ function InfiniteScroll({ children, refresh, next, hasMore }: Props) {
   }
 
   const doNext = async () => {
+    if (scrollY <= 0) return;
     if (working.current || !next) return promise.current;
     working.current = true;
     await (promise.current = next());
@@ -63,7 +63,7 @@ function InfiniteScroll({ children, refresh, next, hasMore }: Props) {
   }, []);
 
   return (
-    <Flex direction="column" ref={ref} css={css`height: 100%;`}>
+    <Flex direction="column" ref={ref} sx={{ height: "100%" }}>
       <InfiniteScrollComponent
         onFetchMore={doNext}
         canFetchMore={hasMore}

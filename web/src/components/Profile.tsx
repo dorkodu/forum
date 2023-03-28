@@ -1,11 +1,9 @@
 import { IUser } from "@api/types/user";
-import { css } from "@emotion/react";
 import { Anchor, Avatar, Button, Card, Flex, Text, useMantineTheme, } from "@mantine/core";
 import { IconCalendar, IconHandOff, IconUsers } from "@tabler/icons-react";
 import { MouseEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom"
-import { date } from "../lib/date";
 import { useAuthStore } from "../stores/authStore";
 import { useUserStore } from "../stores/userStore";
 import { colorBW, wrapContent } from "../styles/css";
@@ -13,8 +11,8 @@ import TextParser, { PieceType } from "./TextParser";
 import UserMenu from "./menus/UserMenu";
 import { util } from "../lib/util";
 import AvatarWebp from "../assets/avatar.webp";
-import { tokens } from "@dorkodu/prism";
 import CustomTooltip from "./custom/CustomTooltip";
+import i18n from "@/lib/i18n";
 
 interface Props {
   user: IUser;
@@ -57,7 +55,7 @@ function Profile({ user }: Props) {
   }
 
   return (
-    <Card css={css`overflow: visible;`} shadow="sm" p="md" m="md" radius="md" withBorder>
+    <Card sx={{ overflow: "visible" }} shadow="sm" p="md" m="md" radius="md" withBorder>
       <Flex direction="column" gap="xs">
         <Flex direction="row" justify="space-between">
           <Avatar src={AvatarWebp} size={100} radius="md" />
@@ -66,35 +64,35 @@ function Profile({ user }: Props) {
 
         <Flex direction="column">
           <Flex direction="column">
-            <Text size="xl" weight={600} css={wrapContent}>
+            <Text size="xl" weight={600} sx={wrapContent}>
               <TextParser text={user.name} types={[PieceType.Emoji]} />
             </Text>
 
             <Flex>
-              <Text style={{ color: tokens.color.gray(50), fontWeight: 750 }}>@</Text>
-              <Text weight={500} css={wrapContent}>{user.username}</Text>
+              <Text style={{ fontWeight: 750 }}>@</Text>
+              <Text weight={500} sx={wrapContent}>{user.username}</Text>
             </Flex>
           </Flex>
 
           {user.bio.length !== 0 &&
-            <Text size="sm" color="dimmed" css={wrapContent}><TextParser text={user.bio} /></Text>
+            <Text size="sm" color="dimmed" sx={wrapContent}><TextParser text={user.bio} /></Text>
           }
         </Flex>
 
         <Flex align="center" gap="xs">
           <IconCalendar />
-          {date(user.joinDate).format('ll')}
+          {new Intl.DateTimeFormat(i18n.language, { dateStyle: "medium" }).format(user.joinDate)}
         </Flex>
 
         <Flex direction="row" wrap="wrap">
           <CustomTooltip label={util.formatNumber(user.followerCount, true)}>
-            <Anchor href={`/profile/${user.username}/followers`} css={colorBW(theme)} onClick={gotoFollowers} mr="xs">
+            <Anchor href={`/profile/${user.username}/followers`} sx={colorBW(theme)} onClick={gotoFollowers} mr="xs">
               {t("user.followers", { count: user.followerCount, number: util.formatNumber(user.followerCount) })}
             </Anchor>
           </CustomTooltip>
 
           <CustomTooltip label={util.formatNumber(user.followingCount, true)}>
-            <Anchor href={`/profile/${user.username}/following`} css={colorBW(theme)} onClick={gotoFollowing}>
+            <Anchor href={`/profile/${user.username}/following`} sx={colorBW(theme)} onClick={gotoFollowing}>
               {t("user.following", { count: user.followingCount, number: util.formatNumber(user.followingCount) })}
             </Anchor>
           </CustomTooltip>

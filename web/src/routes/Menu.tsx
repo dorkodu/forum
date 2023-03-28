@@ -1,3 +1,4 @@
+import DefaultLayout from "@/components/layouts/DefaultLayout";
 import { Button, Card, Divider, Flex, NativeSelect } from "@mantine/core"
 import { IconLogin, IconLogout, IconWorld } from "@tabler/icons-react"
 import { useTranslation } from "react-i18next";
@@ -19,50 +20,52 @@ function Menu() {
   const logout = () => { queryLogout() }
 
   return (
-    <Card shadow="sm" p="md" m="md" radius="md" withBorder>
-      <Flex direction="column" gap="md">
-        <NativeSelect
-          radius="md"
-          variant="default"
-          placeholder="language..."
-          icon={<IconWorld />}
-          value={i18n.language}
-          onChange={(ev) => changeLocale(ev.currentTarget.value)}
-          data={[
-            { value: 'en', label: 'English' },
-            { value: 'tr', label: 'Türkçe' },
-          ]}
-        />
-
-        <ColorToggleSegmented />
-
-        <Divider my={0} />
-
-        {!currentUserId &&
-          <Button
+    <DefaultLayout>
+      <Card shadow="sm" p="md" m="md" radius="md" withBorder>
+        <Flex direction="column" gap="md">
+          <NativeSelect
             radius="md"
-            fullWidth
             variant="default"
-            leftIcon={<IconLogin />}
-            onClick={login}
-          >
-            {t("login")}
-          </Button>
-        }
+            placeholder="language..."
+            icon={<IconWorld />}
+            value={i18n.language}
+            onChange={(ev) => changeLocale(ev.currentTarget.value)}
+            data={[
+              { value: 'en', label: 'English' },
+              { value: 'tr', label: 'Türkçe' },
+            ]}
+          />
 
-        {currentUserId &&
-          <Button
-            radius="md"
-            fullWidth
-            variant="default"
-            leftIcon={<IconLogout />}
-            onClick={logout}
-          >
-            {t("logout")}
-          </Button>
-        }
-      </Flex>
-    </Card>
+          <ColorToggleSegmented />
+
+          <Divider my={0} />
+
+          {!currentUserId &&
+            <Button
+              radius="md"
+              fullWidth
+              variant="default"
+              leftIcon={<IconLogin />}
+              onClick={login}
+            >
+              {t("login")}
+            </Button>
+          }
+
+          {currentUserId &&
+            <Button
+              radius="md"
+              fullWidth
+              variant="default"
+              leftIcon={<IconLogout />}
+              onClick={logout}
+            >
+              {t("logout")}
+            </Button>
+          }
+        </Flex>
+      </Card>
+    </DefaultLayout>
   )
 }
 

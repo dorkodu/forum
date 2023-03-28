@@ -1,3 +1,4 @@
+import DefaultLayout from "@/components/layouts/DefaultLayout";
 import { useParams, useSearchParams } from "react-router-dom";
 import Discussion from "../components/Discussion"
 
@@ -12,12 +13,14 @@ function DiscussionRoute() {
   const commentId = searchParams.get("comment") ?? undefined;
 
   return (
-    <Discussion
-      key={discussionId}
-      discussionId={discussionId}
-      argumentId={argumentId}
-      commentId={argumentId ?? commentId}
-    />
+    <DefaultLayout>
+      <Discussion
+        key={discussionId}
+        discussionId={discussionId}
+        argumentId={argumentId}
+        commentId={argumentId ?? commentId}
+      />
+    </DefaultLayout>
   )
 }
 

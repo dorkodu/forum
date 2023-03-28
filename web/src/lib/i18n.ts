@@ -6,8 +6,8 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import { useAppStore } from '../stores/appStore';
 
 const locales: Record<string, Record<string, () => Promise<any>>> = {
-  en: { common: () => import("@assets/locales/en/common.json") },
-  tr: { common: () => import("@assets/locales/tr/common.json") },
+  en: { common: () => import("@/assets/locales/en/common.json") },
+  tr: { common: () => import("@/assets/locales/tr/common.json") },
 }
 
 i18n

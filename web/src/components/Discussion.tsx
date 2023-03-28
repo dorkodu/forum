@@ -10,7 +10,6 @@ import { useUserStore } from "../stores/userStore";
 import { wrapContent } from "../styles/css";
 import Argument from "./Argument";
 import CardAlert from "./cards/CardAlert";
-import CardLoader from "./cards/CardLoader";
 import { CardPanel } from "./cards/CardPanel";
 import Comment from "./Comment"
 import CreateArgument from "./CreateArgument";
@@ -18,6 +17,7 @@ import CreateComment from "./CreateComment";
 import DiscussionSummary from "./DiscussionSummary";
 import { useFeedProps, useWait } from "./hooks";
 import InfiniteScroll from "./InfiniteScroll";
+import CardLoader from "./loaders/CardLoader";
 import TextParser from "./TextParser";
 
 interface Props {
@@ -260,7 +260,7 @@ function Discussion({ discussionId, argumentId, commentId }: Props) {
           }
 
           {discussion.readme ?
-            <Card shadow="sm" p="md" m="md" radius="md" withBorder css={wrapContent}>
+            <Card shadow="sm" p="md" m="md" radius="md" withBorder sx={wrapContent}>
               <TextParser text={discussion.readme} />
             </Card>
             :
