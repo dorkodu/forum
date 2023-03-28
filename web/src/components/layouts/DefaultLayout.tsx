@@ -8,6 +8,7 @@ import ForumBrandLight from "@/assets/forum_brand-light.svg";
 import ForumBrandDark from "@/assets/forum_brand-dark.svg";
 import DorkoduLogo from "@/assets/dorkodu_logo.svg";
 import { clickable } from "@/styles/css";
+import { useMediaQuery } from "@mantine/hooks";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -52,6 +53,8 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export default function DefaultLayout({ children }: React.PropsWithChildren) {
+  const matches = useMediaQuery('(max-width: 640px)');
+
   return (
     <>
       <AppShell
@@ -61,7 +64,8 @@ export default function DefaultLayout({ children }: React.PropsWithChildren) {
       >
         <Flex direction="row">
           <DefaultNavbar />
-          <Flex direction="column" style={{ flexGrow: 1 }}>{children}</Flex>
+          {/* Remove padding-bottom created by mantine footer on the desktop layout */}
+          <Flex direction="column" style={{ flexGrow: 1, marginBottom: matches ? 0 : "-64px" }}>{children}</Flex>
           <DefaultAside />
         </Flex>
       </AppShell>
