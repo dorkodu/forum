@@ -45,7 +45,7 @@ function DiscussionEditor({ id }: Props) {
     setState(s => ({ ...s, loading: true, status: undefined }));
     const res = await useWait(() => queryCreateDiscussion(discussion.title, discussion.readme))();
     setState(s => ({ ...s, loading: false, status: res.status }));
-    if (res.id) navigate(`/discussion/${res.id}`);
+    if (res.status && res.id) navigate(`/discussion/${res.id}`);
   }
 
   const editDiscussion = async () => {
@@ -60,7 +60,7 @@ function DiscussionEditor({ id }: Props) {
     setState(s => ({ ...s, loading: true, status: undefined }));
     const status = await useWait(() => queryEditDiscussion(id, discussion.title, discussion.readme))();
     setState(s => ({ ...s, loading: false, status: status }));
-    navigate(`/discussion/${id}`);
+    if (status) navigate(`/discussion/${id}`);
   }
 
   const fetchDiscussion = async (id: string) => {
