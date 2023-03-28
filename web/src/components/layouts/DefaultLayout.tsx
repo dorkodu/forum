@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
-import { ActionIcon, Anchor, AppShell, Button, Card, createStyles, Flex, Footer, Header, Indicator, MediaQuery, Text, useMantineTheme } from "@mantine/core";
+import { ActionIcon, Anchor, AppShell, Button, Card, createStyles, Flex, Footer, Header, Indicator, MediaQuery, ScrollArea, Text, useMantineTheme } from "@mantine/core";
 import { IconArrowLeft, IconBell, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons-react";
 import RequestLogin from "../modals/RequestLogin";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -177,13 +177,15 @@ function DefaultNavbar() {
   return (
     <Flex direction="column" w={300} className={classes.navbar}>
       <div style={{ position: "fixed", width: "inherit" }}>
-        <Flex direction="column" py="md" pl="md" gap="xs">
-          <ButtonNavbar icon={<IconHome />} path={"/home"} name={"Home"} />
-          <ButtonNavbar icon={<IconSearch />} path={"/search"} name={"Search"} />
-          <ButtonNavbar icon={<IconUser />} path={`/profile/${currentUser?.username}`} name={"Profile"} />
-          <ButtonNavbar icon={<IconBell />} path={"/notifications"} name={"Notifications"} data={{ notification: currentUser?.hasNotification }} />
-          <ButtonNavbar icon={<IconPencilPlus />} path={"/discussion-editor"} name={"Discussion Editor"} />
-        </Flex>
+        <ScrollArea sx={{ height: "calc(100vh - 64px)" }}>
+          <Flex direction="column" py="md" pl="md" gap="xs">
+            <ButtonNavbar icon={<IconHome />} path={"/home"} name={"Home"} />
+            <ButtonNavbar icon={<IconSearch />} path={"/search"} name={"Search"} />
+            <ButtonNavbar icon={<IconUser />} path={`/profile/${currentUser?.username}`} name={"Profile"} />
+            <ButtonNavbar icon={<IconBell />} path={"/notifications"} name={"Notifications"} data={{ notification: currentUser?.hasNotification }} />
+            <ButtonNavbar icon={<IconPencilPlus />} path={"/discussion-editor"} name={"Discussion Editor"} />
+          </Flex>
+        </ScrollArea>
       </div>
     </Flex>
   )
@@ -195,26 +197,28 @@ function DefaultAside() {
   return (
     <Flex direction="column" w={300} className={classes.aside}>
       <div style={{ position: "fixed", width: "inherit" }}>
-        <Flex direction="column" py="md" pr="md" gap="xs">
-          <Card withBorder>
-            <Flex direction="column" gap="md" align="center">
+        <ScrollArea sx={{ height: "calc(100vh - 64px)" }}>
+          <Flex direction="column" py="md" pr="md" gap="xs">
+            <Card withBorder>
+              <Flex direction="column" gap="md" align="center">
 
-              <Anchor href="https://dorkodu.com" align="center">
-                <img
-                  src={DorkoduLogo}
-                  alt="Dorkodu"
-                  draggable={false}
-                  style={{ width: "75%" }}
-                />
-              </Anchor>
+                <Anchor href="https://dorkodu.com" align="center">
+                  <img
+                    src={DorkoduLogo}
+                    alt="Dorkodu"
+                    draggable={false}
+                    style={{ width: "75%" }}
+                  />
+                </Anchor>
 
-              <Text color="dimmed" weight={450}>
-                <b>Dorkodu</b> &copy; {new Date().getFullYear()}
-              </Text>
+                <Text color="dimmed" weight={450}>
+                  <b>Dorkodu</b> &copy; {new Date().getFullYear()}
+                </Text>
 
-            </Flex>
-          </Card>
-        </Flex>
+              </Flex>
+            </Card>
+          </Flex>
+        </ScrollArea>
       </div>
     </Flex>
   )
