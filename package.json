@@ -3,7 +3,6 @@
     "docker:build:prod": "docker compose -f docker-compose.prod.yml build",
     "docker:build:dev": "docker compose -f docker-compose.dev.yml build",
     "docker:dev": "docker compose -f docker-compose.dev.yml up",
-    "docker:dev:next": "docker exec -it forum_dev-forum_next-1 /bin/sh",
     "docker:dev:api": "docker exec -it forum_dev-forum_api-1 /bin/sh",
     "docker:dev:web": "docker exec -it forum_dev-forum_web-1 /bin/sh",
     "docker:dev:postgres": "docker exec -it forum_dev-forum_postgres-1 psql -U postgres",
