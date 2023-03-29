@@ -5,10 +5,8 @@ RUN mkdir -p /forum/api
 
 RUN npm install -g pnpm && pnpm config set --global store-dir /root/.local/share/pnpm/store/v3
 
-COPY ./api/pnpm-lock.yaml /forum/api
-RUN cd api && pnpm fetch --no-frozen-lockfile
 COPY ./api /forum/api
-RUN cd api && pnpm install --offline
+RUN cd api && pnpm install
 
 WORKDIR /forum/api
 CMD [ "pnpm", "run", "dev" ]
