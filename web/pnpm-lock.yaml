@@ -15,6 +15,7 @@ specifiers:
   i18next: ^22.0.5
   i18next-browser-languagedetector: ^7.0.1
   i18next-resources-to-backend: ^1.1.1
+  identicon.js: ^2.3.3
   immer: ^9.0.16
   react: ^18.2.0
   react-dom: ^18.2.0
@@ -43,6 +44,7 @@ dependencies:
   i18next: 22.4.9
   i18next-browser-languagedetector: 7.0.1
   i18next-resources-to-backend: 1.1.1
+  identicon.js: 2.3.3
   immer: 9.0.17
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
@@ -2801,6 +2803,10 @@ packages:
     resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
     dev: true
 
+  /identicon.js/2.3.3:
+    resolution: {integrity: sha512-/qgOkXKZ7YbeCYbawJ9uQQ3XJ3uBg9VDpvHjabCAPp6aRMhjLaFAxG90+1TxzrhKaj6AYpVGrx6UXQfQA41UEA==}
+    dev: false
+
   /immer/9.0.17:
     resolution: {integrity: sha512-+hBruaLSQvkPfxRiTLK/mi4vLH+/VQS6z2KJahdoxlleFOI8ARqzOF17uy12eFDlqWmPoygwc5evgwcp+dlHhg==}
     dev: false
@@ -3033,7 +3039,7 @@ packages:
   /jsonfile/4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
     optionalDependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
     dev: false
 
   /jsonfile/5.0.0:
@@ -3049,7 +3055,7 @@ packages:
     dependencies:
       universalify: 2.0.0
     optionalDependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
     dev: true
 
   /jsonpointer/5.0.1:

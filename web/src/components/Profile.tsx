@@ -10,7 +10,6 @@ import { colorBW, wrapContent } from "../styles/css";
 import TextParser, { PieceType } from "./TextParser";
 import UserMenu from "./menus/UserMenu";
 import { util } from "../lib/util";
-import AvatarWebp from "../assets/avatar.webp";
 import CustomTooltip from "./custom/CustomTooltip";
 import i18n from "@/lib/i18n";
 
@@ -58,7 +57,7 @@ function Profile({ user }: Props) {
     <Card sx={{ overflow: "visible" }} shadow="sm" p="md" m="md" radius="md" withBorder>
       <Flex direction="column" gap="xs">
         <Flex direction="row" justify="space-between">
-          <Avatar src={AvatarWebp} size={100} radius="md" />
+          <Avatar src={util.generateAvatar(user.username + user.id)} size={100} radius="md" />
           <UserMenu user={user} />
         </Flex>
 

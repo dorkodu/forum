@@ -3,7 +3,6 @@ import { Anchor, Avatar, Card, Flex, Text, useMantineTheme } from "@mantine/core
 import React, { MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { autoGrid, bgColorHover, colorBW, flexGrow, wrapContent } from "../../styles/css"
-import AvatarWebp from "../../assets/avatar.webp";
 import TextParser, { PieceType } from "../TextParser";
 import CustomTooltip from "../custom/CustomTooltip";
 import { util } from "@/lib/util";
@@ -30,7 +29,7 @@ function CardEntity({ user, entity, onClickCard, onClickUser, componentMenu, com
   return (
     <Card sx={{ overflow: "visible", ...bgColorHover(theme) }} shadow="sm" p="md" m="md" radius="md" withBorder onClick={onClickCard}>
       <Flex direction="row" gap="md">
-        <Avatar src={AvatarWebp} alt="Avatar" radius="xl" />
+        <Avatar src={util.generateAvatar(user.username + user.id)} alt="Avatar" radius="xl" />
 
         <Flex direction="column" sx={flexGrow}>
           <Flex direction="column">
