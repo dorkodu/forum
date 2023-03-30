@@ -4,7 +4,7 @@ WORKDIR /forum
 RUN mkdir -p /forum/web
 RUN mkdir -p /forum/api
 
-RUN npm install -g pnpm && pnpm config set --global store-dir /root/.local/share/pnpm/store/v3
+RUN npm install -g pnpm@7.29.3 && pnpm config set store-dir /root/.local/share/pnpm/store/v3
 
 WORKDIR /forum/web
 
