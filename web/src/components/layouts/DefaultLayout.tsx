@@ -128,7 +128,7 @@ function DefaultFooter() {
         <Flex sx={{ height: "100%" }} align="center" justify="space-evenly">
 
           <ActionIcon
-            color={location.pathname === "/" ? "green" : "dark"}
+            color={location.pathname === "/home" ? "green" : "dark"}
             onClick={() => navigate("/home")}
           >
             <IconHome />
@@ -142,7 +142,7 @@ function DefaultFooter() {
           </ActionIcon>
 
           <ActionIcon
-            color={location.pathname === "/profile" ? "green" : "dark"}
+            color={location.pathname === `/profile/${currentUser?.username}` ? "green" : "dark"}
             onClick={() => navigate(`/profile/${currentUser?.username}`)}
           >
             <IconUser />
