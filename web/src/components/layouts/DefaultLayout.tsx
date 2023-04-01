@@ -3,14 +3,13 @@ import { useUserStore } from "@/stores/userStore";
 import { ActionIcon, Anchor, AppShell, Button, Card, createStyles, Flex, Footer, Header, Indicator, MediaQuery, ScrollArea, Text, useMantineTheme } from "@mantine/core";
 import { IconArrowLeft, IconBell, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons-react";
 import RequestLogin from "../modals/RequestLogin";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import ForumBrandLight from "@/assets/forum_brand-light.svg";
 import ForumBrandDark from "@/assets/forum_brand-dark.svg";
 import DorkoduLogo from "@/assets/dorkodu_logo.svg";
 import { clickable } from "@/styles/css";
 import { useMediaQuery } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
-import { useAppStore } from "@/stores/appStore";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -54,7 +53,7 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function DefaultLayout({ children }: React.PropsWithChildren) {
+export default function DefaultLayout() {
   const matches = useMediaQuery('(max-width: 640px)');
 
   return (
@@ -67,7 +66,7 @@ export default function DefaultLayout({ children }: React.PropsWithChildren) {
         <Flex direction="row">
           <DefaultNavbar />
           {/* Remove padding-bottom created by mantine footer on the desktop layout */}
-          <Flex direction="column" style={{ flexGrow: 1, marginBottom: matches ? 0 : "-64px" }}>{children}</Flex>
+          <Flex direction="column" style={{ flexGrow: 1, marginBottom: matches ? 0 : "-64px" }}><Outlet /></Flex>
           <DefaultAside />
         </Flex>
       </AppShell>
@@ -123,9 +122,6 @@ function DefaultFooter() {
   const authorized = useAuthStore(state => state.userId);
   const currentUserId = useAuthStore(state => state.userId);
   const currentUser = useUserStore(state => state.getUserById(currentUserId));
-
-  const loading = useAppStore(state => state.loading);
-  if (loading.auth) return null;
 
   return (
     <Footer className={classes.footer} px="md" pb="md" height={64} withBorder={false}>
@@ -193,9 +189,6 @@ function DefaultNavbar() {
   const currentUserId = useAuthStore(state => state.userId);
   const currentUser = useUserStore(state => state.getUserById(currentUserId));
 
-  const loading = useAppStore(state => state.loading);
-  if (loading.auth) return null;
-
   return (
     <Flex direction="column" w={300} className={classes.navbar}>
       <div style={{ position: "fixed", width: "inherit" }}>
@@ -222,9 +215,6 @@ function DefaultNavbar() {
 
 function DefaultAside() {
   const { classes } = useStyles();
-
-  const loading = useAppStore(state => state.loading);
-  if (loading.auth) return null;
 
   return (
     <Flex direction="column" w={300} className={classes.aside}>

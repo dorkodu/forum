@@ -1,5 +1,5 @@
 import { ColorScheme, ColorSchemeProvider, MantineProvider } from "@mantine/core";
-import { Suspense, useEffect } from "react";
+import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useAppStore } from "./stores/appStore";
 import { useAuthStore } from "./stores/authStore";
@@ -9,9 +9,7 @@ import { useRegisterSW } from 'virtual:pwa-register/react';
 import UpdateSW from "./components/modals/UpdateSW";
 import { ScrollRestoration } from "react-router-dom"
 import { theme } from "./styles/theme";
-import CenterLoader from "./components/loaders/CenterLoader";
 import OverlayLoader from "./components/loaders/OverlayLoader";
-import DefaultLayout from "./components/layouts/DefaultLayout";
 
 function App() {
   const location = useLocation();
@@ -62,14 +60,10 @@ function App() {
     <>
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
-          <DefaultLayout>
-            <Suspense fallback={<CenterLoader />}>
-              {(loading.auth || loading.locale) && <OverlayLoader full={true} />}
-              {!loading.auth && <Outlet />}
-              {needRefresh && <UpdateSW updateSW={updateServiceWorker} />}
-              <RequestLogin />
-            </Suspense>
-          </DefaultLayout>
+          {(loading.auth || loading.locale) && <OverlayLoader full={true} />}
+          {!loading.auth && <Outlet />}
+          {needRefresh && <UpdateSW updateSW={updateServiceWorker} />}
+          <RequestLogin />
         </MantineProvider>
       </ColorSchemeProvider>
 
