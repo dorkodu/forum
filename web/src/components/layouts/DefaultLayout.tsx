@@ -119,6 +119,7 @@ function DefaultFooter() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const authorized = useAuthStore(state => state.userId);
   const currentUserId = useAuthStore(state => state.userId);
   const currentUser = useUserStore(state => state.getUserById(currentUserId));
 
@@ -141,32 +142,38 @@ function DefaultFooter() {
             <IconSearch />
           </ActionIcon>
 
-          <ActionIcon
-            color={location.pathname === `/profile/${currentUser?.username}` ? "green" : "dark"}
-            onClick={() => navigate(`/profile/${currentUser?.username}`)}
-          >
-            <IconUser />
-          </ActionIcon>
+          {authorized &&
+            <>
+              <ActionIcon
+                color={location.pathname === `/profile/${currentUser?.username}` ? "green" : "dark"}
+                onClick={() => navigate(`/profile/${currentUser?.username}`)}
+              >
+                <IconUser />
+              </ActionIcon>
 
-          {/* 
-            Set indicator z-index to 101 (1 higher than appshell's footer).
-            Causes rendering order bug in SM-M236B Android 12 (and other?).
-          */}
-          <Indicator color="red" disabled={!currentUser?.hasNotification} zIndex={101} size={8}>
-            <ActionIcon
-              color={location.pathname === "/notifications" ? "green" : "dark"}
-              onClick={() => navigate("/notifications")}
-            >
-              <IconBell />
-            </ActionIcon>
-          </Indicator>
+              {
+                /* 
+                 * Set indicator z-index to 101 (1 higher than appshell's footer).
+                 * Causes rendering order bug in SM-M236B Android 12 (and other?).
+                */
+              }
+              <Indicator color="red" disabled={!currentUser?.hasNotification} zIndex={101} size={8}>
+                <ActionIcon
+                  color={location.pathname === "/notifications" ? "green" : "dark"}
+                  onClick={() => navigate("/notifications")}
+                >
+                  <IconBell />
+                </ActionIcon>
+              </Indicator>
 
-          <ActionIcon
-            color={location.pathname.startsWith("/discussion-editor") ? "green" : "dark"}
-            onClick={() => navigate("/discussion-editor")}
-          >
-            <IconPencilPlus />
-          </ActionIcon>
+              <ActionIcon
+                color={location.pathname.startsWith("/discussion-editor") ? "green" : "dark"}
+                onClick={() => navigate("/discussion-editor")}
+              >
+                <IconPencilPlus />
+              </ActionIcon>
+            </>
+          }
 
         </Flex>
       </Card>
@@ -177,6 +184,8 @@ function DefaultFooter() {
 function DefaultNavbar() {
   const { classes } = useStyles();
   const { t } = useTranslation();
+
+  const authorized = useAuthStore(state => state.userId);
   const currentUserId = useAuthStore(state => state.userId);
   const currentUser = useUserStore(state => state.getUserById(currentUserId));
 
@@ -189,9 +198,13 @@ function DefaultNavbar() {
             <Flex direction="column" gap="xs">
               <ButtonNavbar icon={<IconHome />} path={"/home"} name={t("routes.home")} />
               <ButtonNavbar icon={<IconSearch />} path={"/search"} name={t("routes.search")} />
-              <ButtonNavbar icon={<IconUser />} path={`/profile/${currentUser?.username}`} name={t("routes.profile")} />
-              <ButtonNavbar icon={<IconBell />} path={"/notifications"} name={t("routes.notifications")} data={{ notification: currentUser?.hasNotification }} />
-              <ButtonNavbar icon={<IconPencilPlus />} path={"/discussion-editor"} name={t("routes.discussionEditor")} />
+              {authorized &&
+                <>
+                  <ButtonNavbar icon={<IconUser />} path={`/profile/${currentUser?.username}`} name={t("routes.profile")} />
+                  <ButtonNavbar icon={<IconBell />} path={"/notifications"} name={t("routes.notifications")} data={{ notification: currentUser?.hasNotification }} />
+                  <ButtonNavbar icon={<IconPencilPlus />} path={"/discussion-editor"} name={t("routes.discussionEditor")} />
+                </>
+              }
             </Flex>
           </ScrollArea>
         </Flex>
