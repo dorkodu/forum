@@ -8,12 +8,9 @@ RUN npm install -g pnpm && pnpm config set --global store-dir /root/.local/share
 
 WORKDIR /forum/web
 
-COPY ./web/pnpm-lock.yaml /forum/web
-COPY ./api/pnpm-lock.yaml /forum/api
-RUN cd /forum/web && pnpm fetch --no-frozen-lockfile && cd /forum/api && pnpm fetch --no-frozen-lockfile
 COPY ./web /forum/web
 COPY ./api /forum/api
-RUN cd /forum && pnpm install -r --offline
+RUN cd /forum && pnpm install -r
 
 #RUN pnpm test
 RUN pnpm build
