@@ -1,4 +1,3 @@
-import DefaultLayout from "@/components/layouts/DefaultLayout";
 import CardLoader from "@/components/loaders/CardLoader";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -19,11 +18,7 @@ function DorkoduID() {
     })()
   }, [])
 
-  return (
-    <DefaultLayout>
-      <CardLoader />
-    </DefaultLayout>
-  )
+  return <CardLoader />
 }
 
 export default DorkoduID

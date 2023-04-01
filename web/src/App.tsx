@@ -11,6 +11,7 @@ import { ScrollRestoration } from "react-router-dom"
 import { theme } from "./styles/theme";
 import CenterLoader from "./components/loaders/CenterLoader";
 import OverlayLoader from "./components/loaders/OverlayLoader";
+import DefaultLayout from "./components/layouts/DefaultLayout";
 
 function App() {
   const location = useLocation();
@@ -61,12 +62,14 @@ function App() {
     <>
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ ...theme, colorScheme }} withGlobalStyles withNormalizeCSS>
-          <Suspense fallback={<CenterLoader />}>
-            {(loading.auth || loading.locale) && <OverlayLoader full={true} />}
-            {!loading.auth && <Outlet />}
-            {needRefresh && <UpdateSW updateSW={updateServiceWorker} />}
-            <RequestLogin />
-          </Suspense>
+          <DefaultLayout>
+            <Suspense fallback={<CenterLoader />}>
+              {(loading.auth || loading.locale) && <OverlayLoader full={true} />}
+              {!loading.auth && <Outlet />}
+              {needRefresh && <UpdateSW updateSW={updateServiceWorker} />}
+              <RequestLogin />
+            </Suspense>
+          </DefaultLayout>
         </MantineProvider>
       </ColorSchemeProvider>
 

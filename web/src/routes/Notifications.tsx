@@ -1,4 +1,3 @@
-import DefaultLayout from "@/components/layouts/DefaultLayout";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import CardPanel from "../components/cards/CardPanel";
@@ -66,29 +65,27 @@ function NotificationsRoute() {
   }, [state.order]);
 
   return (
-    <DefaultLayout>
-      <InfiniteScroll
-        refresh={() => fetchNotifications(state.order, true)}
-        next={() => fetchNotifications(state.order, false, true)}
-        hasMore={notificationProps.hasMore}
-      >
-        <CardPanel
-          segments={[
-            {
-              value: state.order,
-              setValue: changeOrder,
-              label: t("notificationsOrder"),
-              data: [
-                { label: t("newer"), value: "newer" },
-                { label: t("older"), value: "older" },
-              ]
-            },
-          ]}
-        />
+    <InfiniteScroll
+      refresh={() => fetchNotifications(state.order, true)}
+      next={() => fetchNotifications(state.order, false, true)}
+      hasMore={notificationProps.hasMore}
+    >
+      <CardPanel
+        segments={[
+          {
+            value: state.order,
+            setValue: changeOrder,
+            label: t("notificationsOrder"),
+            data: [
+              { label: t("newer"), value: "newer" },
+              { label: t("older"), value: "older" },
+            ]
+          },
+        ]}
+      />
 
-        {notifications.map((notification) => <Notification key={notification.id} notification={notification} />)}
-      </InfiniteScroll>
-    </DefaultLayout>
+      {notifications.map((notification) => <Notification key={notification.id} notification={notification} />)}
+    </InfiniteScroll>
   )
 }
 

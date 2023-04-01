@@ -10,6 +10,7 @@ import DorkoduLogo from "@/assets/dorkodu_logo.svg";
 import { clickable } from "@/styles/css";
 import { useMediaQuery } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
+import { useAppStore } from "@/stores/appStore";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -123,6 +124,9 @@ function DefaultFooter() {
   const currentUserId = useAuthStore(state => state.userId);
   const currentUser = useUserStore(state => state.getUserById(currentUserId));
 
+  const loading = useAppStore(state => state.loading);
+  if (loading.auth) return null;
+
   return (
     <Footer className={classes.footer} px="md" pb="md" height={64} withBorder={false}>
       <Card sx={{ height: "100%" }} shadow="sm" p="md" radius="md" withBorder>
@@ -189,6 +193,9 @@ function DefaultNavbar() {
   const currentUserId = useAuthStore(state => state.userId);
   const currentUser = useUserStore(state => state.getUserById(currentUserId));
 
+  const loading = useAppStore(state => state.loading);
+  if (loading.auth) return null;
+
   return (
     <Flex direction="column" w={300} className={classes.navbar}>
       <div style={{ position: "fixed", width: "inherit" }}>
@@ -215,6 +222,9 @@ function DefaultNavbar() {
 
 function DefaultAside() {
   const { classes } = useStyles();
+
+  const loading = useAppStore(state => state.loading);
+  if (loading.auth) return null;
 
   return (
     <Flex direction="column" w={300} className={classes.aside}>
