@@ -152,7 +152,7 @@ function DefaultFooter() {
             Set indicator z-index to 101 (1 higher than appshell's footer).
             Causes rendering order bug in SM-M236B Android 12 (and other?).
           */}
-          <Indicator color="red" disabled={!currentUser?.hasNotification} zIndex={101}>
+          <Indicator color="red" disabled={!currentUser?.hasNotification} zIndex={101} size={8}>
             <ActionIcon
               color={location.pathname === "/notifications" ? "green" : "dark"}
               onClick={() => navigate("/notifications")}
@@ -278,7 +278,7 @@ function ButtonDesktop({ icon, path, name, data, ...props }: ButtonDesktopProps)
       onClick={() => navigate(path)}
       {...props}
     >
-      <Indicator color="red" disabled={!data?.notification} zIndex={101}>
+      <Indicator color="red" disabled={!data?.notification} zIndex={101} size={8}>
         {icon}
       </Indicator>
       <Text truncate>{name}</Text>
@@ -306,7 +306,8 @@ function ButtonMobile({ icon, path, data, style, ...props }: ButtonMobileProps) 
       {...props}
     >
       <Flex direction="column" align="center" justify="center">
-        <Indicator color="red" disabled={!data?.notification} zIndex={101}>
+        {/* Set indicator size to 8px to fix horizontal scrollbar appearing at the bottom */}
+        <Indicator color="red" disabled={!data?.notification} zIndex={101} size={8}>
           {icon}
         </Indicator>
       </Flex>
