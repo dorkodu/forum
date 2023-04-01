@@ -29,7 +29,7 @@ function CardEntity({ user, entity, onClickCard, onClickUser, componentMenu, com
   return (
     <Card sx={{ overflow: "visible", ...bgColorHover(theme) }} shadow="sm" p="md" m="md" radius="md" withBorder onClick={onClickCard}>
       <Flex direction="row" gap="md">
-        <Avatar src={util.generateAvatar(user.username + user.id)} alt="Avatar" radius="xl" />
+        <Avatar src={util.generateAvatar(user.username + user.id)} alt="Avatar" radius="xl" onClick={onClickUser} />
 
         <Flex direction="column" sx={flexGrow}>
           <Flex direction="column">
