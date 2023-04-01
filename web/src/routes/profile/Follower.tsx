@@ -1,4 +1,3 @@
-import DefaultLayout from "@/components/layouts/DefaultLayout";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -90,43 +89,41 @@ function Follower() {
   }, [state.order]);
 
   return (
-    <DefaultLayout>
-      <InfiniteScroll
-        refresh={fetchRoute}
-        next={() => fetchFollowers(state.order, false, true)}
-        hasMore={followerProps.hasMore}
-      >
-        {!user ?
-          <>
-            {userProps.status === false &&
-              <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
-            }
-          </>
+    <InfiniteScroll
+      refresh={fetchRoute}
+      next={() => fetchFollowers(state.order, false, true)}
+      hasMore={followerProps.hasMore}
+    >
+      {!user ?
+        <>
+          {userProps.status === false &&
+            <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
+          }
+        </>
 
-          :
+        :
 
-          <>
-            <Profile user={user} />
+        <>
+          <Profile user={user} />
 
-            <CardPanel
-              segments={[
-                {
-                  value: state.order,
-                  setValue: changeOrder,
-                  label: t("followersOrder"),
-                  data: [
-                    { label: t("newer"), value: "newer" },
-                    { label: t("older"), value: "older" },
-                  ]
-                },
-              ]}
-            />
+          <CardPanel
+            segments={[
+              {
+                value: state.order,
+                setValue: changeOrder,
+                label: t("followersOrder"),
+                data: [
+                  { label: t("newer"), value: "newer" },
+                  { label: t("older"), value: "older" },
+                ]
+              },
+            ]}
+          />
 
-            {followers.map((follower) => <ProfileSummary key={follower.id} user={follower} />)}
-          </>
-        }
-      </InfiniteScroll>
-    </DefaultLayout>
+          {followers.map((follower) => <ProfileSummary key={follower.id} user={follower} />)}
+        </>
+      }
+    </InfiniteScroll>
   )
 }
 

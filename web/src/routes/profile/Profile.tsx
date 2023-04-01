@@ -1,4 +1,3 @@
-import DefaultLayout from "@/components/layouts/DefaultLayout";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -87,43 +86,41 @@ function ProfileRoute() {
   }, [state.order]);
 
   return (
-    <DefaultLayout>
-      <InfiniteScroll
-        refresh={fetchRoute}
-        next={() => fetchDiscussions(state.order, false, true)}
-        hasMore={discussionProps.hasMore}
-      >
-        {!user ?
-          <>
-            {userProps.status === false &&
-              <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
-            }
-          </>
+    <InfiniteScroll
+      refresh={fetchRoute}
+      next={() => fetchDiscussions(state.order, false, true)}
+      hasMore={discussionProps.hasMore}
+    >
+      {!user ?
+        <>
+          {userProps.status === false &&
+            <CardAlert title={t("error.text")} content={t("error.default")} type="error" />
+          }
+        </>
 
-          :
+        :
 
-          <>
-            <Profile user={user} />
+        <>
+          <Profile user={user} />
 
-            <CardPanel
-              segments={[
-                {
-                  value: state.order,
-                  setValue: changeOrder,
-                  label: t("discussionOrder"),
-                  data: [
-                    { label: t("newer"), value: "newer" },
-                    { label: t("older"), value: "older" },
-                  ]
-                },
-              ]}
-            />
+          <CardPanel
+            segments={[
+              {
+                value: state.order,
+                setValue: changeOrder,
+                label: t("discussionOrder"),
+                data: [
+                  { label: t("newer"), value: "newer" },
+                  { label: t("older"), value: "older" },
+                ]
+              },
+            ]}
+          />
 
-            {discussions.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
-          </>
-        }
-      </InfiniteScroll>
-    </DefaultLayout>
+          {discussions.map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+        </>
+      }
+    </InfiniteScroll>
   )
 }
 

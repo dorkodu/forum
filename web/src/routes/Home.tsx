@@ -8,7 +8,6 @@ import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import { useAppStore } from "../stores/appStore";
 import InfiniteScroll from "../components/InfiniteScroll";
-import DefaultLayout from "@/components/layouts/DefaultLayout";
 
 function Home() {
   const { t } = useTranslation();
@@ -176,39 +175,37 @@ function Home() {
   }, [state.feed, state.userOrder, state.favouriteOrder, state.guestOrder]);
 
   return (
-    <DefaultLayout>
-      <InfiniteScroll
-        refresh={() => fetcher(state.feed, true)}
-        next={() => fetcher(state.feed, false, true)}
-        hasMore={getHasMore(state.feed)}
-      >
-        <CardPanel
-          segments={[
-            {
-              value: state.feed,
-              setValue: changeFeed,
-              label: t("feed"),
-              data: [
-                { label: t("userFeed"), value: "user" },
-                { label: t("favouriteFeed"), value: "favourite" },
-                { label: t("guestFeed"), value: "guest" },
-              ]
-            },
-            {
-              value: getOrder(),
-              setValue: changeOrder,
-              label: t("order"),
-              data: [
-                { label: t("newer"), value: "newer" },
-                { label: t("older"), value: "older" },
-              ]
-            },
-          ]}
-        />
+    <InfiniteScroll
+      refresh={() => fetcher(state.feed, true)}
+      next={() => fetcher(state.feed, false, true)}
+      hasMore={getHasMore(state.feed)}
+    >
+      <CardPanel
+        segments={[
+          {
+            value: state.feed,
+            setValue: changeFeed,
+            label: t("feed"),
+            data: [
+              { label: t("userFeed"), value: "user" },
+              { label: t("favouriteFeed"), value: "favourite" },
+              { label: t("guestFeed"), value: "guest" },
+            ]
+          },
+          {
+            value: getOrder(),
+            setValue: changeOrder,
+            label: t("order"),
+            data: [
+              { label: t("newer"), value: "newer" },
+              { label: t("older"), value: "older" },
+            ]
+          },
+        ]}
+      />
 
-        {getFeed(state.feed).map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
-      </InfiniteScroll>
-    </DefaultLayout>
+      {getFeed(state.feed).map((discussion) => <DiscussionSummary key={discussion.id} discussionId={discussion.id} />)}
+    </InfiniteScroll>
   )
 }
 
