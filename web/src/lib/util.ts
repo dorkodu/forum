@@ -79,6 +79,8 @@ function formatDate(date: number, long?: boolean) {
 
   if (current.getUTCFullYear() - target.getUTCFullYear() >= 1)
     return new Intl.DateTimeFormat(i18n.language, { month: "short", day: "numeric", year: "numeric" }).format(date);
+  else if (current.getUTCMonth() - target.getUTCMonth() >= 1)
+    return new Intl.DateTimeFormat(i18n.language, { month: "short", day: "numeric" }).format(date);
   else if (current.getUTCDate() - target.getUTCDate() >= 1)
     return new Intl.DateTimeFormat(i18n.language, { month: "short", day: "numeric" }).format(date);
   else if ((diff = current.getUTCHours() - target.getUTCHours()) >= 1)
