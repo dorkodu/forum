@@ -21,7 +21,7 @@ const getUser = sage.resource(
 
     const info = await auth.getAuthInfo(ctx);
 
-    const username = parsed.data.username;
+    const { username } = parsed.data;
 
     if (username) {
       const [result]: [IUserRaw?] = await pg`
@@ -152,86 +152,72 @@ const blockUser = sage.resource(
 
     const { userId, type } = parsed.data;
 
-    const [result0]: [{ exists: boolean }?] = await pg`
-      SELECT EXISTS (
-        SELECT * FROM user_blocks
-        WHERE blocker_id=${info.userId} AND blocking_id=${userId}
-      )
-    `;
-    if (!result0) return { error: ErrorCode.Default };
+    const result = await pg.begin(async (pg) => {
+      const [result0]: [{ exists: boolean }?] = await pg`
+        SELECT EXISTS (
+          SELECT * FROM user_blocks
+          WHERE blocker_id=${info.userId} AND blocking_id=${userId}
+        )
+      `;
+      if (!result0) return false;
 
-    // Return error if trying to:
-    // - self block
-    // - unblock an user that is not being blocked
-    // - block an user that is already being blocked
-    if (info.userId === userId) return { error: ErrorCode.Default };
-    else if (!result0.exists && type === false) return { error: ErrorCode.Default };
-    else if (result0.exists && type === true) return { error: ErrorCode.Default };
+      // Return error if trying to:
+      // - self block
+      // - unblock an user that is not being blocked
+      // - block an user that is already being blocked
+      if (info.userId === userId) return false;
+      else if (!result0.exists && type === false) return false;
+      else if (result0.exists && type === true) return false;
 
-    if (type) {
-      const row = {
-        id: snowflake.id("user_blocks"),
-        blockerId: info.userId,
-        blockingId: userId,
+      if (type) {
+        const row = {
+          id: snowflake.id("user_blocks"),
+          blockerId: info.userId,
+          blockingId: userId,
+        }
+
+        const [[result1], [result2]] = await Promise.all([
+          pg`
+            SELECT EXISTS (
+              SELECT * FROM user_follows
+              WHERE follower_id=${info.userId} AND following_id=${userId}
+            )`,
+          pg`
+            SELECT EXISTS (
+              SELECT * FROM user_follows
+              WHERE follower_id=${userId} AND following_id=${info.userId}
+            )`,
+        ]);
+
+        const blockerFollow = result1?.exists as boolean | undefined;
+        const blockingFollow = result2?.exists as boolean | undefined;
+
+        const [result3] = await Promise.all([
+          pg`INSERT INTO user_blocks ${pg(row)}`,
+
+          ...(blockerFollow ? [
+            pg`UPDATE users SET following_count=following_count-1 WHERE id=${info.userId}`,
+            pg`UPDATE users SET follower_count=follower_count-1 WHERE id=${userId}`,
+            pg`DELETE FROM user_follows WHERE follower_id=${info.userId} AND following_id=${userId}`,
+          ] : []),
+
+          ...(blockingFollow ? [
+            pg`UPDATE users SET following_count=following_count-1 WHERE id=${userId}`,
+            pg`UPDATE users SET follower_count=follower_count-1 WHERE id=${info.userId}`,
+            pg`DELETE FROM user_follows WHERE follower_id=${userId} AND following_id=${info.userId}`,
+          ] : []),
+        ]);
+        if (result3.count === 0) return false;
+      }
+      else {
+        const result1 = await pg`DELETE FROM user_blocks WHERE blocker_id=${info.userId} AND blocking_id=${userId}`;
+        if (result1.count === 0) return false;
       }
 
-      const [[result1], [result2]] = await pg.begin(pg => [
-        pg`
-          SELECT EXISTS (
-            SELECT * FROM user_follows
-            WHERE follower_id=${info.userId} AND following_id=${userId}
-          )`,
-        pg`
-          SELECT EXISTS (
-            SELECT * FROM user_follows
-            WHERE follower_id=${userId} AND following_id=${info.userId}
-          )`,
-      ]);
+      return true;
+    });
 
-      const blockerFollow = result1?.exists as boolean | undefined;
-      const blockingFollow = result2?.exists as boolean | undefined;
-
-      const [result3] = await pg.begin(pg => [
-        pg`INSERT INTO user_blocks ${pg(row)}`,
-
-        ...(blockerFollow ? [
-          pg`
-            UPDATE users
-            SET following_count=following_count-1
-            WHERE id=${info.userId}`,
-          pg`
-            UPDATE users
-            SET follower_count=follower_count-1
-            WHERE id=${userId}`,
-          pg`
-            DELETE FROM user_follows
-            WHERE follower_id=${info.userId} AND following_id=${userId}`,
-        ] : []),
-
-        ...(blockingFollow ? [
-          pg`
-            UPDATE users
-            SET following_count=following_count-1
-            WHERE id=${userId}`,
-          pg`
-            UPDATE users
-            SET follower_count=follower_count-1
-            WHERE id=${info.userId}`,
-          pg`
-            DELETE FROM user_follows
-            WHERE follower_id=${userId} AND following_id=${info.userId}`,
-        ] : []),
-      ]);
-      if (result3.count === 0) return { error: ErrorCode.Default };
-    }
-    else {
-      const result1 = await pg`
-        DELETE FROM user_blocks
-        WHERE blocker_id=${info.userId} AND blocking_id=${userId}
-      `;
-      if (result1.count === 0) return { error: ErrorCode.Default };
-    }
-
+    if (!result) return { error: ErrorCode.Default };
     return { data: {} };
   }
 )
@@ -248,78 +234,66 @@ const followUser = sage.resource(
 
     const { userId, type } = parsed.data;
 
-    // Check if any of the users have blocked each other
-    const [[result1], [result2]] = await pg.begin(pg => [
-      pg`
-        SELECT EXISTS (
-          SELECT * FROM user_blocks
-          WHERE blocker_id=${info.userId} AND blocking_id=${userId}
-        )`,
-      pg`
-        SELECT EXISTS (
-          SELECT * FROM user_blocks
-          WHERE blocker_id=${userId} AND blocking_id=${info.userId}
-        )`,
-    ]);
-    const blocker = result1?.exists as boolean | undefined;
-    const blocking = result2?.exists as boolean | undefined;
-    if (blocker === undefined) return { error: ErrorCode.Default };
-    if (blocking === undefined) return { error: ErrorCode.Default };
-    if (blocker === true) return { error: ErrorCode.Default };
-    if (blocking === true) return { error: ErrorCode.Default };
+    const result = await pg.begin(async (pg) => {
+      // Check if any of the users have blocked each other
+      const [[result1], [result2]] = await Promise.all([
+        pg`SELECT EXISTS (SELECT * FROM user_blocks WHERE blocker_id=${info.userId} AND blocking_id=${userId})`,
+        pg`SELECT EXISTS (SELECT * FROM user_blocks WHERE blocker_id=${userId} AND blocking_id=${info.userId})`,
+      ]);
+      const blocker = result1?.exists as boolean | undefined;
+      const blocking = result2?.exists as boolean | undefined;
+      if (blocker === undefined) return false;
+      if (blocking === undefined) return false;
+      if (blocker === true) return false;
+      if (blocking === true) return false;
 
-    const [result0]: [{ exists: boolean }?] = await pg`
-      SELECT EXISTS (
-        SELECT * FROM user_follows
-        WHERE follower_id=${info.userId} AND following_id=${userId}
-      )
-    `;
-    if (!result0) return { error: ErrorCode.Default };
+      const [result0]: [{ exists: boolean }?] = await pg`
+        SELECT EXISTS (SELECT * FROM user_follows WHERE follower_id=${info.userId} AND following_id=${userId})
+      `;
+      if (!result0) return false;
 
-    // Return error if trying to:
-    // - self follow
-    // - unfollow an user that is not being followed
-    // - follow an user that is already being followed
-    if (info.userId === userId) return { error: ErrorCode.Default };
-    else if (!result0.exists && type === false) return { error: ErrorCode.Default };
-    else if (result0.exists && type === true) return { error: ErrorCode.Default };
+      // Return error if trying to:
+      // - self follow
+      // - unfollow an user that is not being followed
+      // - follow an user that is already being followed
+      if (info.userId === userId) return false;
+      else if (!result0.exists && type === false) return false;
+      else if (result0.exists && type === true) return false;
 
-    if (type) {
-      const row = {
-        id: snowflake.id("user_follows"),
-        followerId: info.userId,
-        followingId: userId,
+      if (type) {
+        const row = {
+          id: snowflake.id("user_follows"),
+          followerId: info.userId,
+          followingId: userId,
+        }
+
+        const [result1, result2, result3] = await Promise.all([
+          pg`UPDATE users SET following_count=following_count+1 WHERE id=${info.userId}`,
+          pg`UPDATE users SET follower_count=follower_count+1 WHERE id=${userId}`,
+          pg`INSERT INTO user_follows ${pg(row)}`,
+        ]);
+        if (!result1) return false;
+        if (!result2) return false;
+        if (!result3) return false;
+
+        // Once user is successfully followed, try to create a notification
+        queryCreateNotification(row.followingId, row.followerId, row.followerId, null, "userFollow",);
+      }
+      else {
+        const [result1, result2, result3] = await Promise.all([
+          pg`UPDATE users SET following_count=following_count-1 WHERE id=${info.userId}`,
+          pg`UPDATE users SET follower_count=follower_count-1 WHERE id=${userId}`,
+          pg`DELETE FROM user_follows WHERE follower_id=${info.userId} AND following_id=${userId}`,
+        ]);
+        if (!result1) return false;
+        if (!result2) return false;
+        if (!result3) return false;
       }
 
-      const [result1, result2, result3] = await pg.begin(pg => [
-        pg`UPDATE users SET following_count=following_count+1 WHERE id=${info.userId}`,
-        pg`UPDATE users SET follower_count=follower_count+1 WHERE id=${userId}`,
-        pg`INSERT INTO user_follows ${pg(row)}`,
-      ]);
-      if (!result1) return { error: ErrorCode.Default };
-      if (!result2) return { error: ErrorCode.Default };
-      if (!result3) return { error: ErrorCode.Default };
+      return true;
+    });
 
-      // Once user is successfully followed, try to create a notification
-      queryCreateNotification(
-        row.followingId,
-        row.followerId,
-        row.followerId,
-        null,
-        "userFollow",
-      );
-    }
-    else {
-      const [result1, result2, result3] = await pg.begin(pg => [
-        pg`UPDATE users SET following_count=following_count-1 WHERE id=${info.userId}`,
-        pg`UPDATE users SET follower_count=follower_count-1 WHERE id=${userId}`,
-        pg`DELETE FROM user_follows WHERE follower_id=${info.userId} AND following_id=${userId}`,
-      ]);
-      if (!result1) return { error: ErrorCode.Default };
-      if (!result2) return { error: ErrorCode.Default };
-      if (!result3) return { error: ErrorCode.Default };
-    }
-
+    if (!result) return { error: ErrorCode.Default };
     return { data: {} };
   }
 )
@@ -337,44 +311,49 @@ const getUserDiscussions = sage.resource(
     const userId = parsed.data.userId ?? ctx.userId;
     if (!userId) return { error: ErrorCode.Default };
 
-    // If logged in & target user is blocking current user
-    if (info) {
-      const [result0]: [{ exists: boolean }?] = await pg`
+    const result = await pg.begin(async (pg) => {
+      // If logged in & target user is blocking current user
+      if (info) {
+        const [result0]: [{ exists: boolean }?] = await pg`
         SELECT EXISTS (
           SELECT * FROM user_blocks
           WHERE blocker_id=${userId} AND blocking_id=${info.userId}
         )
       `;
-      if (!result0) return { error: ErrorCode.Default };
-      if (result0.exists) return { error: ErrorCode.Default };
-    }
-
-    const result0 = await pg<IDiscussionRaw[]>`
-      SELECT
-        d.id, d.user_id, d.date, d.title, d.readme,
-        d.favourite_count, d.argument_count, d.comment_count,
-        d.last_update_date,
-      ${info ? pg`(df.user_id IS NOT NULL) AS favourited` : pg`FALSE AS favourited`}
-      FROM discussions d
-      ${info ?
-        pg`
-        LEFT JOIN discussion_favourites df
-        ON d.id=df.discussion_id AND df.user_id=${info.userId}` :
-        pg``
+        if (!result0) return undefined;
+        if (result0.exists) return undefined;
       }
-      WHERE d.user_id=${userId}
-      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND d.id<${anchorId}` : pg`AND d.id>${anchorId}`}
-      ORDER BY d.id ${type === "newer" ? pg`DESC` : pg`ASC`}
-      LIMIT 20
-    `;
 
-    const res: IDiscussionParsed[] = [];
-    result0.forEach(argument => {
-      const parsed = iDiscussionSchema.safeParse(argument);
-      if (parsed.success) res.push(parsed.data);
-    })
+      const result0 = await pg<IDiscussionRaw[]>`
+        SELECT
+          d.id, d.user_id, d.date, d.title, d.readme,
+          d.favourite_count, d.argument_count, d.comment_count,
+          d.last_update_date,
+        ${info ? pg`(df.user_id IS NOT NULL) AS favourited` : pg`FALSE AS favourited`}
+        FROM discussions d
+        ${info ?
+          pg`
+          LEFT JOIN discussion_favourites df
+          ON d.id=df.discussion_id AND df.user_id=${info.userId}` :
+          pg``
+        }
+        WHERE d.user_id=${userId}
+        ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND d.id<${anchorId}` : pg`AND d.id>${anchorId}`}
+        ORDER BY d.id ${type === "newer" ? pg`DESC` : pg`ASC`}
+        LIMIT 20
+      `;
 
-    return { data: res };
+      const res: IDiscussionParsed[] = [];
+      result0.forEach(argument => {
+        const parsed = iDiscussionSchema.safeParse(argument);
+        if (parsed.success) res.push(parsed.data);
+      });
+
+      return res;
+    });
+
+    if (!result) return { error: ErrorCode.Default };
+    return { data: result };
   }
 )
 
@@ -391,48 +370,53 @@ const getUserFollowers = sage.resource(
     const userId = parsed.data.userId ?? ctx.userId;
     if (!userId) return { error: ErrorCode.Default };
 
-    // If logged in & target user is blocking current user
-    if (info) {
-      const [result0]: [{ exists: boolean }?] = await pg`
+    const result = await pg.begin(async (pg) => {
+      // If logged in & target user is blocking current user
+      if (info) {
+        const [result0]: [{ exists: boolean }?] = await pg`
         SELECT EXISTS (
           SELECT * FROM user_blocks
           WHERE blocker_id=${userId} AND blocking_id=${info.userId}
         )
       `;
-      if (!result0) return { error: ErrorCode.Default };
-      if (result0.exists) return { error: ErrorCode.Default };
-    }
-
-    const result = await pg<IUserRaw[]>`
-      SELECT 
-        u.id, u.name, u.username, u.bio, u.join_date, 
-        u.follower_count, u.following_count,
-      ${info ?
-        pg`
-        (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
-        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower,` :
-        pg`FALSE AS following, FALSE AS follower,`
+        if (!result0) return undefined;
+        if (result0.exists) return undefined;
       }
-      ${info ?
-        pg`
-        (EXISTS (SELECT * FROM user_blocks WHERE blocker_id = u.id AND blocking_id = ${info.userId})) AS blocking,
-        (EXISTS (SELECT * FROM user_blocks WHERE blocking_id = u.id AND blocker_id = ${info.userId})) AS blocker` :
-        pg`NULL AS blocking, NULL AS blocker`
-      }
-      FROM users u
-      WHERE u.id IN (SELECT follower_id FROM user_follows WHERE following_id=${userId})
-      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id<${anchorId}` : pg`AND u.id>${anchorId}`}
-      ORDER BY u.id ${type === "newer" ? pg`DESC` : pg`ASC`}
-      LIMIT 20
-    `;
 
-    const res: IUserParsed[] = [];
-    result.forEach(argument => {
-      const parsed = iUserSchema.safeParse(argument);
-      if (parsed.success) res.push(parsed.data);
-    })
+      const result = await pg<IUserRaw[]>`
+        SELECT 
+          u.id, u.name, u.username, u.bio, u.join_date, 
+          u.follower_count, u.following_count,
+        ${info ?
+          pg`
+          (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
+          (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower,` :
+          pg`FALSE AS following, FALSE AS follower,`
+        }
+        ${info ?
+          pg`
+          (EXISTS (SELECT * FROM user_blocks WHERE blocker_id = u.id AND blocking_id = ${info.userId})) AS blocking,
+          (EXISTS (SELECT * FROM user_blocks WHERE blocking_id = u.id AND blocker_id = ${info.userId})) AS blocker` :
+          pg`NULL AS blocking, NULL AS blocker`
+        }
+        FROM users u
+        WHERE u.id IN (SELECT follower_id FROM user_follows WHERE following_id=${userId})
+        ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id<${anchorId}` : pg`AND u.id>${anchorId}`}
+        ORDER BY u.id ${type === "newer" ? pg`DESC` : pg`ASC`}
+        LIMIT 20
+      `;
 
-    return { data: res };
+      const res: IUserParsed[] = [];
+      result.forEach(argument => {
+        const parsed = iUserSchema.safeParse(argument);
+        if (parsed.success) res.push(parsed.data);
+      })
+
+      return res;
+    });
+
+    if (!result) return { error: ErrorCode.Default };
+    return { data: result };
   }
 )
 
@@ -449,48 +433,53 @@ const getUserFollowing = sage.resource(
     const userId = parsed.data.userId ?? ctx.userId;
     if (!userId) return { error: ErrorCode.Default };
 
-    // If logged in & target user is blocking current user
-    if (info) {
-      const [result0]: [{ exists: boolean }?] = await pg`
-        SELECT EXISTS (
-          SELECT * FROM user_blocks
-          WHERE blocker_id=${userId} AND blocking_id=${info.userId}
-        )
+    const result = await pg.begin(async (pg) => {
+      // If logged in & target user is blocking current user
+      if (info) {
+        const [result0]: [{ exists: boolean }?] = await pg`
+          SELECT EXISTS (
+            SELECT * FROM user_blocks
+            WHERE blocker_id=${userId} AND blocking_id=${info.userId}
+          )
+        `;
+        if (!result0) return undefined;
+        if (result0.exists) return undefined;
+      }
+
+      const result1 = await pg<IUserRaw[]>`
+        SELECT
+          u.id, u.name, u.username, u.bio, u.join_date,
+          u.follower_count, u.following_count,
+        ${info ?
+          pg`
+          (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
+          (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower,` :
+          pg`FALSE AS following, FALSE AS follower,`
+        }
+        ${info ?
+          pg`
+          (EXISTS (SELECT * FROM user_blocks WHERE blocker_id = u.id AND blocking_id = ${info.userId})) AS blocking,
+          (EXISTS (SELECT * FROM user_blocks WHERE blocking_id = u.id AND blocker_id = ${info.userId})) AS blocker` :
+          pg`NULL AS blocking, NULL AS blocker`
+        }
+        FROM users u
+        WHERE u.id IN (SELECT following_id FROM user_follows WHERE follower_id=${userId})
+        ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id<${anchorId}` : pg`AND u.id>${anchorId}`}
+        ORDER BY u.id ${type === "newer" ? pg`DESC` : pg`ASC`}
+        LIMIT 20
       `;
-      if (!result0) return { error: ErrorCode.Default };
-      if (result0.exists) return { error: ErrorCode.Default };
-    }
 
-    const result = await pg<IUserRaw[]>`
-      SELECT
-        u.id, u.name, u.username, u.bio, u.join_date,
-        u.follower_count, u.following_count,
-      ${info ?
-        pg`
-        (EXISTS (SELECT * FROM user_follows WHERE follower_id = u.id AND following_id = ${info.userId})) AS following,
-        (EXISTS (SELECT * FROM user_follows WHERE following_id = u.id AND follower_id = ${info.userId})) AS follower,` :
-        pg`FALSE AS following, FALSE AS follower,`
-      }
-      ${info ?
-        pg`
-        (EXISTS (SELECT * FROM user_blocks WHERE blocker_id = u.id AND blocking_id = ${info.userId})) AS blocking,
-        (EXISTS (SELECT * FROM user_blocks WHERE blocking_id = u.id AND blocker_id = ${info.userId})) AS blocker` :
-        pg`NULL AS blocking, NULL AS blocker`
-      }
-      FROM users u
-      WHERE u.id IN (SELECT following_id FROM user_follows WHERE follower_id=${userId})
-      ${anchorId === "-1" ? pg`` : type === "newer" ? pg`AND u.id<${anchorId}` : pg`AND u.id>${anchorId}`}
-      ORDER BY u.id ${type === "newer" ? pg`DESC` : pg`ASC`}
-      LIMIT 20
-    `;
+      const res: IUserParsed[] = [];
+      result1.forEach(argument => {
+        const parsed = iUserSchema.safeParse(argument);
+        if (parsed.success) res.push(parsed.data);
+      })
 
-    const res: IUserParsed[] = [];
-    result.forEach(argument => {
-      const parsed = iUserSchema.safeParse(argument);
-      if (parsed.success) res.push(parsed.data);
-    })
+      return res;
+    });
 
-    return { data: res };
+    if (!result) return { error: ErrorCode.Default };
+    return { data: result };
   }
 )
 

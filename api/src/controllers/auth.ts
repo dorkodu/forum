@@ -1,5 +1,4 @@
 import axios from "axios";
-
 import { token } from "../lib/token";
 import { SchemaContext } from "./_schema";
 import sage from "@dorkodu/sage-server";
@@ -67,84 +66,79 @@ const getAccessToken = sage.resource(
     const userData = await queryUserData(accessToken.token);
     if (!userData) return { error: ErrorCode.Default };
 
-    // Check if account with the given user id already exists
-    const [result0]: [{ exists: boolean }?] = await pg`
-      SELECT EXISTS (
-        SELECT * FROM users WHERE id=${userData.id}
-      )
-    `;
-    if (!result0) return { error: ErrorCode.Default };
+    const result = await pg.begin(async (pg) => {
+      // Check if account with the given user id already exists
+      const [result0]: [{ exists: boolean }?] = await pg`SELECT EXISTS (SELECT * FROM users WHERE id=${userData.id})`;
+      if (!result0) return undefined;
 
-    // Check if the username is already being used by the user or someone else
-    const [result1]: [{ id: string }?] = await pg`
-      SELECT id FROM users WHERE username_ci=${userData.username}
-    `;
+      // Check if the username is already being used by the user or someone else
+      const [result1]: [{ id: string }?] = await pg`SELECT id FROM users WHERE username_ci=${userData.username}`;
 
-    // If someone else is using the user's username, try to give them a random username
-    if (result1 && userData.id !== result1.id) {
-      const username = crypto.username();
-      const result2 = await pg`
-        UPDATE users
-        SET username=${username}, username_ci=${username}
-        WHERE id=${result1.id}
-      `;
-      if (result2.count === 0) return { error: ErrorCode.Default };
-    }
-
-    // If first time logging in via Dorkodu ID, create an account for the user
-    if (!result0.exists) {
-      const row = {
-        id: userData.id,
-        name: userData.name,
-        nameCi: userData.name.toLowerCase(),
-        username: userData.username,
-        usernameCi: userData.username.toLowerCase(),
-        bio: userData.bio,
-        joinDate: date.utc(),
-        followerCount: 0,
-        followingCount: 0,
-        hasNotification: false,
+      // If someone else is using the user's username, try to give them a random username
+      if (result1 && userData.id !== result1.id) {
+        const username = crypto.username();
+        const result2 = await pg`UPDATE users SET username=${username}, username_ci=${username} WHERE id=${result1.id}`;
+        if (result2.count === 0) return undefined;
       }
 
-      const result = await pg`INSERT INTO users ${pg(row)}`;
-      if (result.count === 0) return { error: ErrorCode.Default };
+      // If first time logging in via Dorkodu ID, create an account for the user
+      if (!result0.exists) {
+        const row = {
+          id: userData.id,
+          name: userData.name,
+          nameCi: userData.name.toLowerCase(),
+          username: userData.username,
+          usernameCi: userData.username.toLowerCase(),
+          bio: userData.bio,
+          joinDate: date.utc(),
+          followerCount: 0,
+          followingCount: 0,
+          hasNotification: false,
+        }
 
-      // Attach the access token for 30 days to the user
-      token.attach(ctx.res, { value: accessToken.token, expiresAt: date.day(30) });
+        const result = await pg`INSERT INTO users ${pg(row)}`;
+        if (result.count === 0) return undefined;
 
-      return { data: { ...row, follower: false, following: false } };
-    }
-    // If not the first time logging in via Dorkodu ID, query the user
-    else {
-      const { name, username, bio } = userData;
+        // Attach the access token for 30 days to the user
+        token.attach(ctx.res, { value: accessToken.token, expiresAt: date.day(30) });
 
-      const result0 = await pg`
-        UPDATE users
-        SET
-          name=${name},
-          name_ci=${name.toLowerCase()},
-          username=${username},
-          username_ci=${username.toLowerCase()},
-          bio=${bio}
-        WHERE id=${userData.id}
-      `;
-      if (result0.count === 0) return { error: ErrorCode.Default };
+        return { ...row, follower: false, following: false };
+      }
+      // If not the first time logging in via Dorkodu ID, query the user
+      else {
+        const { name, username, bio } = userData;
 
-      const [result1] = await pg`
-        SELECT id, name, username, bio, join_date, follower_count, following_count,
-        FALSE AS follower, FALSE AS following, has_notification
-        FROM users WHERE id=${userData.id}
-      `;
-      if (!result1) return { error: ErrorCode.Default };
+        const result0 = await pg`
+          UPDATE users
+          SET
+            name=${name},
+            name_ci=${name.toLowerCase()},
+            username=${username},
+            username_ci=${username.toLowerCase()},
+            bio=${bio}
+          WHERE id=${userData.id}
+        `;
+        if (result0.count === 0) return undefined;
 
-      const res = iUserSchema.safeParse(result1);
-      if (!res.success) return { error: ErrorCode.Default };
+        const [result1] = await pg`
+          SELECT id, name, username, bio, join_date, follower_count, following_count,
+          FALSE AS follower, FALSE AS following, has_notification
+          FROM users WHERE id=${userData.id}
+        `;
+        if (!result1) return undefined;
 
-      // Attach the access token for 30 days to the user
-      token.attach(ctx.res, { value: accessToken.token, expiresAt: date.day(30) });
+        const res = iUserSchema.safeParse(result1);
+        if (!res.success) return undefined;
 
-      return { data: res.data };
-    }
+        // Attach the access token for 30 days to the user
+        token.attach(ctx.res, { value: accessToken.token, expiresAt: date.day(30) });
+
+        return res.data;
+      }
+    });
+
+    if (!result) return { error: ErrorCode.Default };
+    return { data: result };
   }
 )
 
