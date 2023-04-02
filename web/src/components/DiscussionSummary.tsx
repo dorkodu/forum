@@ -4,7 +4,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useDiscussionStore } from "../stores/discussionStore";
 import { useUserStore } from "../stores/userStore";
 import { IconStar, IconMessage, IconMessages } from "@tabler/icons-react";
-import { ActionIcon, Flex, Text } from "@mantine/core"
+import { ActionIcon, Flex, px, Text, useMantineTheme } from "@mantine/core"
 import { useAppStore } from "../stores/appStore";
 import DiscussionMenu from "./menus/DiscussionMenu";
 import { util } from "../lib/util";
@@ -23,6 +23,7 @@ interface State {
 function DiscussionSummary({ discussionId }: Props) {
   const [state, setState] = useState<State>({ loading: false, status: undefined });
 
+  const theme = useMantineTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -79,7 +80,7 @@ function DiscussionSummary({ discussionId }: Props) {
       componentMenu={<DiscussionMenu user={user} discussion={discussion} />}
       componentBottom={
         <Flex direction="row" gap="xs">
-          <Flex align="center">
+          <Flex align="center" gap={px(theme.spacing.xs) / 2}>
             <ActionIcon color="dark" onClick={favouriteDiscussion}>
               <IconStar fill={discussion.favourited ? "currentColor" : "none"} />
             </ActionIcon>
@@ -89,7 +90,7 @@ function DiscussionSummary({ discussionId }: Props) {
             </CustomTooltip>
           </Flex>
 
-          <Flex align="center">
+          <Flex align="center" gap={px(theme.spacing.xs) / 2}>
             <IconMessages />
 
             <CustomTooltip label={util.formatNumber(discussion.argumentCount, true)}>
@@ -97,7 +98,7 @@ function DiscussionSummary({ discussionId }: Props) {
             </CustomTooltip>
           </Flex>
 
-          <Flex align="center">
+          <Flex align="center" gap={px(theme.spacing.xs) / 2}>
             <IconMessage />
 
             <CustomTooltip label={util.formatNumber(discussion.commentCount, true)}>
