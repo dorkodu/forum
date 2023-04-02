@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
-import { ActionIcon, Anchor, AppShell, Button, Card, createStyles, Flex, Footer, Header, Indicator, MediaQuery, ScrollArea, Text, useMantineTheme } from "@mantine/core";
+import { ActionIcon, Anchor, AppShell, Button, Card, createStyles, Flex, Footer, Group, Header, Indicator, MediaQuery, ScrollArea, Text, useMantineTheme } from "@mantine/core";
 import { IconArrowLeft, IconBell, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons-react";
 import RequestLogin from "../modals/RequestLogin";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -126,7 +126,7 @@ function DefaultFooter() {
   return (
     <Footer className={classes.footer} px="md" pb="md" height={64} withBorder={false}>
       <Card sx={{ height: "100%" }} shadow="sm" p="md" radius="md" withBorder>
-        <Flex sx={{ height: "100%" }} align="center" justify="space-evenly">
+        <Group sx={{ height: "100%" }} align="center" position="center" spacing="lg" noWrap>
 
           <ActionIcon
             color={location.pathname === "/home" ? "green" : "dark"}
@@ -175,7 +175,7 @@ function DefaultFooter() {
             </>
           }
 
-        </Flex>
+        </Group>
       </Card>
     </Footer>
   )
