@@ -1,4 +1,4 @@
-import { ActionIcon, Flex, Text } from "@mantine/core";
+import { ActionIcon, Flex, px, Text, useMantineTheme } from "@mantine/core";
 import { IconArrowBigUp, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons-react";
 import { MouseEvent, useState } from "react"
 import { useNavigate } from "react-router-dom";
@@ -23,6 +23,7 @@ interface State {
 function Argument({ argumentId }: Props) {
   const [state, setState] = useState<State>({ loading: false, status: undefined });
 
+  const theme = useMantineTheme();
   const navigate = useNavigate();
   const setRequestLogin = useAppStore(state => state.setRequestLogin);
   const queryVoteArgument = useDiscussionStore(state => state.queryVoteArgument);
@@ -64,7 +65,7 @@ function Argument({ argumentId }: Props) {
 
       componentMenu={<ArgumentMenu user={user} argument={argument} />}
       componentBottom={
-        <Flex align="center">
+        <Flex align="center" gap={px(theme.spacing.xs) / 2}>
           {argument.type ? <IconPlus /> : <IconMinus />}
 
           <ActionIcon color="dark" onClick={() => voteArgument(true)}>
