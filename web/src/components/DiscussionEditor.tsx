@@ -45,7 +45,15 @@ function DiscussionEditor({ id }: Props) {
     setState(s => ({ ...s, loading: true, status: undefined }));
     const res = await useWait(() => queryCreateDiscussion(discussion.title, discussion.readme))();
     setState(s => ({ ...s, loading: false, status: res.status }));
-    if (res.status && res.id) navigate(`/discussion/${res.id}`);
+
+    // If discussion is successfully created, clear title/readme & navigate to the discussion
+    if (res.status && res.id) {
+      useAppStore.setState(s => {
+        s.options.discussionEditor.title = "";
+        s.options.discussionEditor.readme = "";
+      });
+      navigate(`/discussion/${res.id}`);
+    }
   }
 
   const editDiscussion = async () => {
