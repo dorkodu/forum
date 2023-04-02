@@ -526,6 +526,8 @@ const getUserNotifications = sage.resource(
     if (ctx.userIds === undefined) ctx.userIds = new Set();
     res.forEach((notification) => { ctx.userIds?.add(notification.currentId) });
 
+    await queryAddNotificationContent(res);
+
     return { data: res };
   }
 )
@@ -580,6 +582,47 @@ async function queryCreateNotification(
   } catch {
     return false;
   }
+}
+
+async function queryAddNotificationContent(notifications: INotification[]) {
+  const _discussions = notifications.filter((n) =>
+    n.type === notificationTypes.discussionFavourite ||
+    n.type === notificationTypes.argumentVote ||
+    n.type === notificationTypes.discussionArgument ||
+    n.type === notificationTypes.discussionComment
+  );
+  const _arguments = notifications.filter((n) => n.type === notificationTypes.argumentVote || n.type === notificationTypes.discussionArgument);
+  const _comments = notifications.filter((n) => n.type === notificationTypes.discussionComment);
+
+  const [result0, result1, result2]: any = await Promise.all([
+    _discussions.length > 0 && pg`SELECT id, substring(title FROM 1 FOR 50) AS content FROM discussions WHERE id IN ${pg(_discussions.map(a => a.parentId))}`,
+    _arguments.length > 0 && pg`SELECT id, substring(content FROM 1 FOR 50) AS content FROM discussion_arguments WHERE id IN ${pg(_arguments.map(a => a.childId || "-1"))}`,
+    _comments.length > 0 && pg`SELECT id, substring(content FROM 1 FOR 50) AS content FROM discussion_comments WHERE id IN ${pg(_comments.map(a => a.childId || "-1"))}`,
+  ])
+
+  result0 && _discussions.forEach(n => {
+    result0.forEach((r: { id: string, content: string }) => {
+      if (n.parentId !== r.id) return;
+      if (!n.content) n.content = [];
+      n.content.push(r.content);
+    })
+  });
+
+  result1 && _arguments.forEach(n => {
+    result1.forEach((r: { id: string, content: string }) => {
+      if (n.childId !== r.id) return;
+      if (!n.content) n.content = [];
+      n.content.push(r.content);
+    })
+  });
+
+  result2 && _comments.forEach(n => {
+    result2.forEach((r: { id: string, content: string }) => {
+      if (n.childId !== r.id) return;
+      if (!n.content) n.content = [];
+      n.content.push(r.content);
+    })
+  });
 }
 
 export default {

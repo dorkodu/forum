@@ -1,4 +1,5 @@
 import { INotification } from "@api/types/notification"
+import { Flex, Text } from "@mantine/core";
 import { MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -88,6 +89,11 @@ function Notification({ notification }: Props) {
       onClickCard={typeToOnClick()}
 
       componentMenu={<NotificationMenu />}
+      componentBottom={
+        <Flex direction="column" gap="xs">
+          {notification.content?.map((c, i) => <Text color="dimmed" key={i}>{c}</Text>)}
+        </Flex>
+      }
     />
   )
 }
