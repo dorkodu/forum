@@ -66,9 +66,9 @@ function Argument({ argumentId }: Props) {
       componentMenu={<ArgumentMenu user={user} argument={argument} />}
       componentBottom={
         <Flex align="center" gap={px(theme.spacing.xs) / 2}>
-          {argument.type ? <IconPlus /> : <IconMinus />}
+          {argument.type ? <IconPlus color={theme.colors.green[6]} /> : <IconMinus color={theme.colors.red[6]} />}
 
-          <ActionIcon color="dark" onClick={() => voteArgument(true)}>
+          <ActionIcon color="green" onClick={() => voteArgument(true)}>
             <IconArrowBigUp
               fill={argument.voted && (argument.votedType ? "currentColor" : "none") || "none"}
             />
@@ -78,7 +78,7 @@ function Argument({ argumentId }: Props) {
             <Text>{util.formatNumber(argument.voteCount)}</Text>
           </CustomTooltip>
 
-          <ActionIcon color="dark" onClick={() => voteArgument(false)}>
+          <ActionIcon color="red" onClick={() => voteArgument(false)}>
             <IconArrowBigDown
               fill={argument.voted && (!argument.votedType ? "currentColor" : "none") || "none"}
             />
