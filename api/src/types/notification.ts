@@ -10,6 +10,7 @@ export const iNotificationSchema = z.object({
   currentId: z.string(),
   parentId: z.string(),
   childId: z.string().nullable().transform((arg) => arg === null ? undefined : arg),
+  content: z.string().array().optional(),
   type: z.nativeEnum(notificationTypes),
   date: z.string().transform((arg) => parseInt(arg)),
 }).strict();
