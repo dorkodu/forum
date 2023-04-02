@@ -81,7 +81,7 @@ function DiscussionSummary({ discussionId }: Props) {
       componentBottom={
         <Flex direction="row" gap="xs">
           <Flex align="center" gap={px(theme.spacing.xs) / 2}>
-            <ActionIcon color="yellow" onClick={favouriteDiscussion}>
+            <ActionIcon color={discussion.favourited ? "yellow" : "dark"} onClick={favouriteDiscussion}>
               <IconStar fill={discussion.favourited ? "currentColor" : "none"} />
             </ActionIcon>
 

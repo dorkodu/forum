@@ -68,7 +68,7 @@ function Argument({ argumentId }: Props) {
         <Flex align="center" gap={px(theme.spacing.xs) / 2}>
           {argument.type ? <IconPlus color={theme.colors.green[6]} /> : <IconMinus color={theme.colors.red[6]} />}
 
-          <ActionIcon color="green" onClick={() => voteArgument(true)}>
+          <ActionIcon color={argument.votedType === true ? "green" : "dark"} onClick={() => voteArgument(true)}>
             <IconArrowBigUp
               fill={argument.voted && (argument.votedType ? "currentColor" : "none") || "none"}
             />
@@ -78,7 +78,7 @@ function Argument({ argumentId }: Props) {
             <Text>{util.formatNumber(argument.voteCount)}</Text>
           </CustomTooltip>
 
-          <ActionIcon color="red" onClick={() => voteArgument(false)}>
+          <ActionIcon color={argument.votedType === false ? "red" : "dark"} onClick={() => voteArgument(false)}>
             <IconArrowBigDown
               fill={argument.voted && (!argument.votedType ? "currentColor" : "none") || "none"}
             />
