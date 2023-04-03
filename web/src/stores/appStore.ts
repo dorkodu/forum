@@ -3,7 +3,7 @@ import { immer } from 'zustand/middleware/immer'
 import { useWait } from "../components/hooks"
 import i18n from "../lib/i18n"
 
-interface State {
+export interface AppStoreState {
   loading: {
     auth: boolean;
     locale: boolean;
@@ -60,7 +60,7 @@ interface State {
   }
 }
 
-interface Action {
+export interface AppStoreAction {
   setAuthLoading: (loading: boolean) => void;
   setLocaleLoading: (loading: boolean) => void;
 
@@ -68,7 +68,7 @@ interface Action {
   setRequestLogin: (status: boolean) => void;
 }
 
-const initialState: State = {
+const initialState: AppStoreState = {
   loading: {
     auth: true,
     locale: true,
@@ -114,7 +114,7 @@ const initialState: State = {
   },
 }
 
-export const useAppStore = create(immer<State & Action>((set, _get) => ({
+export const useAppStore = create(immer<AppStoreState & AppStoreAction>((set, _get) => ({
   ...initialState,
 
   setAuthLoading: (loading) => {
