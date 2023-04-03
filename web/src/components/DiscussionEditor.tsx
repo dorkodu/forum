@@ -172,7 +172,7 @@ function DiscussionEditor({ id }: Props) {
             </InputRequirements>
 
             <Flex>
-              <Button onClick={id ? editDiscussion : createDiscussion} color="dark" radius="md">
+              <Button onClick={id ? editDiscussion : createDiscussion} color="green" radius="md">
                 {id ? t("discussion.edit") : t("discussion.create")}
               </Button>
             </Flex>

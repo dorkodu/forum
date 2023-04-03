@@ -26,25 +26,13 @@ function Menu() {
         <Divider my={0} />
 
         {!currentUserId &&
-          <Button
-            radius="md"
-            fullWidth
-            variant="default"
-            leftIcon={<IconLogin />}
-            onClick={login}
-          >
+          <Button radius="md" fullWidth color="green" leftIcon={<IconLogin />} onClick={login}>
             {t("login")}
           </Button>
         }
 
         {currentUserId &&
-          <Button
-            radius="md"
-            fullWidth
-            variant="default"
-            leftIcon={<IconLogout />}
-            onClick={logout}
-          >
+          <Button radius="md" fullWidth variant="default" leftIcon={<IconLogout />} onClick={logout}>
             {t("logout")}
           </Button>
         }
