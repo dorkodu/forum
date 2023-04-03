@@ -97,13 +97,7 @@ function CreateComment({ discussionId }: Props) {
             </InputRequirements>
 
             <Flex>
-              <Button
-                onClick={createComment}
-                color="dark"
-                radius="md"
-              >
-                {t("comment.create")}
-              </Button>
+              <Button onClick={createComment} color="green" radius="md">{t("comment.create")}</Button>
             </Flex>
 
             {actionCommentProps.status === false &&

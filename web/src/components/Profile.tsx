@@ -114,7 +114,7 @@ function Profile({ user }: Props) {
 
         {user.id !== currentUserId &&
           <Flex justify="flex-end">
-            <Button onClick={followUser} color="dark" radius="md">
+            <Button onClick={followUser} color="green" radius="md">
               {user.follower ? t("user.unfollow") : t("user.follow")}
             </Button>
           </Flex>

@@ -97,14 +97,14 @@ function CreateArgument({ discussionId }: Props) {
             </InputRequirements>
 
             <Flex>
-              <Button onClick={createArgument} color="dark" radius="md" mr="md">{t("argument.create")}</Button>
+              <Button onClick={createArgument} color="green" radius="md" mr="md">{t("argument.create")}</Button>
 
               <SegmentedControl radius="md"
                 value={state.argumentType ? "+" : "-"}
                 onChange={(type: "+" | "-") => useAppStore.setState(s => { s.options.discussion.argumentType = type === "+" })}
                 data={[
-                  { label: "+", value: "+" },
-                  { label: "-", value: "-" },
+                  { label: <Text color="green">+</Text>, value: "+" },
+                  { label: <Text color="red">-</Text>, value: "-" },
                 ]}
               />
             </Flex>
