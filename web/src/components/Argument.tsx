@@ -1,3 +1,4 @@
+import { color } from "@/styles/css";
 import { ActionIcon, Flex, px, Text, useMantineTheme } from "@mantine/core";
 import { IconArrowBigUp, IconArrowBigDown, IconPlus, IconMinus } from "@tabler/icons-react";
 import { MouseEvent, useState } from "react"
@@ -66,7 +67,7 @@ function Argument({ argumentId }: Props) {
       componentMenu={<ArgumentMenu user={user} argument={argument} />}
       componentBottom={
         <Flex align="center" gap={px(theme.spacing.xs) / 2}>
-          {argument.type ? <IconPlus color={theme.colors.green[6]} /> : <IconMinus color={theme.colors.red[6]} />}
+          {argument.type ? <IconPlus color={color(theme, theme.colors.green)} /> : <IconMinus color={color(theme, theme.colors.red)} />}
 
           <ActionIcon color={argument.votedType === true ? "green" : "dark"} onClick={() => voteArgument(true)}>
             <IconArrowBigUp

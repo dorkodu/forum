@@ -8,6 +8,8 @@ export const wrapContent = { whiteSpace: "pre-wrap", wordBreak: "break-word" } s
 export const flexGrow = { flexGrow: 1 } satisfies CSSObject
 export const autoGrid = { display: "grid", gridTemplateColumns: "auto auto auto" } satisfies CSSObject
 
+export const color = (theme: MantineTheme, color: MantineTheme["colors"][string]) => theme.colorScheme === "light" ? color[6] : color[2];
+
 export const colorBW = (theme: MantineTheme) => ({
   color: `${theme.colorScheme === "light" ? theme.colors.dark[8] : theme.colors.dark[0]}`
 }) satisfies CSSObject
