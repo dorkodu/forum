@@ -84,9 +84,8 @@ function ProfileSummary({ user }: Props) {
 
           {user.id !== currentUserId &&
             <Flex justify="flex-end">
-              <Button onClick={followUser} color="green" radius="md">
-                {user.follower ? t("user.unfollow") : t("user.follow")}
-              </Button>
+              {!user.follower && <Button onClick={followUser} color="green" radius="md">{t("user.follow")}</Button>}
+              {user.follower && <Button onClick={followUser} variant="default" radius="md">{t("user.unfollow")}</Button>}
             </Flex>
           }
         </Flex>
