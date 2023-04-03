@@ -69,21 +69,19 @@ function Argument({ argumentId }: Props) {
         <Flex align="center" gap={px(theme.spacing.xs) / 2}>
           {argument.type ? <IconPlus color={color(theme, theme.colors.green)} /> : <IconMinus color={color(theme, theme.colors.red)} />}
 
-          <ActionIcon color={argument.votedType === true ? "green" : "dark"} onClick={() => voteArgument(true)}>
-            <IconArrowBigUp
-              fill={argument.voted && (argument.votedType ? "currentColor" : "none") || "none"}
-            />
-          </ActionIcon>
+          <Flex direction="row" align="center">
+            <ActionIcon color={argument.votedType === true ? "green" : "dark"} onClick={() => voteArgument(true)}>
+              <IconArrowBigUp fill={argument.voted && (argument.votedType ? "currentColor" : "none") || "none"} />
+            </ActionIcon>
 
-          <CustomTooltip label={util.formatNumber(argument.voteCount, true)}>
-            <Text>{util.formatNumber(argument.voteCount)}</Text>
-          </CustomTooltip>
+            <CustomTooltip label={util.formatNumber(argument.voteCount, true)}>
+              <Text px={px(theme.spacing.xs) / 2}>{util.formatNumber(argument.voteCount)}</Text>
+            </CustomTooltip>
 
-          <ActionIcon color={argument.votedType === false ? "red" : "dark"} onClick={() => voteArgument(false)}>
-            <IconArrowBigDown
-              fill={argument.voted && (!argument.votedType ? "currentColor" : "none") || "none"}
-            />
-          </ActionIcon>
+            <ActionIcon color={argument.votedType === false ? "red" : "dark"} onClick={() => voteArgument(false)}>
+              <IconArrowBigDown fill={argument.voted && (!argument.votedType ? "currentColor" : "none") || "none"} />
+            </ActionIcon>
+          </Flex>
         </Flex>
       }
     />

@@ -79,30 +79,30 @@ function DiscussionSummary({ discussionId }: Props) {
 
       componentMenu={<DiscussionMenu user={user} discussion={discussion} />}
       componentBottom={
-        <Flex direction="row" gap="xs">
-          <Flex align="center" gap={px(theme.spacing.xs) / 2}>
+        <Flex direction="row" gap={px(theme.spacing.xs) / 2}>
+          <Flex align="center">
             <ActionIcon color={discussion.favourited ? "yellow" : "dark"} onClick={favouriteDiscussion}>
               <IconStar fill={discussion.favourited ? "currentColor" : "none"} />
             </ActionIcon>
 
             <CustomTooltip label={util.formatNumber(discussion.favouriteCount, true)}>
-              <Text>{util.formatNumber(discussion.favouriteCount)}</Text>
+              <Text px={px(theme.spacing.xs) / 2}>{util.formatNumber(discussion.favouriteCount)}</Text>
             </CustomTooltip>
           </Flex>
 
-          <Flex align="center" gap={px(theme.spacing.xs) / 2}>
+          <Flex align="center">
             <IconMessages />
 
             <CustomTooltip label={util.formatNumber(discussion.argumentCount, true)}>
-              <Text>{util.formatNumber(discussion.argumentCount)}</Text>
+              <Text px={px(theme.spacing.xs) / 2}>{util.formatNumber(discussion.argumentCount)}</Text>
             </CustomTooltip>
           </Flex>
 
-          <Flex align="center" gap={px(theme.spacing.xs) / 2}>
+          <Flex align="center">
             <IconMessage />
 
             <CustomTooltip label={util.formatNumber(discussion.commentCount, true)}>
-              <Text>{util.formatNumber(discussion.commentCount)}</Text>
+              <Text px={px(theme.spacing.xs) / 2}>{util.formatNumber(discussion.commentCount)}</Text>
             </CustomTooltip>
           </Flex>
         </Flex>

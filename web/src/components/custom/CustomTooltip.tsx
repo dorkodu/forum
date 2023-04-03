@@ -2,7 +2,7 @@ import { Tooltip } from "@mantine/core";
 import React from "react"
 
 interface Props {
-  label: string;
+  label: React.ReactNode;
   children: React.ReactNode;
 }
 
