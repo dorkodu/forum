@@ -431,7 +431,7 @@ const createArgument = sage.resource(
     });
 
     if (!result) return { error: ErrorCode.Default };
-    return { data: { ...result, voted: false, votedType: true } };
+    return { data: { ...result, voted: false, votedType: null } };
   }
 )
 
