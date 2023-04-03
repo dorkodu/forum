@@ -63,7 +63,7 @@ export default function DefaultLayout() {
         footer={<DefaultFooter />}
         padding={0}
       >
-        <Flex direction="row">
+        <Flex direction="row" style={{ height: "100%" }}>
           <DefaultNavbar />
           {/* Remove padding-bottom created by mantine footer on the desktop layout */}
           <Flex direction="column" style={{ flexGrow: 1, marginBottom: matches ? 0 : "-64px" }}><Outlet /></Flex>
