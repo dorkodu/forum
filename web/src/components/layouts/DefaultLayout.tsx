@@ -3,13 +3,14 @@ import { useUserStore } from "@/stores/userStore";
 import { ActionIcon, Anchor, AppShell, Button, Card, createStyles, Flex, Footer, Group, Header, Indicator, MediaQuery, ScrollArea, Text, useMantineTheme } from "@mantine/core";
 import { IconArrowLeft, IconBell, IconHome, IconMenu2, IconPencilPlus, IconSearch, IconUser } from "@tabler/icons-react";
 import RequestLogin from "../modals/RequestLogin";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import ForumBrandLight from "@/assets/forum_brand-light.svg";
 import ForumBrandDark from "@/assets/forum_brand-dark.svg";
 import DorkoduLogo from "@/assets/dorkodu_logo.svg";
 import { clickable } from "@/styles/css";
 import { useMediaQuery } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
+import { AppStoreState, useAppStore } from "@/stores/appStore";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -80,7 +81,7 @@ function DefaultHeader() {
   const { classes } = useStyles();
   const theme = useMantineTheme();
   const navigate = useNavigate();
-  const location = useLocation();
+  const route = useAppStore(state => state.route);
 
   return (
     <Header className={classes.header} px="md" pt="md" height={64} withBorder={false}>
@@ -89,7 +90,7 @@ function DefaultHeader() {
           <ActionIcon
             color="dark"
             onClick={() => navigate(-1)}
-            sx={location.pathname === "/home" ? { visibility: "hidden" } : undefined}>
+            sx={route === "home" ? { visibility: "hidden" } : undefined}>
             <IconArrowLeft />
           </ActionIcon>
 
@@ -103,7 +104,7 @@ function DefaultHeader() {
           />
 
           <ActionIcon
-            color={location.pathname === "/menu" ? "green" : "dark"}
+            color={route === "menu" ? "green" : "dark"}
             onClick={() => navigate("/menu")}
           >
             <IconMenu2 />
@@ -117,7 +118,7 @@ function DefaultHeader() {
 function DefaultFooter() {
   const { classes } = useStyles();
   const navigate = useNavigate();
-  const location = useLocation();
+  const route = useAppStore(state => state.route);
 
   const authorized = useAuthStore(state => state.userId);
   const currentUserId = useAuthStore(state => state.userId);
@@ -129,14 +130,14 @@ function DefaultFooter() {
         <Group sx={{ height: "100%" }} align="center" position="center" spacing="lg" noWrap>
 
           <ActionIcon
-            color={location.pathname === "/home" ? "green" : "dark"}
+            color={route === "home" ? "green" : "dark"}
             onClick={() => navigate("/home")}
           >
             <IconHome />
           </ActionIcon>
 
           <ActionIcon
-            color={location.pathname === "/search" ? "green" : "dark"}
+            color={route === "search" ? "green" : "dark"}
             onClick={() => navigate("/search")}
           >
             <IconSearch />
@@ -145,7 +146,7 @@ function DefaultFooter() {
           {authorized &&
             <>
               <ActionIcon
-                color={location.pathname === `/profile/${currentUser?.username}` ? "green" : "dark"}
+                color={route === "profile" ? "green" : "dark"}
                 onClick={() => navigate(`/profile/${currentUser?.username}`)}
               >
                 <IconUser />
@@ -159,7 +160,7 @@ function DefaultFooter() {
               }
               <Indicator color="red" disabled={!currentUser?.hasNotification} zIndex={101} size={8}>
                 <ActionIcon
-                  color={location.pathname === "/notifications" ? "green" : "dark"}
+                  color={route === "notifications" ? "green" : "dark"}
                   onClick={() => navigate("/notifications")}
                 >
                   <IconBell />
@@ -167,7 +168,7 @@ function DefaultFooter() {
               </Indicator>
 
               <ActionIcon
-                color={location.pathname.startsWith("/discussion-editor") ? "green" : "dark"}
+                color={route === "discussion-editor" ? "green" : "dark"}
                 onClick={() => navigate("/discussion-editor")}
               >
                 <IconPencilPlus />
@@ -196,13 +197,13 @@ function DefaultNavbar() {
           {/* TODO: Magic number alert! 96px = header (64px) + padding y (16px * 2) */}
           <ScrollArea sx={{ height: "calc(100vh - 96px)" }}>
             <Flex direction="column" gap="xs">
-              <ButtonNavbar icon={<IconHome />} path={"/home"} name={t("routes.home")} />
-              <ButtonNavbar icon={<IconSearch />} path={"/search"} name={t("routes.search")} />
+              <ButtonNavbar icon={<IconHome />} name={t("routes.home")} path={"/home"} pathName="home" />
+              <ButtonNavbar icon={<IconSearch />} name={t("routes.search")} path={"/search"} pathName="search" />
               {authorized &&
                 <>
-                  <ButtonNavbar icon={<IconUser />} path={`/profile/${currentUser?.username}`} name={t("routes.profile")} />
-                  <ButtonNavbar icon={<IconBell />} path={"/notifications"} name={t("routes.notifications")} data={{ notification: currentUser?.hasNotification }} />
-                  <ButtonNavbar icon={<IconPencilPlus />} path={"/discussion-editor"} name={t("routes.discussionEditor")} />
+                  <ButtonNavbar icon={<IconUser />} name={t("routes.profile")} path={`/profile/${currentUser?.username}`} pathName="profile" />
+                  <ButtonNavbar icon={<IconBell />} name={t("routes.notifications")} path={"/notifications"} pathName="notifications" data={{ notification: currentUser?.hasNotification }} />
+                  <ButtonNavbar icon={<IconPencilPlus />} name={t("routes.discussionEditor")} path={"/discussion-editor"} pathName="discussion-editor" />
                 </>
               }
             </Flex>
@@ -251,20 +252,21 @@ function DefaultAside() {
 
 interface ButtonProps {
   icon: React.ReactNode;
-  path: string;
   name: string;
+  path: string;
+  pathName: AppStoreState["route"];
   data?: { notification?: boolean };
 }
 
-function ButtonNavbar({ icon, path, name, data }: ButtonProps) {
+function ButtonNavbar({ icon, name, path, pathName, data }: ButtonProps) {
   return (
     <>
       <MediaQuery query="(max-width: 1080px)" styles={{ display: 'none' }}>
-        <ButtonDesktop icon={icon} name={name} path={path} data={data} />
+        <ButtonDesktop icon={icon} name={name} path={path} pathName={pathName} data={data} />
       </MediaQuery>
 
       <MediaQuery query="(max-width: 1080px)" styles={{ display: 'block !important' }}>
-        <ButtonMobile icon={icon} path={path} data={data} style={{ display: "none" }} />
+        <ButtonMobile icon={icon} path={path} pathName={pathName} data={data} style={{ display: "none" }} />
       </MediaQuery>
     </>
   )
@@ -272,22 +274,23 @@ function ButtonNavbar({ icon, path, name, data }: ButtonProps) {
 
 interface ButtonDesktopProps extends React.ComponentPropsWithoutRef<"button"> {
   icon: React.ReactNode;
-  path: string;
   name: string;
+  path: string;
+  pathName: AppStoreState["route"];
   data?: { notification?: boolean };
 }
 
-function ButtonDesktop({ icon, path, name, data, ...props }: ButtonDesktopProps) {
+function ButtonDesktop({ icon, name, path, pathName, data, ...props }: ButtonDesktopProps) {
   const theme = useMantineTheme();
   const navigate = useNavigate();
-  const location = useLocation();
+  const route = useAppStore(state => state.route);
 
   return (
     <Button
       styles={{ label: { display: "flex", gap: theme.spacing.md, flexGrow: 1 } }}
       fullWidth
       variant="subtle"
-      color={location.pathname === path ? "green" : "dark"}
+      color={route === pathName ? "green" : "dark"}
       onClick={() => navigate(path)}
       {...props}
     >
@@ -302,18 +305,19 @@ function ButtonDesktop({ icon, path, name, data, ...props }: ButtonDesktopProps)
 interface ButtonMobileProps extends React.ComponentPropsWithoutRef<"button"> {
   icon: React.ReactNode;
   path: string;
+  pathName: AppStoreState["route"];
   data?: { notification?: boolean };
 }
 
-function ButtonMobile({ icon, path, data, style, ...props }: ButtonMobileProps) {
+function ButtonMobile({ icon, path, pathName, data, style, ...props }: ButtonMobileProps) {
   const theme = useMantineTheme();
   const navigate = useNavigate();
-  const location = useLocation();
+  const route = useAppStore(state => state.route);
 
   return (
     <ActionIcon
       size={24}
-      color={location.pathname === path ? "green" : "dark"}
+      color={route === pathName ? "green" : "dark"}
       onClick={() => navigate(path)}
       style={{ marginLeft: theme.spacing.md, width: "32px", height: "32px", ...style }}
       {...props}
