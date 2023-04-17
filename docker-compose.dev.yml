@@ -61,6 +61,7 @@ services:
     restart: always
     networks:
       - app
+      - nginx-proxy
 
   forum_keydb:
     image: eqalpha/keydb:x86_64_v6.3.1
